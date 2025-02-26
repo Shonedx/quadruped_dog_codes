@@ -1,4 +1,23 @@
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\Ceil5\ARM\ARMCC\Bin'
 Build target 'CAN'
-"..\OBJ\CAN.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+.\ges_cal\GaitParams.h(34): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\ges_cal\Jump.h(12): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\ges_cal\Jump.h(12): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\ges_cal\GaitParams.h(34): warning:  #1-D: last line of file ends without a newline
+  #endif
+main.c(30): warning:  #223-D: function "TIM5_Init" declared implicitly
+  	TIM5_Init(5000-1,84-1);				//5ms  
+main.c(31): warning:  #223-D: function "TIM4_Init" declared implicitly
+  	TIM4_Init(65535,0);					//0.8ms
+main.c(37): warning:  #223-D: function "IMU_PID_Init" declared implicitly
+  	IMU_PID_Init();
+main.c: 7 warnings, 0 errors
+linking...
+Program Size: Code=39496 RO-data=872 RW-data=3428 ZI-data=5492  
+FromELF: creating hex file...
+"..\OBJ\CAN.axf" - 0 Error(s), 7 Warning(s).
 Build Time Elapsed:  00:00:01
