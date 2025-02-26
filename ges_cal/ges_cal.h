@@ -49,7 +49,7 @@ void Angle_Setting_Cycloid(int Legid);  // Moveleg 里被调用
 
 void Moveleg(void);
 
-void AllLeg_Set_angle(int target_angle, int offset);
+void AllLeg_Set_angle(int target_angle, int offset); //设置电机角度
 
 void Motor_Auto_Run(void); //驱动电机
 

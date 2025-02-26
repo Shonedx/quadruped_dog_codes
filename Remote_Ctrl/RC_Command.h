@@ -100,12 +100,12 @@ void Ctrl_Cmd(void);
 
 typedef enum 
 {
-	Initial_Ctrl,
-	Start_Ctrl,
-	Main_Ctrl,
-	Stop_Ctrl,
-	Jump_Ctrl,
-}Ctrl_State; //控制类状态机
+	Initial_Ctrl, //初始状态，此时设置了电机零位置
+	Start_Ctrl, //执行初始化
+	Main_Ctrl, //主控制模块，此时机器狗默认状态是原地踏步
+	Stop_Ctrl, //停止状态，相当于主控制模块的默认状态从原地踏步改成了正常站立
+	Jump_Ctrl, //跳跃控制模块
+}Ctrl_State; //控制模式状态机
 
 extern Ctrl_State ctrl_state;
 extern int if_idle; 

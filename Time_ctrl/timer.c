@@ -106,9 +106,9 @@ void TIM5_IRQHandler(void) //状态机
 	}
 		if(start==1)
 		{
-			Motor_Auto_Run();
+			Motor_Auto_Run(); //运行电机
 		}
-		feed_dog();
+		feed_dog(); //喂狗
 	}
 	TIM_ClearITPendingBit(TIM5,TIM_IT_Update); //清除中断标志位
 }

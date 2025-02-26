@@ -7,9 +7,9 @@
 
 
 
-extern 	int start;
-extern int feed;
-extern  int reset;	
+extern 	int start; //初始化标识符
+extern int feed; //喂狗
+extern  int reset;	//重置标识符
 
 extern	int left_x,left_y,right_x,right_y; //RemoteControl中声明的
 extern 	int left_push_stick, right_push_stick; //左上，右上推杆
