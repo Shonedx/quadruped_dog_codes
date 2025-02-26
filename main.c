@@ -40,6 +40,7 @@ int main()
 
 	while(1) //主程序
 	{
+		//执行远程控制逻辑
 		Remote_Cmd();
 	}
 }
