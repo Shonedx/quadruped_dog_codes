@@ -1,0 +1,121 @@
+#include "GaitParams.h"
+State currentstate;
+
+GaitParams gaitparams[][4] = {
+  //	Up_Amp Down_Amp stanceheight steplength freq swingpercent gaitoffset i x_offset
+  //	ÉÏÉý·ù¶È ÏÂ½µ¸ß¶È Õ¾Á¢¸ß¶È ÂõÍÈ²½³¤ ÆµÂÊ °Ú¶¯ÆÚÕ¼±È ¸÷ÍÈµÄÏàÎ» ÍÈÐòºÅ x³õÊ¼Öµ
+{//Ô­µØÌ¤²½£¨´ý»ú£©×´Ì¬ 0
+	{ 3.5, 0.2, StandHeight, 0, Freq*1.0, 0.25, 0, 0,X_OFFSET},
+	{ 3.5, 0.2, StandHeight, 0, Freq*1.0, 0.25, 0.5, 1,X_OFFSET},
+	{ 3.5, 0.2, StandHeight, 0, Freq*1.0, 0.25, 0.5, 2,X_OFFSET},
+	{ 3.5, 0.2, StandHeight, 0, Freq*1.0, 0.25, 0, 3,X_OFFSET},
+},
+  {//Ç°½ø×´Ì¬ 1
+	{ 4.0, 0.2, StandHeight, 5, Freq, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, 5, Freq, 0.25, 0.5, 1,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, 5, Freq, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, 5, Freq, 0.25, 0, 3,X_OFFSET},
+},
+  {//ºóÍË×´Ì¬ 2
+	{ 4.0, 0.2, StandHeight, -5, Freq, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.2, StandHeight,-5, Freq, 0.25, 0.5, 1,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, -5, Freq, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, -5, Freq, 0.25, 0, 3,X_OFFSET},
+},
+{//×ó×ªÍä×´Ì¬ 3
+	{ 4.0, 0.2, StandHeight, -5, Freq*1.2, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, 5, Freq*1.2, 0.25, 0.5, 1,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, -5, Freq*1.2, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, 5, Freq*1.2, 0.25, 0, 3,X_OFFSET},
+},
+{//ÓÒ×ªÍä×´Ì¬ 4
+	{ 4.0, 0.2, StandHeight,5, Freq*1.2, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, -5,Freq*1.2, 0.25, 0.5, 1,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, 5, Freq*1.2, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.2, StandHeight, -5, Freq*1.2, 0.25, 0, 3,X_OFFSET},
+},
+
+{//Í£Ö¹ 5
+	{ 0, 0, StandHeight, 0, 0, 0, 0, 0,X_OFFSET},
+	{ 0, 0, StandHeight, 0, 0, 0, 0, 1,X_OFFSET},
+	{ 0, 0, StandHeight, 0, 0, 0, 0, 2,X_OFFSET},
+	{ 0, 0, StandHeight, 0, 0, 0, 0, 3,X_OFFSET},
+},
+{//×óÆ½ÒÆ×´Ì¬ 6
+	{ 2, 0.2, StandHeight+2, 0, Freq, 0.25, 0.5, 0,X_OFFSET},
+	{ 2, 0.2, StandHeight-2, 0, Freq, 0.25, 0, 1,X_OFFSET},
+	{ 2, 0.2, StandHeight+2, 0, Freq ,0.25, 0.5, 2,X_OFFSET},
+	{ 2, 0.2, StandHeight-2, 0, Freq, 0.25, 0, 3,X_OFFSET},
+},
+{//ÓÒÆ½ÒÆ×´Ì¬ 7
+	{ 2, 0.2, StandHeight-2, 0, Freq, 0.25, 0.5, 0,X_OFFSET},
+	{ 2, 0.2, StandHeight+2, 0, Freq, 0.25, 0, 1,X_OFFSET},
+	{ 2, 0.2, StandHeight-2, 0, Freq, 0.25, 0.5, 2,X_OFFSET},
+	{ 2, 0.2, StandHeight+2, 0, Freq, 0.25, 0, 3,X_OFFSET},
+},
+
+////crouch
+
+{//Ç°½ø×´Ì¬ 1+7
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0, 0,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0.5, 1,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0.5, 2,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0, 3,X_OFFSET},
+},
+  {//ºóÍË×´Ì¬ 2+7
+	{ 2, 0.1, CrouchHeight, -4, Freq, 0.25, 0, 0,X_OFFSET},
+	{ 2, 0.1, CrouchHeight,-4, Freq, 0.25, 0.5, 1,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, -4, Freq, 0.25, 0.5, 2,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, -4, Freq, 0.25, 0, 3,X_OFFSET},
+},
+{//×ó×ªÍä×´Ì¬ 3+7
+	{ 2, 0.1, CrouchHeight, -4, Freq, 0.25, 0, 0,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0.5, 1,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, -4, Freq, 0.25, 0.5, 2,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0, 3,X_OFFSET},
+},
+{//ÓÒ×ªÍä×´Ì¬ 4+7
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0, 0,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, -4, Freq, 0.25, 0.5, 1,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, 4, Freq, 0.25, 0.5, 2,X_OFFSET},
+	{ 2, 0.1, CrouchHeight, -4, Freq, 0.25, 0, 3,X_OFFSET},
+},
+{//Í£Ö¹×´Ì¬ 5+7
+	{ 0, 0, CrouchHeight, 0, 0, 0, 0, 0,X_OFFSET},
+	{ 0, 0, CrouchHeight, 0, 0, 0, 0, 1,X_OFFSET},
+	{ 0, 0, CrouchHeight, 0, 0, 0, 0, 2,X_OFFSET},
+	{ 0, 0, CrouchHeight, 0, 0, 0, 0, 3,X_OFFSET},
+},
+
+//Higher
+{//Ç°½ø×´Ì¬ 1+12
+	{ 4.0, 0.1, HeigherHeight, 8, Freq*0.8, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, 8, Freq*0.8, 0.25, 0.5, 1,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight,8, Freq*0.8, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, 8, Freq*0.8, 0.25, 0, 3,X_OFFSET},
+},
+  {//ºóÍË×´Ì¬ 2+12
+	{ 4.0, 0.1, HeigherHeight, -8, Freq*0.8, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight,-8, Freq*0.8, 0.25, 0.5, 1,X_OFFSET},
+	{4.0, 0.1, HeigherHeight, -8, Freq*0.8, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, -8, Freq*0.8, 0.25, 0, 3,X_OFFSET},
+},
+{//×ó×ªÍä×´Ì¬ 3+12
+	{ 4.0, 0.1, HeigherHeight, -8, Freq*0.8, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, 8, Freq*0.8, 0.25, 0.5, 1,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, -8, Freq*0.8, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, 8, Freq*0.8, 0.25, 0, 3,X_OFFSET},
+},
+{//ÓÒ×ªÍä×´Ì¬ 4+12
+	{ 4.0, 0.1, HeigherHeight, 8, Freq*0.8, 0.25, 0, 0,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, -8, Freq*0.8, 0.25, 0.5, 1,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, 8, Freq*0.8, 0.25, 0.5, 2,X_OFFSET},
+	{ 4.0, 0.1, HeigherHeight, -8, Freq*0.8, 0.25, 0, 3,X_OFFSET},
+},
+{//Í£Ö¹×´Ì¬ 5+12
+	{ 0, 0, HeigherHeight, 0, 0, 0, 0, 0,X_OFFSET},
+	{ 0, 0, HeigherHeight, 0, 0, 0, 0, 1,X_OFFSET},
+	{ 0, 0, HeigherHeight, 0, 0, 0, 0, 2,X_OFFSET},
+	{ 0, 0, HeigherHeight, 0, 0, 0, 0, 3,X_OFFSET},
+},
+ };
