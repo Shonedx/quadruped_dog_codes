@@ -280,25 +280,17 @@ void CAN1_RX0_IRQHandler(void)
 		switch (CAN1_Receive_Msg(canbuf_))
 		{
 			case 1:
-			{
 				Set_Datas_From_Motor(&motors.ID[0],canbuf_);
 				break;
-			}
 			case 2:
-			{
 				Set_Datas_From_Motor(&motors.ID[1],canbuf_);
 				break;
-			}
 			case 3:
-			{
 				Set_Datas_From_Motor(&motors.ID[2],canbuf_);
 				break;
-			}
 			case 4:
-			{
 				Set_Datas_From_Motor(&motors.ID[3],canbuf_);
-				break;
-			}		
+				break;	
 			default:
 				break;
 		}			
@@ -320,25 +312,17 @@ void CAN2_RX0_IRQHandler(void)
 		switch (CAN2_Receive_Msg(canbuf2_))
 		{
 			case 1:
-			{
 				Set_Datas_From_Motor(&motors.ID[4],canbuf2_);
 				break;
-			}
 			case 2:
-			{
 				Set_Datas_From_Motor(&motors.ID[5],canbuf2_);
 				break;
-			}
 			case 3:
-			{
 				Set_Datas_From_Motor(&motors.ID[6],canbuf2_);
 				break;
-			}
 			case 4:
-			{
 				Set_Datas_From_Motor(&motors.ID[7],canbuf2_);
 				break;
-			}
 			default:
 				break;
 		}			

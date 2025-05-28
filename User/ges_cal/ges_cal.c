@@ -33,6 +33,7 @@
 	Leg legs[4];
 //步态相关	
  /******************************************************************************************************/
+
 void SinTrajectory(double t, GaitParams gaitparams)
 {
 	double x, z, gp;
@@ -54,9 +55,33 @@ void SinTrajectory(double t, GaitParams gaitparams)
 	legs[gaitparams.i].z = z;
 } 
 
- void Gait(void)
+
+void Stand_Init(void)
 {
-	double t = 10.0*HAL_GetTick()/1000.0f;
+	
+	Set_Max_Output_SL(10000);
+	Set_Max_Output_PL(10000);
+	ChangeTheGainOfPID_KP_KI_KD(1,0,0.5,1,0,0);
+
+	motor_final_output_angles.ID[0] =	-0.0f * Gaito;  //这个函数把逆解函数逆解出的角度给到最最终要送至PID控制器进行计算的数组
+	motor_final_output_angles.ID[1] =	-180.0f * Gaito;
+		
+	motor_final_output_angles.ID[2] =	180.0f * Gaito;  
+	motor_final_output_angles.ID[3] =	-0.0f * Gaito;
+	
+	motor_final_output_angles.ID[4] =	-180.0f * Gaito;
+	motor_final_output_angles.ID[5] =	-0.0f * Gaito;
+	
+	motor_final_output_angles.ID[6] =	-180 * Gaito;  
+	motor_final_output_angles.ID[7] =	-0.0f * Gaito;
+	
+	Motor_Auto_Run();
+	
+	
+}
+ void Gait(double t)
+{
+	
 	
 	switch (currentstate)
 	{
@@ -112,6 +137,7 @@ void SinTrajectory(double t, GaitParams gaitparams)
 			Set_Max_Output_SL(8000);
 			Set_Max_Output_PL(8000);
 			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+			now_time=0;
 			for (int i = 0; i < 4; i++)
 			{
 				SinTrajectory(t, gaitparams[5+crouch_flag+higher_flag][i]);
@@ -144,7 +170,6 @@ void SinTrajectory(double t, GaitParams gaitparams)
 				if(ctrl_state==Jump_Ctrl_1||ctrl_state==Jump_Ctrl_2)
 				{
 					
-					
 					if(Jump_OK==1)
 					{
 						if(Jump_Start==1)
@@ -156,13 +181,14 @@ void SinTrajectory(double t, GaitParams gaitparams)
 					}
 					else
 					{
+						Set_Max_Output_SL(8000);
+						Set_Max_Output_PL(8000);
 						// 转换到逆运动学的角度
 						CartesianToTheta_Cycloid_All_Legs();
 						// 控制腿部运动
 						Moveleg();
 						Motor_Auto_Run();
-						Set_Max_Output_SL(8000);
-						Set_Max_Output_PL(8000);
+						
 					}
 				}	
 				
@@ -236,12 +262,3 @@ void Moveleg(void)
     Angle_Setting_Cycloid(2);  // 设置第 2 条腿的角度
     Angle_Setting_Cycloid(3);  // 设置第 3 条腿的角度
 }
-
-
-
-
-
-
-
-
-

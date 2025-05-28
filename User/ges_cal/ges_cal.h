@@ -17,10 +17,10 @@
 
 /***/
 #define X_OFFSET 0.0f
-#define Freq 1.0f
+#define Freq 1.5f
 #define StepLenthMin 2.0f
 #define StandHeight 10.0f //max 19.5 min 5
-#define CrouchHeight 6.5f
+#define CrouchHeight 7.0f
 #define HeigherHeight 13.0f
 #define LegLenthMax 19.5.0f 
 #define LegLenthMin 5.0f 
@@ -39,8 +39,8 @@ typedef struct
 
 extern Leg legs[4];
 extern  int Jump_State;
-//extern double now_time;
- void Gait(void);
+
+void Gait(double t);
 
 void CartesianToTheta_Cycloid(Leg *leg);
 
@@ -55,5 +55,7 @@ void AllLeg_Set_angle(int target_angle, int offset);
 void Motor_Auto_Run(void); //Çý¶¯µç»ú
 
 void Motor_Set_Current(void);
+
+void Stand_Init(void);
 
 #endif

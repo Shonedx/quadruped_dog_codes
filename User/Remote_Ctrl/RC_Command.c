@@ -106,7 +106,7 @@ void Ctrl_Cmd(void) //切换机器狗运动状态的控制器
 	
 		currentstate=Back;
 	}
-	else if (right_y >= 230 && abs(right_x) <= 330  && abs(left_y) <= 330 && abs(left_x) <= 330 ) 
+	else if (right_y >= 230 && abs(right_x) <= 330  && abs(left_y) <= 330 && abs(left_x) <= 330 && (ctrl_state==Jump_Ctrl_1||ctrl_state==Jump_Ctrl_2)) 
 	{	
 		currentstate=Jump;
 	}

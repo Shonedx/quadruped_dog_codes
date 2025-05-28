@@ -3,10 +3,11 @@
 
 #include <sys.h>	 
 
+extern double now_time;
 
-void TIM4_Init(u16 arr,u16 psc);
+void TIM4_Init(void);
 
-void TIM5_Init(u32 arr,u32 psc);
+void TIM5_Init(void);
 
 
 #endif
