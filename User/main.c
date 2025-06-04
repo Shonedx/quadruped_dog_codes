@@ -106,11 +106,11 @@ int main()
 		
 //========================主程序代码=================================
 		if(ctrl_state==Crouch_Ctrl)
-			crouch_flag=7;
+			crouch_flag=4;
 		else
 			crouch_flag=0;
 		if(ctrl_state==Higher_Ctrl)
-			higher_flag=12;
+			higher_flag=6;
 		else
 			higher_flag=0;
 		switch(ctrl_state)
@@ -120,7 +120,7 @@ int main()
 			M3508_ALL_ZERO_SET();
 			start=0;
 			if_idle=0; //踏步状态标志位，1位踏步，0为停止
-           break;
+			break;
 			
 			case Start_Ctrl://初始化机器狗
 			start=1;

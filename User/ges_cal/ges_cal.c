@@ -82,56 +82,68 @@ void Stand_Init(void)
  void Gait(double t)
 {
 	
-	
 	switch (currentstate)
 	{
-		case Idle:  // 原地踏步
+		
+		case Normal:
 			Set_Max_Output_SL(8000);
 			Set_Max_Output_PL(8000);
 			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+			Set_StepLength(gaitparams[0]);
 			for (int i=0 ; i < 4; i++)
 			{
-				SinTrajectory(t, gaitparams[0][i]);
-			}
-			break;
-		case Forward:
-			Set_Max_Output_SL(8000);
-			Set_Max_Output_PL(8000);
-			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			for (int i = 0; i < 4; i++)
-			{
-				SinTrajectory(t, gaitparams[1+crouch_flag+higher_flag][i]);
-			}
-			break;
-		case Back:
-			Set_Max_Output_SL(8000);
-			Set_Max_Output_PL(8000);
-			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			for (int i = 0; i < 4; i++)
-			{
-				SinTrajectory(t, gaitparams[2+crouch_flag+higher_flag][i]);
-			}
-			break;
-		case Turn_Left:
-			Set_Max_Output_SL(8000);
-			Set_Max_Output_PL(8000);
-			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			for (int i = 0; i < 4; i++)
-			{
-				SinTrajectory(t, gaitparams[3+crouch_flag+higher_flag][i]);
+				SinTrajectory(t, gaitparams[0+crouch_flag+higher_flag][i]);
 			}
 
 			break;
-		case Turn_Right:
-			Set_Max_Output_SL(8000);
-			Set_Max_Output_PL(8000);
-			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			for (int i = 0; i < 4; i++)
-			{
-				SinTrajectory(t, gaitparams[4+crouch_flag+higher_flag][i]);
-			}
+		
+//		case Idle:  // 原地踏步
+//			Set_Max_Output_SL(8000);
+//			Set_Max_Output_PL(8000);
+//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+//			for (int i=0 ; i < 4; i++)
+//			{
+//				SinTrajectory(t, gaitparams[0][i]);
+//			}
+//			break;
+//		case Forward:
+//			Set_Max_Output_SL(8000);
+//			Set_Max_Output_PL(8000);
+//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+//			for (int i = 0; i < 4; i++)
+//			{
+//				SinTrajectory(t, gaitparams[1+crouch_flag+higher_flag][i]);
+//			}
+//			break;
+//		case Back:
+//			Set_Max_Output_SL(8000);
+//			Set_Max_Output_PL(8000);
+//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+//			for (int i = 0; i < 4; i++)
+//			{
+//				SinTrajectory(t, gaitparams[2+crouch_flag+higher_flag][i]);
+//			}
+//			break;
+//		case Turn_Left:
+//			Set_Max_Output_SL(8000);
+//			Set_Max_Output_PL(8000);
+//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+//			for (int i = 0; i < 4; i++)
+//			{
+//				SinTrajectory(t, gaitparams[3+crouch_flag+higher_flag][i]);
+//			}
 
-			break;
+//			break;
+//		case Turn_Right:
+//			Set_Max_Output_SL(8000);
+//			Set_Max_Output_PL(8000);
+//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+//			for (int i = 0; i < 4; i++)
+//			{
+//				SinTrajectory(t, gaitparams[4+crouch_flag+higher_flag][i]);
+//			}
+
+//			break;
 	
 		case Stop:
 			Set_Max_Output_SL(8000);
@@ -140,7 +152,7 @@ void Stand_Init(void)
 			now_time=0;
 			for (int i = 0; i < 4; i++)
 			{
-				SinTrajectory(t, gaitparams[5+crouch_flag+higher_flag][i]);
+				SinTrajectory(t, gaitparams[1+crouch_flag+higher_flag][i]);
 			}
 			Jump_Start=1;
 			Jump_OK = 1;
@@ -153,7 +165,7 @@ void Stand_Init(void)
 				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 				for (int i = 0; i < 4; i++)
 				{
-					SinTrajectory(t, gaitparams[6][i]);
+					SinTrajectory(t, gaitparams[2][i]);
 				}
 				break;
 			
@@ -163,7 +175,7 @@ void Stand_Init(void)
 				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 				for (int i = 0; i < 4; i++)
 				{
-					SinTrajectory(t, gaitparams[7][i]);
+					SinTrajectory(t, gaitparams[3][i]);
 				}
 				break;
 			case Jump:
@@ -174,7 +186,7 @@ void Stand_Init(void)
 					{
 						if(Jump_Start==1)
 						{
-							Start_Jump();
+							Reset_jump_time(); //重置跳跃时间
 							Jump_Start=0;
 						}
 						Execute_Jump();

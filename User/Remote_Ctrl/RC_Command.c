@@ -71,42 +71,46 @@ void Remote_Cmd(void)
 
 void Ctrl_Cmd(void) //切换机器狗运动状态的控制器 
 {
-		//前进
-	if (left_y >= 230 && abs(left_x) <= 330 && abs(right_y) <= 330 && abs(right_x) <= 330  ) 
-	{	
-		currentstate=Forward;
+//		//前进
+//	if (left_y >= 230 && abs(left_x) <= 330 && abs(right_y) <= 330 && abs(right_x) <= 330  ) 
+//	{	
+//		currentstate=Forward;
+//	}
+	if((right_y)<=-100&&abs(right_x)<=100)
+	{
+		currentstate=Normal;
 	}
 	// 原地左平移
-	else if (right_x <= -100 && abs(right_y) <= 230  && abs(left_y) <= 330 && abs(left_x) <= 330 )
+	else if (right_x <= -100 && abs(right_y) <= 100  && abs(left_y) <= 100 && abs(left_x) <= 100 )
 	{
 		
 		currentstate=Translate_Left;
 	}
 	// 原地右平移
-	else if (right_x >= 100  && abs(right_y) <= 230 && abs(left_y) <= 330 && abs(left_x) <= 330) 
+	else if (right_x >= 100  && abs(right_y) <= 100 && abs(left_y) <= 100 && abs(left_x) <= 100) 
 	{
 		
 		currentstate=Translate_Right;
 	}
-	// 原地左转
-	else if (left_x <= -100 && abs(left_y) <= 230  && abs(right_y) <= 330 && abs(right_x) <= 330 ) 
-	{
-		
-		currentstate=Turn_Left;
-	}
-	// 原地右转
-	else if (left_x >= 100  && abs(left_y) <= 230  && abs(right_y) <= 330 && abs(right_x) <= 330) 
-	{
-		
-		currentstate=Turn_Right;
-	}
-	// 后退
-	else if (left_y <= -230 && abs(left_x) <= 330 && abs(right_y) <= 330 && abs(right_x) <= 330 ) 
-	{	
-	
-		currentstate=Back;
-	}
-	else if (right_y >= 230 && abs(right_x) <= 330  && abs(left_y) <= 330 && abs(left_x) <= 330 && (ctrl_state==Jump_Ctrl_1||ctrl_state==Jump_Ctrl_2)) 
+//	// 原地左转
+//	else if (left_x <= -100 && abs(left_y) <= 230  && abs(right_y) <= 330 && abs(right_x) <= 330 ) 
+//	{
+//		
+//		currentstate=Turn_Left;
+//	}
+//	// 原地右转
+//	else if (left_x >= 100  && abs(left_y) <= 230  && abs(right_y) <= 330 && abs(right_x) <= 330) 
+//	{
+//		
+//		currentstate=Turn_Right;
+//	}
+//	// 后退
+//	else if (left_y <= -230 && abs(left_x) <= 330 && abs(right_y) <= 330 && abs(right_x) <= 330 ) 
+//	{	
+//	
+//		currentstate=Back;
+//	}
+	else if (right_y >= 100 && abs(right_x) <= 100  && abs(left_y) <= 100 && abs(left_x) <= 100 && (ctrl_state==Jump_Ctrl_1||ctrl_state==Jump_Ctrl_2)) 
 	{	
 		currentstate=Jump;
 	}
@@ -114,14 +118,14 @@ void Ctrl_Cmd(void) //切换机器狗运动状态的控制器
 // 重置 
 	else if 
 		(
-			abs(left_y) <= 330 
-			&& abs(left_x) <= 330
-			&&abs(right_x) <= 330
-			&&abs(right_y) <= 330 
+			abs(left_y) <= 100 
+			&& abs(left_x) <= 100
+			&&abs(right_x) <= 100
+			&&abs(right_y) <= 100 
 		) 
 	{
 		if(if_idle==1)
-		currentstate=Idle;
+		currentstate=Normal;
 		else if(if_idle==0)
 		currentstate=Stop;
 		TIM_Cmd(TIM4, ENABLE);

@@ -3,17 +3,27 @@
 #include "Allheaderfile.h"
 typedef enum 
 {
-	Idle=0,
-	Forward, 
-	Back,
-	Turn_Left,
-	Turn_Right,
+//	Idle=0,
+//	Forward, 
+//	Back,
+//	Turn_Left,
+//	Turn_Right,
+	Normal,
 	Translate_Left,
 	Translate_Right,
 	Jump,
 	Stop,
 }State; //机器狗运行状态
 
+//typedef enum 
+//{
+//	Idle=0,
+//	Normal,
+//	Translate_Left,
+//	Translate_Right,
+//	Jump,
+//	Stop,
+//}State; //机器狗运行状态
 
 typedef struct
 {
@@ -31,4 +41,5 @@ typedef struct
 extern GaitParams  gaitparams[][4];
 extern State currentstate;
 
+void Set_StepLength(GaitParams *gaitparams);
 #endif

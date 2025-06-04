@@ -220,3 +220,67 @@ void CopeSerial3Data(unsigned char ucData)
 		ucRxCnt = 0; // 清空缓存区
 	}
 }
+#define UART4_TX_AF_GPIO_PIN GPIO_Pin_0
+#define UART4_RX_AF_GPIO_PIN GPIO_Pin_1
+/**
+  * @brief  配置 UART4 (PA0 TX, PA1 RX)
+  * @param  无
+  * @retval 无
+  */
+void UART4_Init(void) //用于串口打印数据调试
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    USART_InitTypeDef USART_InitStructure; // UART 也是使用 USART_InitTypeDef 结构体
+
+    // 1. 使能 UART4 和相关 GPIO 端口的时钟
+    // UART4 挂载在 APB1 总线上
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
+    // GPIOA 挂载在 AHB1 总线上
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+
+    // 2. 配置 UART4 的 GPIO 引脚
+    // 配置 PA0 为 UART4_TX (复用推挽输出)
+    GPIO_InitStructure.GPIO_Pin = UART4_TX_AF_GPIO_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;          // 复用功能模式
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;        // 推挽输出
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;          // 上拉
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;     // 50MHz 速度
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    // 配置 PA1 为 UART4_RX (复用输入)
+    GPIO_InitStructure.GPIO_Pin = UART4_RX_AF_GPIO_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;          // 复用功能模式
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;      // 无上下拉 (或 GPIO_PuPd_UP)
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    // 3. 将 GPIO 引脚连接到 UART4 的复用功能
+    // STM32F4系列需要这一步来明确复用功能映射
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_UART4); // PA0 连接到 UART4_TX
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_UART4); // PA1 连接到 UART4_RX
+
+    // 4. 配置 UART4 参数
+    USART_InitStructure.USART_BaudRate = 115200;                // 波特率
+    USART_InitStructure.USART_WordLength = USART_WordLength_8b; // 8位数据位
+    USART_InitStructure.USART_StopBits = USART_StopBits_1;      // 1位停止位
+    USART_InitStructure.USART_Parity = USART_Parity_No;         // 无校验位
+    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx; // 使能接收和发送
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // 无硬件流控制
+    USART_Init(UART4, &USART_InitStructure); // 注意这里是 UART4
+
+    // 5. 使能 UART4 外设
+    USART_Cmd(UART4, ENABLE); // 注意这里是 UART4
+}
+/**
+  * @brief  UART4 中断服务程序
+  * @param  无
+  * @retval 无
+  */
+void UART4_IRQHandler(void)
+{
+    // 检查是否是接收非空中断
+    if (USART_GetITStatus(UART4, USART_IT_RXNE) != RESET)
+    {
+      
+        USART_ClearITPendingBit(UART4, USART_IT_RXNE); // 清除中断挂起位 (某些中断类型需要手动清除)
+    }
+}
