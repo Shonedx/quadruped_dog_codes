@@ -1,4 +1,6 @@
 #include "motor.h"
+#include "pid.h"
+#include "can.h"
 //启动电机相关
 Motors motors;
 //计算绝对角度处理
@@ -117,7 +119,45 @@ void Load_Data_To_Canbuf(int i)
 
 	}
 }
+void SetZeroToCanBuf(int i)
+{
+	switch(i)
+	{
+		case 0:
+			canbuf[0] = (0) >> 8; //把数据装入待发送的can数据缓存数组
+			canbuf[1] = (0) & 0x00FF;
+			break;
+		case 1:
+			canbuf[2] = (0) >> 8;
+			canbuf[3] = (0) & 0x00FF;
+			break;
+		case 2:
+			canbuf[4] = (0) >> 8;
+			canbuf[5] = (0) & 0x00FF;
+			break;
+		case 3:
+			canbuf[6] = (0) >> 8;
+			canbuf[7] = (0) & 0x00FF;
+			break;
+		case 4:
+			canbuf2[0] = (0) >> 8;
+			canbuf2[1] = (0) & 0x00FF;
+			break;
+		case 5:
+			canbuf2[2] = (0) >> 8;
+			canbuf2[3] = (0) & 0x00FF;
+			break;
+		case 6:
+			canbuf2[4] = (0) >> 8;
+			canbuf2[5] = (0) & 0x00FF;
+			break;
+		case 7:
+			canbuf2[6] = (0) >> 8;
+			canbuf2[7] = (0) & 0x00FF;
+			break;
 
+	}
+}
 void Can1_Send_Msg_to_Motor(void)
 {
 	// 发送CAN1消息

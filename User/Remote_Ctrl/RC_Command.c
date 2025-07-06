@@ -20,9 +20,14 @@
 #include "stm32f4xx.h"
 #include "Allheaderfile.h"
 #include "math.h"
+#include "RC.h"
+#include "RC_COMMAND.h"
+#include "gaitparams.h"
 
-Ctrl_State ctrl_state;
-int if_idle=0; //1为原地踏步（idle) 0为停止
+
+extern int left_x, left_y, right_x, right_y; 
+
+
 /*		LPS											RPS			*/
 /*	上 LPS=2 		 						上RPS=1 // 奔跑		*/
 /*上电前遥杆要拨到这里*/	
@@ -31,107 +36,84 @@ int if_idle=0; //1为原地踏步（idle) 0为停止
 /*	下 LPS=1		 						下RPS=2 //拨到这是跳	*/
 /*运动状态*/
 
-void Remote_Cmd(void)
-{
-	
-	if(LPS==2&&RPS==1)
-	{
-		ctrl_state=Initial_Ctrl;
-	}
-	else if(LPS==3&&RPS==1)
-	{
-		ctrl_state=Start_Ctrl;
-	}
-	else if(LPS==1&&RPS==1)
-	{
-		ctrl_state=Main_Ctrl;
-	}
-	else if(LPS==1&&RPS==3)
-	{
-		ctrl_state=Stop_Ctrl;
-	}
-	else if(LPS==3&&RPS==3)
-	{
-		ctrl_state=Jump_Ctrl_1;
-	}
-		else if(LPS==2&&RPS==3)
-	{
-		ctrl_state=Jump_Ctrl_2;
-	}
-	else if(LPS==1&&RPS==2)
-	{
-		ctrl_state=Crouch_Ctrl;
-	}
-	else if(LPS==3&&RPS==2)
-	{
-		ctrl_state=Higher_Ctrl;
-	}
-}
-
-
-void Ctrl_Cmd(void) //切换机器狗运动状态的控制器 
-{
-//		//前进
-//	if (left_y >= 230 && abs(left_x) <= 330 && abs(right_y) <= 330 && abs(right_x) <= 330  ) 
-//	{	
-//		currentstate=Forward;
-//	}
-	if((right_y)<=-100&&abs(right_x)<=100)
-	{
-		currentstate=Normal;
-	}
-	// 原地左平移
-	else if (right_x <= -100 && abs(right_y) <= 100  && abs(left_y) <= 100 && abs(left_x) <= 100 )
-	{
-		
-		currentstate=Translate_Left;
-	}
-	// 原地右平移
-	else if (right_x >= 100  && abs(right_y) <= 100 && abs(left_y) <= 100 && abs(left_x) <= 100) 
-	{
-		
-		currentstate=Translate_Right;
-	}
-//	// 原地左转
-//	else if (left_x <= -100 && abs(left_y) <= 230  && abs(right_y) <= 330 && abs(right_x) <= 330 ) 
-//	{
-//		
-//		currentstate=Turn_Left;
-//	}
-//	// 原地右转
-//	else if (left_x >= 100  && abs(left_y) <= 230  && abs(right_y) <= 330 && abs(right_x) <= 330) 
-//	{
-//		
-//		currentstate=Turn_Right;
-//	}
-//	// 后退
-//	else if (left_y <= -230 && abs(left_x) <= 330 && abs(right_y) <= 330 && abs(right_x) <= 330 ) 
-//	{	
+//void RC_LevelCtrl(void) //遥控器拨杆控制状态
+//{
 //	
-//		currentstate=Back;
+//	if(LPS==2&&RPS==1)
+//	{
+//		ctrl_state=CS_INITIAL;
 //	}
-	else if (right_y >= 100 && abs(right_x) <= 100  && abs(left_y) <= 100 && abs(left_x) <= 100 && (ctrl_state==Jump_Ctrl_1||ctrl_state==Jump_Ctrl_2)) 
-	{	
-		currentstate=Jump;
-	}
+//	else if(LPS==3&&RPS==1)
+//	{
+//		ctrl_state=CS_START;
+//	}
+//	else if(LPS==1&&RPS==1)
+//	{
+//		ctrl_state=CS_MAIN;
+//	}
+//	else if(LPS==1&&RPS==3)
+//	{
+//		ctrl_state=CS_STOP;
+//	}
+//	else if(LPS==3&&RPS==3)
+//	{
+//		ctrl_state=CS_PRE_JUMP;
+//	}
+//	else if(LPS==2&&RPS==3)
+//	{
+//		ctrl_state=CS_EXE_JUMP;
+//	}
+//	else if(LPS==1&&RPS==2)
+//	{
+//		ctrl_state=CS_CROUCH;
+//	}
+//	else if(LPS==3&&RPS==2)
+//	{
+//		ctrl_state=CS_HIGHER;
+//	}
+//}
 
-// 重置 
-	else if 
-		(
-			abs(left_y) <= 100 
-			&& abs(left_x) <= 100
-			&&abs(right_x) <= 100
-			&&abs(right_y) <= 100 
-		) 
-	{
-		if(if_idle==1)
-		currentstate=Normal;
-		else if(if_idle==0)
-		currentstate=Stop;
-		TIM_Cmd(TIM4, ENABLE);
-	}
-	
-}
+
+//void RC_MotionCtrl(void) //切换机器狗运动状态的控制器 
+//{
+//	if(abs(right_x)<=100&&abs(right_y)<=100)
+//	{
+//		if 
+//		(
+//			abs(left_y) <= 100 
+//			&& abs(left_x) <= 100
+//		) 
+//		{	
+//			if(if_idle==1)
+//			current_motion_state=MS_NORMAL; //原地踏步
+//			else if(if_idle==0)
+//			current_motion_state=MS_STOP;   //停止
+//		}
+//		else
+//		{
+//			current_motion_state=MS_NORMAL; 
+//		}
+//	}
+//	else
+//	{
+//		// 原地左平移
+//		if (right_x <= -100)
+//		{
+//			
+//			current_motion_state=MS_TRANSLATE_LEFT;
+//		}
+//		// 原地右平移
+//		else if (right_x >= 100) 
+//		{
+//			
+//			current_motion_state=MS_TRANSLATE_RIGHT;
+//		}
+//	}
+//	if((right_y)<=-100&&abs(right_x)<=100)
+//	{
+//		current_motion_state=MS_NORMAL;
+//	}
+//}
 
    
 	

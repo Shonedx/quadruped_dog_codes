@@ -1,7 +1,6 @@
 #ifndef __FONT_H
 #define __FONT_H
 #include "stdint.h"
-#include "string.h"
 typedef struct ASCIIFont {
   uint8_t h;
   uint8_t w;

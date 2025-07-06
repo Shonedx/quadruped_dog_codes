@@ -1,11 +1,7 @@
 #ifndef __PID_H
 #define __PID_H
-#include <sys.h>
-#include "usart.h"
-
-#include "Allheaderfile.h"
-
- 
+#include "stdint.h"
+#include "motor.h"
  enum PID_MODE //pid位置环和速度环的选择
 {
     PID_POSITION = 0,

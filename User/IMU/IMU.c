@@ -1,6 +1,8 @@
 #include "imu.h"
-#include "math.h"
-
+#include "ges_cal.h"
+#include "gaitparams.h"
+#include "Allheaderfile.h"
+#include "pid.h"
  double standheight[4] = {StandHeight,StandHeight,StandHeight ,StandHeight};
  double  x_offset[4] = { 0,0,0,0 };
 void IMU_Pos_Cal(double yaw, double pitch, double roll)
@@ -20,8 +22,8 @@ void IMU_Pos_Cal(double yaw, double pitch, double roll)
 	 {
 		 for (int j = 0; j < 4; j++)
 		 {
-			 gaitparams[i][j].stanceheight = standheight[j];
-			 gaitparams[i][j].x_offset = x_offset[j];
+			 gait_params[i][j].stanceheight = standheight[j];
+			 gait_params[i][j].x_offset = x_offset[j];
 		 }
 	 }
 	/* printf("standheight:%f,%f,%f,%f\n", standheight[0], standheight[1], standheight[2], standheight[3]);*/

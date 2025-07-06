@@ -1,7 +1,9 @@
-
-#include "math.h"
+#include "Allheaderfile.h"
 #include "ges_cal.h"
-       
+#include "gaitparams.h"
+#include "pid.h"
+#include "RC.h"
+#include "can.h"
 //  LF(0)--------------------RF(3)
 //  motor1       |             motor3             
 //    (id:1)     |               (id:3)
@@ -20,39 +22,40 @@
 	
 
 
-	/******************/
-	int Jump_State=1;
-	double jump_time=2; //跳跃周期
-	double jump_freq=0.0020; //跳跃速度
-	double jump_angle=31.0f; //beta角是两电机连线重点到足端的向量与竖直方向的夹角
-	
-	/******************/
 
-	extern State currentstate;
-	
+
+	extern MotionState_t current_motion_state;
+
+	//from timer.c
+	extern double now_time;
+	//from jump.c
+
+	extern uint8_t Jump_OK ;
+	//from pid.c
+	extern Motor_Final_Output_Angles motor_final_output_angles; 
 	Leg legs[4];
 //步态相关	
  /******************************************************************************************************/
 
-void SinTrajectory(double t, GaitParams gaitparams)
+void SinTrajectory(double t, GaitParams gait_params)
 {
 	double x, z, gp;
 	static double p = 0;
 	static double prev_t = 0;
-	p += gaitparams.freq * (t - prev_t);
+	p += gait_params.freq * (t - prev_t);
 	prev_t = t;
-	gp = fmod(p + gaitparams.gaitoffset, 1);
-	if (gp <= gaitparams.swingpercent) {
-		x = (gp / gaitparams.swingpercent) * gaitparams.steplength - gaitparams.steplength / 2.0+ gaitparams.x_offset;
-		z = -gaitparams.Up_Amp * sin(PI * gp / gaitparams.swingpercent) + gaitparams.stanceheight;
+	gp = fmod(p + gait_params.gaitoffset, 1);
+	if (gp <= gait_params.swingpercent) {
+		x = (gp / gait_params.swingpercent) * gait_params.steplength - gait_params.steplength / 2.0+ gait_params.x_offset;
+		z = -gait_params.Up_Amp * sin(PI * gp / gait_params.swingpercent) + gait_params.stanceheight;
 	}
 	else {
-		float percentBack = (gp - gaitparams.swingpercent) / (1.0 - gaitparams.swingpercent);
-		x = -percentBack * gaitparams.steplength + gaitparams.steplength / 2.0 + gaitparams.x_offset;
-		z = gaitparams.Down_Amp * sin(PI * percentBack) + gaitparams.stanceheight;
+		float percentBack = (gp - gait_params.swingpercent) / (1.0 - gait_params.swingpercent);
+		x = -percentBack * gait_params.steplength + gait_params.steplength / 2.0 + gait_params.x_offset;
+		z = gait_params.Down_Amp * sin(PI * percentBack) + gait_params.stanceheight;
 	}
-	legs[gaitparams.i].x = x;
-	legs[gaitparams.i].z = z;
+	legs[gait_params.i].x = x;
+	legs[gait_params.i].z = z;
 } 
 
 
@@ -79,143 +82,114 @@ void Stand_Init(void)
 	
 	
 }
+//	CS_NONE,
+//	CS_INIT,
+//	CS_MAIN,
+//	CS_PRE_JUMP,
+//	CS_EXE_JUMP,
+//	CS_HEIGHT,
+//	CS_QUIT,
+extern 	int start;
+extern CtrlState_t ctrl_state;
+extern uint8_t setted_height;
+
+void motion_state_ctrl(void)
+{
+	switch(ctrl_state)
+	{
+		case CS_NONE://初始状态 
+			start=0;
+			break;
+		case CS_INIT://初始化机器狗
+			start=0;
+			M3508_ALL_ZERO_SET();
+			break;
+		case CS_MAIN://主控制
+			RC_MotionCtrl();
+			start=1;
+			break;
+		case CS_PRE_JUMP:// 跳跃准备
+			start=1;
+			break;
+		case CS_EXE_JUMP:// 跳跃执行
+			start=1;
+			break;
+		case CS_HEIGHT:
+			Set_StandHeight(gait_params[0],setted_height);
+			Set_StandHeight(gait_params[1],setted_height);
+			Set_StandHeight(gait_params[2],setted_height);
+			Set_StandHeight(gait_params[3],setted_height);
+			start=1;
+			break;
+		case CS_QUIT:
+			start=0;
+			break;
+		default:
+			break;
+	}
+
+
+}
+extern JumpState_t jump_state;
  void Gait(double t)
 {
 	
-	switch (currentstate)
+	switch (current_motion_state)
 	{
 		
-		case Normal:
+		case MS_NORMAL:
 			Set_Max_Output_SL(8000);
 			Set_Max_Output_PL(8000);
 			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			Set_StepLength(gaitparams[0]);
+			Set_StepLength(gait_params[0]);
 			for (int i=0 ; i < 4; i++)
 			{
-				SinTrajectory(t, gaitparams[0+crouch_flag+higher_flag][i]);
+				SinTrajectory(t, gait_params[0][i]);
 			}
 
 			break;
-		
-//		case Idle:  // 原地踏步
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			for (int i=0 ; i < 4; i++)
-//			{
-//				SinTrajectory(t, gaitparams[0][i]);
-//			}
-//			break;
-//		case Forward:
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			for (int i = 0; i < 4; i++)
-//			{
-//				SinTrajectory(t, gaitparams[1+crouch_flag+higher_flag][i]);
-//			}
-//			break;
-//		case Back:
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			for (int i = 0; i < 4; i++)
-//			{
-//				SinTrajectory(t, gaitparams[2+crouch_flag+higher_flag][i]);
-//			}
-//			break;
-//		case Turn_Left:
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			for (int i = 0; i < 4; i++)
-//			{
-//				SinTrajectory(t, gaitparams[3+crouch_flag+higher_flag][i]);
-//			}
-
-//			break;
-//		case Turn_Right:
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			for (int i = 0; i < 4; i++)
-//			{
-//				SinTrajectory(t, gaitparams[4+crouch_flag+higher_flag][i]);
-//			}
-
-//			break;
-	
-		case Stop:
+		case MS_STOP:
 			Set_Max_Output_SL(8000);
 			Set_Max_Output_PL(8000);
 			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 			now_time=0;
 			for (int i = 0; i < 4; i++)
 			{
-				SinTrajectory(t, gaitparams[1+crouch_flag+higher_flag][i]);
+				SinTrajectory(t, gait_params[1][i]);
 			}
-			Jump_Start=1;
-			Jump_OK = 1;
 			break;
-		if(crouch_flag==0&&higher_flag==0)
+		if(if_in_normal_range(setted_height, 9, 11)) //高度合适时
 		{
-			case Translate_Left:
+			case MS_TRANSLATE_LEFT:
 				Set_Max_Output_SL(10000);
 				Set_Max_Output_PL(10000);
 				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 				for (int i = 0; i < 4; i++)
 				{
-					SinTrajectory(t, gaitparams[2][i]);
+					SinTrajectory(t, gait_params[2][i]);
 				}
 				break;
 			
-			case Translate_Right:
+			case MS_TRANSLATE_RIGHT:
 				Set_Max_Output_SL(10000);
 				Set_Max_Output_PL(10000);
 				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 				for (int i = 0; i < 4; i++)
 				{
-					SinTrajectory(t, gaitparams[3][i]);
+					SinTrajectory(t, gait_params[3][i]);
 				}
-				break;
-			case Jump:
-				if(ctrl_state==Jump_Ctrl_1||ctrl_state==Jump_Ctrl_2)
-				{
-					
-					if(Jump_OK==1)
-					{
-						if(Jump_Start==1)
-						{
-							Reset_jump_time(); //重置跳跃时间
-							Jump_Start=0;
-						}
-						Execute_Jump();
-					}
-					else
-					{
-						Set_Max_Output_SL(8000);
-						Set_Max_Output_PL(8000);
-						// 转换到逆运动学的角度
-						CartesianToTheta_Cycloid_All_Legs();
-						// 控制腿部运动
-						Moveleg();
-						Motor_Auto_Run();
-						
-					}
-				}	
-				
 				break;
 		}
 	
 	}
-	if(currentstate!=Jump)
-	{	
-		// 转换到逆运动学的角度
-		CartesianToTheta_Cycloid_All_Legs();
-		// 控制腿部运动
-		Moveleg();
-		Motor_Auto_Run();
-	}
+	jump_state=IDLE;
+	
+	// 转换到逆运动学的角度
+	CartesianToTheta_Cycloid_All_Legs();
+	// 控制腿部运动
+	Moveleg();
+	Motor_Auto_Run();
+	
 
 }
 //运动相关
@@ -224,8 +198,8 @@ void Stand_Init(void)
 void CartesianToTheta_Cycloid(Leg *leg)
 {
     leg->L = sqrt(leg->x * leg->x + leg->z * leg->z);
-	if(leg->L<5.0f) leg->L=5.0f;
-	if(leg->L>19.5f) leg->L=19.5f;
+	if(leg->L<CrouchHeight) leg->L=CrouchHeight;
+	if(leg->L>HeigherHeight) leg->L=HeigherHeight;
     leg->psai1 = asin(leg->x / leg->L);
     leg->fai1 = acos((leg->L * leg->L + L1 * L1 - L2 * L2) / (2 * L1 * leg->L));
     leg->theta2 = 180.0f * (leg->fai1 - leg->psai1) / PI - 90.0f;

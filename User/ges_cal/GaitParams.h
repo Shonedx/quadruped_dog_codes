@@ -1,19 +1,13 @@
 #ifndef GaitParams_H
 #define GaitParams_H
-#include "Allheaderfile.h"
-typedef enum 
+#include "stdint.h"
+typedef enum MotionState
 {
-//	Idle=0,
-//	Forward, 
-//	Back,
-//	Turn_Left,
-//	Turn_Right,
-	Normal,
-	Translate_Left,
-	Translate_Right,
-	Jump,
-	Stop,
-}State; //机器狗运行状态
+	MS_NORMAL,
+	MS_TRANSLATE_LEFT,
+	MS_TRANSLATE_RIGHT,
+	MS_STOP,
+}MotionState_t; //机器狗运行状态
 
 //typedef enum 
 //{
@@ -38,8 +32,11 @@ typedef struct
     double x_offset; //x初始值
 } GaitParams;
 
-extern GaitParams  gaitparams[][4];
-extern State currentstate;
+extern GaitParams  gait_params[][4];
+extern MotionState_t current_motion_state;
 
-void Set_StepLength(GaitParams *gaitparams);
+void Set_StandHeight(GaitParams *gaitparams,uint8_t height);
+void Set_StepLength(GaitParams *gait_params);
 #endif
+
+

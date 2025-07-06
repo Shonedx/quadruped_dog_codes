@@ -1,6 +1,7 @@
 #ifndef __DELAY_H
 #define __DELAY_H 			   
-#include <sys.h>	  
+#include "stdint.h"
+#include "stm32f4xx.h"
 //////////////////////////////////////////////////////////////////////////////////  
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32F407开发板

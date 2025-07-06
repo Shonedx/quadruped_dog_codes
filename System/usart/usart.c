@@ -3,7 +3,8 @@
 #include <string.h> // 引入字符串处理函数
 #include "stdio.h"	
 #include "stm32f4xx_conf.h"
-#include "IMU.h"	
+#include "IMU.h"
+#include "RC.h"	
 ////////////////////////////////////////////////////////////////////////////////// 	
 
 #define pi 3.1415926f
@@ -16,33 +17,8 @@ stcAccel_t	stcAccel;
 stcAngle_t stcAngle;
 Euler_t Euler;
 Accel_t Accel;
-static unsigned char TxBuffer[256];
-static unsigned char TxCounter = 0;
-static unsigned char count = 0;
-
-#if 1
-#pragma import(__use_no_semihosting)             
-                 
-struct __FILE 
-{ 
-	int handle; 
-}; 
-
-FILE __stdout;       
-  
-void _sys_exit(int x) 
-{ 
-	x = x; //这一行是一个空操作，可能只是为了避免编译器警告参数 x 未被使用
-} 
 
 
-int fputc(int ch, FILE *f)
-{ 	
-	while((USART1->SR & 0x40) == 0); 
-	USART1->DR = (u8) ch;      
-	return ch;
-}
-#endif
 
 // USART1初始化
 void USART1_Init(void) {
@@ -86,6 +62,24 @@ void USART1_Init(void) {
 #endif
 	
 }
+// 发送字符到USART1
+void UART1_Put_Char(unsigned char DataToSend) {
+	while ((USART1->SR & 0x80) == 0); // 等待发送寄存器为空
+	USART1->DR = DataToSend;
+}
+
+// 发送字符串到USART1
+void UART1_Put_String(unsigned char *Str) {
+	while(*Str) {
+		if(*Str == '\r') UART1_Put_Char(0x0d);
+		else if(*Str == '\n') UART1_Put_Char(0x0a);
+		else UART1_Put_Char(*Str);
+		Str++;
+	}
+}
+extern uint8_t setted_height;
+extern CtrlState_t ctrl_state;
+extern uint16_t test;
 // USART1中断处理
 void USART1_IRQHandler(void) {                	
 #if SYSTEM_SUPPORT_OS 		
@@ -94,9 +88,10 @@ void USART1_IRQHandler(void) {
 	uint8_t Res;
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
 		Res = USART_ReceiveData(USART1);
-		USART_SendData(USART1,Res);
-		// 处理接收到的数据
-		// 这里可以添加你的处理逻辑
+		if(Res==1)
+		{
+			USART_SendData(USART1,test);
+		}
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 	}
 #if SYSTEM_SUPPORT_OS 	
@@ -162,23 +157,9 @@ void USART3_IRQHandler(void) {
 #endif
 }
 
-// 发送字符到USART1
-void UART1_Put_Char(unsigned char DataToSend) {
-	while ((USART1->SR & 0x80) == 0); // 等待发送寄存器为空
-	USART1->DR = DataToSend;
-}
 
-// 发送字符串到USART1
-void UART1_Put_String(unsigned char *Str) {
-	while(*Str) {
-		if(*Str == '\r') UART1_Put_Char(0x0d);
-		else if(*Str == '\n') UART1_Put_Char(0x0a);
-		else UART1_Put_Char(*Str);
-		Str++;
-	}
-}
 
-// 处理USART3接收到的数据
+// 处理USART3接收到的数据  接收陀螺仪数据
 void CopeSerial3Data(unsigned char ucData)
 {
 	static unsigned char ucRxBuffer[250];

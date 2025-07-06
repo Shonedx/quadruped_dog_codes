@@ -1,7 +1,7 @@
 #include "stm32f4xx.h"     // <--- **从 stm32f10x.h 更改为 stm32f4xx.h**
 
 #include "OLED.h"          // 包含 OLED 驱动函数声明的头文件
-#include "Font.h"          // 包含 OLED 字体相关的头文件，可能包含自定义字体（如中文）数据
+
 #include "string.h"        // 包含字符串处理函数（如 memset, memcpy）的头文件
 #include "IIC_OLED.h"      // <--- **新添加的头文件，用于调用硬件 I2C 函数**
 

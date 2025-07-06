@@ -1,8 +1,6 @@
 #ifndef __CAN_H
 #define __CAN_H	 
-#include "sys.h"
-#include "pid.h"
-
+#include "motor.h"
 typedef enum
 {
     CAN_CHASSIS_ALL_ID = 0x200,

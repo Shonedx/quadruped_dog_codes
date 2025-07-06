@@ -44,6 +44,7 @@ void Set_Motor_Target_Speed(int i); // 角度环输出作为速度环输入
 void Set_Motor_Output_Current(int i); //设置电调输出给电机的电流大小
 
 void Load_Data_To_Canbuf(int i); //装载对应数据到缓存区
+void SetZeroToCanBuf(int i);
 
 /**********电调发送数据给电机*****************/
 void Can1_Send_Msg_to_Motor(void); 
@@ -55,3 +56,5 @@ void Motor_Auto_Run(void); //驱动电机
 
 
 #endif
+
+

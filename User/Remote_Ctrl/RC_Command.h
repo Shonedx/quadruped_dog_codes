@@ -1,7 +1,6 @@
 #ifndef __RC_COMMAND_H
 #define __RC_COMMAND_H
-#include "main.h"
-#include "RemoteControl_Init.h"
+
 //#define SBUS_RX_BUF_NUM 36u//36 字节
 
 //#define RC_FRAME_LENGTH 18u// 框架长度
@@ -91,26 +90,5 @@ extern const RC_ctrl_t *get_remote_control_point(void);
 extern uint8_t RC_data_is_error(void);
 extern void slove_RC_lost(void);
 extern void slove_data_error(void);
-static RC_ctrl_t rc_ctrl;
 
-
-
-void Remote_Cmd(void);
-void Ctrl_Cmd(void);
-
-typedef enum 
-{
-	Initial_Ctrl,
-	Start_Ctrl,
-	Main_Ctrl,
-	Stop_Ctrl,
-	Jump_Ctrl_1,
-	Jump_Ctrl_2,
-	Crouch_Ctrl,
-	Higher_Ctrl,
-
-}Ctrl_State; //控制类状态机
-
-extern Ctrl_State ctrl_state;
-extern int if_idle; 
 #endif

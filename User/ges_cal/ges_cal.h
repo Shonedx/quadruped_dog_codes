@@ -1,10 +1,9 @@
 #ifndef __GES_CAL_H
 #define __GES_CAL_H
-#include "Allheaderfile.h"
-#include "sys.h"
 
-#define L1 8.0f //14
-#define L2 12.0f //30
+
+#define L1 12.0f //14
+#define L2 24.0f //30
 
 #define xa 3.5f            
 #define xb -3.5f        //xa,xb为两电机点坐标,xa=-xb=motor_length/2(轴心距/2)
@@ -19,11 +18,10 @@
 #define X_OFFSET 0.0f
 #define Freq 1.5f
 #define StepLenthMin 2.0f
-#define StandHeight 10.0f //max 19.5 min 5
-#define CrouchHeight 7.0f
-#define HeigherHeight 13.0f
-#define LegLenthMax 19.5.0f 
-#define LegLenthMin 5.0f 
+#define StandHeight (20.0f) //max 30  min 12
+#define CrouchHeight (12.0f)
+#define HeigherHeight (35.0f)
+
 
 
 typedef struct
@@ -38,7 +36,9 @@ typedef struct
 } Leg; //和腿部运动有关
 
 extern Leg legs[4];
-extern  int Jump_State;
+
+
+void motion_state_ctrl(void);
 
 void Gait(double t);
 

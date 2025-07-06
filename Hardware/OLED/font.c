@@ -11,6 +11,7 @@
 // clang-format off
 #include "font.h"
 
+#include "string.h"
 // 8*6 ASCII
 const unsigned char ascii_8x6[][6] = {
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // space ¿Õ¸ñ

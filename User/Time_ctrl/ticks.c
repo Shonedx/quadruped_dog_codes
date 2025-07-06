@@ -1,6 +1,5 @@
 #include "ticks.h"
-
-#include "stm32f4xx.h"
+#include "stm32f4xx_rcc.h"
 
 static __IO uint32_t uwTick;
 

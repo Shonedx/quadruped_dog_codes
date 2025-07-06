@@ -1,6 +1,6 @@
 #ifndef __LED_H
 #define __LED_H
-#include "sys.h"
+
 
 //LED¶Ë¿Ú¶¨Òå
 #define LED0 PFout(9)	// DS0

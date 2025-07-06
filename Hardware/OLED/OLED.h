@@ -1,7 +1,6 @@
 #ifndef __OLED_H
 #define __OLED_H
-#include "font.h"
-
+#include "Font.h"          // 包含 OLED 字体相关的头文件，可能包含自定义字体（如中文）数据
 typedef enum {
   OLED_COLOR_NORMAL = 0, // 正常模式 黑底白字
   OLED_COLOR_REVERSED    // 反色模式 白底黑字

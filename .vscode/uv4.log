@@ -1,0 +1,170 @@
+*** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\Ceil5\ARM\ARMCC\Bin'
+Build target 'Target 1'
+compiling GaitParams.c...
+.\Hardware\MOTOR\motor.h(57): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\User\Remote_Ctrl\NRF24L01_DEFINE.h(62): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\User\Remote_Ctrl\NRF24L01.h(88): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\User\ges_cal\GaitParams.h(34): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\User\ges_cal\Jump.h(13): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\User\ges_cal\Jump.h(13): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\Hardware\MOTOR\motor.h(57): warning:  #1-D: last line of file ends without a newline
+  #endif
+User\ges_cal\GaitParams.h(34): warning:  #1-D: last line of file ends without a newline
+  #endif
+User\ges_cal\GaitParams.c(14): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, 0, 
+req*1.0, 0.35, 0, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(15): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, 0, 
+req*1.0, 0.35, 0.5, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(16): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, 0, 
+req*1.0, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(17): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, 0, 
+req*1.0, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(32): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, -trun_step_length, 
+req*1.5, 0.35, 0, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(33): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, trun_step_length, 
+req*1.5, 0.35, 0.5, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(34): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, -trun_step_length, 
+req*1.5, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(35): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, trun_step_length, 
+req*1.5, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(38): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight,trun_step_length, 
+req*1.5, 0.35, 0, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(39): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, -trun_step_length,
+req*1.5, 0.35, 0.5, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(40): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight,trun_step_length, 
+req*1.5, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(41): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight, -trun_step_length, 
+req*1.5, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(51): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight-1, 0, 
+req*2.5, 0.35, 0.5, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(52): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight+3, 0, 
+req*2.5, 0.35, 0, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(53): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight-1, 0, 
+req*2.5 ,0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(54): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight+3, 0, 
+req*2.5, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(57): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight+3, 0, 
+req*2.5, 0.35, 0.5, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(58): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight-1, 0, 
+req*2.5, 0.35, 0, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(59): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight+3, 0, 
+req*2.5, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(60): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ up_amp, 0.2, 
+tandHeight-1, 0, 
+req*2.5, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(66): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(67): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0.5, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(68): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(69): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(72): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, -crouch_step_length, 
+req*1.0, 0.35, 0, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(73): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight,-crouch_step_length, 
+req*1.0, 0.35, 0.5, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(74): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, -crouch_step_length, 
+req*1.0, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(75): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, -crouch_step_length, 
+req*1.0, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(78): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, -crouch_step_length, 
+req*1.0, 0.35, 0, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(79): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0.5, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(80): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, -crouch_step_length, 
+req*1.0, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(81): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(84): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0, 0,X_OFFSET},
+User\ges_cal\GaitParams.c(85): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, -crouch_step_length, 
+req*1.0, 0.35, 0.5, 1,X_OFFSET},
+User\ges_cal\GaitParams.c(86): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, crouch_step_length, 
+req*1.0, 0.35, 0.5, 2,X_OFFSET},
+User\ges_cal\GaitParams.c(87): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	{ crouch_up_amp, 0.1, 
+rouchHeight, -crouch_step_length, 
+req*1.0, 0.35, 0, 3,X_OFFSET},
+User\ges_cal\GaitParams.c(127): warning:  #1-D: last line of file ends without a newline
+   };
+User\ges_cal\GaitParams.c: 45 warnings, 0 errors
+linking...
+Program Size: Code=27280 RO-data=872 RW-data=5416 ZI-data=4224  
+".\Objects\ËÄ×ã.axf" - 0 Error(s), 45 Warning(s).
+Build Time Elapsed:  00:00:02

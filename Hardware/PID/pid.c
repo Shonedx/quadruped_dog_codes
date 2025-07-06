@@ -1,8 +1,6 @@
 #include "Allheaderfile.h"
-#include<stdlib.h>
-#include "stdio.h"
-#include "math.h"
-
+#include "pid.h"
+#include "motor.h"
 //声明了一些结构体
 Motor_Speed_Loop_Pid  motor_speed_loop_pid; //速度环结构体
 Motor_Position_Loop_Pid motor_position_loop_pid; //角度环结构体

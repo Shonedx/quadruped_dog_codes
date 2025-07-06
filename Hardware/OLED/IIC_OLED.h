@@ -1,7 +1,6 @@
 #ifndef _IIC_OLED_H
 #define _IIC_OLED_H
-
-#include "stm32f4xx.h"
+#include "stdint.h"
 
 // OLED 模块的 I2C 从机地址（写入地址，0x3C << 1 = 0x78，读取地址为 0x79）
 #define OLED_I2C_ADDRESS    0x78 // 请根据你的OLED实际地址调整，常见有0x78或0x7A

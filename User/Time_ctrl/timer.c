@@ -1,11 +1,15 @@
 
-
 #include "Allheaderfile.h"
 #include "ticks.h"
 #include "timer.h"
+#include "nrf24l01.h"
+#include "RC.h"
+#include "led.h"
 double now_time=0;
 const double dt=0.007; //0.007
-
+extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH];
+extern int start;
+extern CtrlState_t ctrl_state;
  static void Update_Time(void) //获取当前时间，通过自增一个dt值来自增时间
  {
 		now_time+=dt;
@@ -13,7 +17,7 @@ const double dt=0.007; //0.007
  }
 //Ft=168Mhz/4*时钟分频
 
-void TIM4_Init(void) //10 ms
+void TIM4_Init(void) //1 ms
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
@@ -33,7 +37,7 @@ void TIM4_Init(void) //10 ms
     //    周期 + 1 = 1000 => 周期 = 999
 
     TIM_TimeBaseInitStructure.TIM_Prescaler = 84 - 1;   
-    TIM_TimeBaseInitStructure.TIM_Period = 10000 - 1;   
+    TIM_TimeBaseInitStructure.TIM_Period = 1000 - 1;   
     TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数模式
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1; // 无时钟分频
 
@@ -75,35 +79,55 @@ void TIM5_Init(void) //5 ms
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
-void TIM4_IRQHandler() //控制类逻辑
+
+void TIM4_IRQHandler() //控制类逻辑 10 ms
 {  
 	if(TIM_GetITStatus(TIM4, TIM_IT_Update) !=RESET)
 	{
-		Remote_Cmd();
+		
+		NRF24L01_RxPacket_IRQ(rx_buffer);
+//		RC_LevelCtrl();
 		TIM_ClearITPendingBit(TIM4,TIM_IT_Update);
 	}
 }
 static int start_stand_flag=0;
-
+extern uint16_t test;
+extern JumpState_t jump_state;
 void TIM5_IRQHandler(void) //更新时间 5ms
 {
 	if(TIM_GetITStatus(TIM5,TIM_IT_Update)!= RESET)
 	{		
+//		test++;
 		Update_Time();
 		if(start==1)
 		{		
-//			if (currentstate != Jump&& ctrl_state!=Start_Ctrl)
-//			 {
-//				 IMU_Pos_Cal(0, Euler.pitch, Euler.roll);
-//				 Set_Standheight_Offset();
-//			 }
-			Gait(now_time); //执行步态逻辑
+////			if (currentstate != Jump&& ctrl_state!=Start_Ctrl)
+////			 {
+////				 IMU_Pos_Cal(0, Euler.pitch, Euler.roll);
+////				 Set_Standheight_Offset();
+////			 }
+			if(ctrl_state!=CS_PRE_JUMP && ctrl_state!=CS_EXE_JUMP)
+			{	
+				Gait(now_time); //执行步态逻辑
+				jump_state=IDLE;
+			}
+			else
+				jumpCtrl();
 		}
-		feed_dog();
+		else if(start==0&&ctrl_state==CS_QUIT)
+		{
+			for(int i=0;i<8;i++)
+			{
+				SetZeroToCanBuf(i);
+			}
+			Can1_Send_Msg_to_Motor();
+			Can2_Send_Msg_to_Motor();
+		}
+		
 		TIM_ClearITPendingBit(TIM5,TIM_IT_Update); //清除中断标志位
 	}
 }
-
+extern int feed; 
 
 void feed_dog(void)
 {
