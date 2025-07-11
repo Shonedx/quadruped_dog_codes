@@ -11,12 +11,14 @@
 //跳跃时间
 const float bend_time=200; //俯身基时间  
 const float lean_time=200; //倾斜基时间
-const float exe_jump_time=150; //蹬腿执行时间 40ms // 0.04 
+const float exe_jump_time=80
+	; //蹬腿执行时间 40ms // 0.04 
 const float fall_time=200; //落地恢复时间 0.03 30ms
-const float jump_time_offset=50; //前后腿跳跃偏移值 必须小于exe_jump_time
+const float jump_time_offset=30
+	; //前后腿跳跃偏移值 必须小于exe_jump_time
 
 //跳跃相关腿长参数
-const double stretch_length=32.0f; //伸展长度
+const double stretch_length=28.0f; //伸展长度
 const double shrink_length=14.0f; //收缩长度
 const double fall_length=14.0f ;//落地缓冲长度
 

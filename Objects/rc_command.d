@@ -44,5 +44,5 @@
 .\objects\rc_command.o: .\System\usart\usart.h
 .\objects\rc_command.o: User\Remote_Ctrl\RC.h
 .\objects\rc_command.o: User\Remote_Ctrl\nrf24l01.h
-.\objects\rc_command.o: User\Remote_Ctrl\RC_COMMAND.h
 .\objects\rc_command.o: .\User\ges_cal\gaitparams.h
+.\objects\rc_command.o: User\Remote_Ctrl\RC_COMMAND.h

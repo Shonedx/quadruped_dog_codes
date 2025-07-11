@@ -19,8 +19,8 @@
 #define Freq 1.5f
 #define StepLenthMin 2.0f
 #define StandHeight (20.0f) //max 30  min 12
-#define CrouchHeight (12.0f)
-#define HeigherHeight (35.0f)
+#define CrouchHeight (14.0f)
+#define HeigherHeight (30.0f)
 
 
 

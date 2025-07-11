@@ -35,8 +35,10 @@ typedef struct
 extern GaitParams  gait_params[][4];
 extern MotionState_t current_motion_state;
 
-void Set_StandHeight(GaitParams *gaitparams,uint8_t height);
-void Set_StepLength(GaitParams *gait_params);
+void Set_StandHeight(GaitParams *gaitparams,uint8_t tar_height);
+void Set_StepLength(GaitParams *gaitparams);
+void Set_UpAmpLength(GaitParams *gaitparams);
+
 #endif
 
 

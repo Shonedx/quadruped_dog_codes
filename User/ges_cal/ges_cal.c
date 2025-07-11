@@ -115,10 +115,16 @@ void motion_state_ctrl(void)
 			start=1;
 			break;
 		case CS_HEIGHT:
-			Set_StandHeight(gait_params[0],setted_height);
-			Set_StandHeight(gait_params[1],setted_height);
-			Set_StandHeight(gait_params[2],setted_height);
-			Set_StandHeight(gait_params[3],setted_height);
+			Set_StandHeight(gait_params[0],setted_height); //NORMAL
+			Set_StandHeight(gait_params[1],setted_height);//STOP
+			Set_StandHeight(gait_params[2],setted_height);//TRANS_LEFT
+			Set_StandHeight(gait_params[3],setted_height);//TRANS_RIGHT
+			Set_StepLength(gait_params[0]);
+			Set_StepLength(gait_params[1]);
+			Set_UpAmpLength(gait_params[0]);
+			Set_UpAmpLength(gait_params[1]);
+			Set_UpAmpLength(gait_params[2]);
+			Set_UpAmpLength(gait_params[3]);
 			start=1;
 			break;
 		case CS_QUIT:
@@ -136,18 +142,41 @@ extern JumpState_t jump_state;
 	
 	switch (current_motion_state)
 	{
-		
-		case MS_NORMAL:
-			Set_Max_Output_SL(8000);
-			Set_Max_Output_PL(8000);
-			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			Set_StepLength(gait_params[0]);
-			for (int i=0 ; i < 4; i++)
+		if(ctrl_state!=CS_HEIGHT)
+		{
+			case MS_NORMAL:
+				Set_Max_Output_SL(8000);
+				Set_Max_Output_PL(8000);
+				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+				RC_StepLengthCtrl(gait_params[0]);
+				for (int i=0 ; i < 4; i++)
+				{
+					SinTrajectory(t, gait_params[0][i]);
+				}
+				break;
+			if(if_in_normal_range(setted_height, 14, 30)) //高度合适时
 			{
-				SinTrajectory(t, gait_params[0][i]);
+				case MS_TRANSLATE_LEFT:
+					Set_Max_Output_SL(10000);
+					Set_Max_Output_PL(10000);
+					ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+					for (int i = 0; i < 4; i++)
+					{
+						SinTrajectory(t, gait_params[2][i]);
+					}
+					break;
+				
+				case MS_TRANSLATE_RIGHT:
+					Set_Max_Output_SL(10000);
+					Set_Max_Output_PL(10000);
+					ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+					for (int i = 0; i < 4; i++)
+					{
+						SinTrajectory(t, gait_params[3][i]);
+					}
+					break;
 			}
-
-			break;
+		}
 		case MS_STOP:
 			Set_Max_Output_SL(8000);
 			Set_Max_Output_PL(8000);
@@ -155,31 +184,12 @@ extern JumpState_t jump_state;
 			now_time=0;
 			for (int i = 0; i < 4; i++)
 			{
-				SinTrajectory(t, gait_params[1][i]);
+				legs[gait_params[1][i].i].x = 0;
+				legs[gait_params[1][i].i].z = gait_params[1][i].stanceheight;
 			}
-			break;
-		if(if_in_normal_range(setted_height, 9, 11)) //高度合适时
-		{
-			case MS_TRANSLATE_LEFT:
-				Set_Max_Output_SL(10000);
-				Set_Max_Output_PL(10000);
-				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-				for (int i = 0; i < 4; i++)
-				{
-					SinTrajectory(t, gait_params[2][i]);
-				}
-				break;
 			
-			case MS_TRANSLATE_RIGHT:
-				Set_Max_Output_SL(10000);
-				Set_Max_Output_PL(10000);
-				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-				for (int i = 0; i < 4; i++)
-				{
-					SinTrajectory(t, gait_params[3][i]);
-				}
-				break;
-		}
+			break;
+		
 	
 	}
 	jump_state=IDLE;

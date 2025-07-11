@@ -48,3 +48,4 @@
 .\objects\jump.o: .\System\usart\usart.h
 .\objects\jump.o: .\User\Remote_Ctrl\RC.h
 .\objects\jump.o: .\User\Remote_Ctrl\nrf24l01.h
+.\objects\jump.o: .\User\ges_cal\gaitparams.h

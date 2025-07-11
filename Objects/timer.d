@@ -46,4 +46,5 @@
 .\objects\timer.o: User\Time_ctrl\timer.h
 .\objects\timer.o: .\User\Remote_Ctrl\nrf24l01.h
 .\objects\timer.o: .\User\Remote_Ctrl\RC.h
+.\objects\timer.o: .\User\ges_cal\gaitparams.h
 .\objects\timer.o: .\Hardware\LED\led.h

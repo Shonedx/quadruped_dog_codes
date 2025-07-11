@@ -86,7 +86,7 @@ void TIM4_IRQHandler() //¿ØÖÆÀàÂß¼­ 10 ms
 	{
 		
 		NRF24L01_RxPacket_IRQ(rx_buffer);
-//		RC_LevelCtrl();
+
 		TIM_ClearITPendingBit(TIM4,TIM_IT_Update);
 	}
 }

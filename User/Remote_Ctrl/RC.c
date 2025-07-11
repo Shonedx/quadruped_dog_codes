@@ -27,13 +27,17 @@ uint16_t rc_right_y_md=2020;
 //
 extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH]; //接收数组
 extern MotionState_t current_motion_state;
-
-static uint16_t constrain(uint16_t value, uint16_t min, uint16_t max) { //限幅函数
+extern const float step_length;
+//static uint16_t constrain(uint16_t value, uint16_t min, uint16_t max) { //限幅函数
+//    if (value < min) return min;
+//    if (value > max) return max;
+//    return value;
+//}
+static float constrain(float value, float min, float max) { //限幅函数
     if (value < min) return min;
     if (value > max) return max;
     return value;
 }
-
 void trans_rx_buffer_to_formal_datas(void) //转换接收的数据为标准格式
 {
 	formal_datas[0]=rx_buffer[0]&0x0f;
@@ -94,4 +98,40 @@ void RC_MotionCtrl(void) //切换机器狗运动状态的控制器
 	}
 	
 
+}
+extern uint16_t rc_left_x,rc_left_y,rc_right_x,rc_right_y;
+//中点值 middle 小于中点部分为左 or 上
+extern uint16_t rc_left_x_md,rc_left_y_md,rc_right_x_md,rc_right_y_md;	
+ 
+void RC_StepLengthCtrl(GaitParams *gaitparams)
+{
+	if(if_in_normal_range(rc_left_x,rc_left_x_md-100,rc_left_x_md+100)) //当左摇杆只往纵轴拨时 前进 or 后退
+	{
+		float K=constrain(-((float)rc_left_y-(float)rc_left_y_md)/2048.0f,-1,1);
+		//left legs
+		gaitparams[0].steplength=K*step_length;
+		gaitparams[2].steplength=K*step_length;
+		//right legs
+		gaitparams[1].steplength=K*step_length;
+		gaitparams[3].steplength=K*step_length;
+	}
+	else//转弯
+	{
+		float K=constrain(((float)rc_left_x-(float)rc_left_x_md)/2048.0f,-1,1); 
+		//left legs
+		gaitparams[0].steplength=K*step_length;
+		gaitparams[2].steplength=K*step_length;
+		//right legs
+		gaitparams[1].steplength=-K*step_length;
+		gaitparams[3].steplength=-K*step_length;
+	}
+	if(if_in_normal_range(rc_left_x,rc_left_x_md-100,rc_left_x_md+100)&&if_in_normal_range(rc_left_y,rc_left_y_md-100,rc_left_y_md+100)) //当左摇杆没咋动时
+	{
+		//left legs
+		gaitparams[0].steplength*=0;
+		gaitparams[2].steplength*=0;
+		//right legs
+		gaitparams[1].steplength*=0;
+		gaitparams[3].steplength*=0;
+	}
 }
