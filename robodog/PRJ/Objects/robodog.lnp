@@ -1,0 +1,25 @@
+--cpu=Cortex-M4.fp
+".\objects\imu.o"
+".\objects\iwdg.o"
+".\objects\oled_iic.o"
+".\objects\rc_nrf24l01.o"
+".\objects\rc_spi.o"
+".\objects\can.o"
+".\objects\main.o"
+".\objects\delay.o"
+".\objects\sys.o"
+".\objects\usart.o"
+".\objects\timer.o"
+".\objects\kalman.o"
+".\objects\gaitparams.o"
+".\objects\jump.o"
+".\objects\motion_ctrl.o"
+".\objects\motor.o"
+".\objects\pid.o"
+".\objects\rc.o"
+".\objects\font.o"
+".\objects\oled.o"
+--strict --scatter ".\Objects\robodog.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\robodog.map" -o .\Objects\robodog.axf
