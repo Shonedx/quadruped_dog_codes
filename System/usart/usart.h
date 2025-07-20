@@ -1,9 +1,9 @@
 #ifndef __USART_H
 #define __USART_H
-
-// USARTÏà¹Øºê¶¨Òå
-#define EN_USART1_RX 1 // ÊÇ·ñÆôÓÃUSART1µÄRXÖÐ¶Ï¡¯
-// Êý¾Ý½á¹¹¶¨Òå
+#include "stdint.h"
+// USARTï¿½ï¿½Øºê¶¨ï¿½ï¿½
+#define EN_USART1_RX 1 // ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½USART1ï¿½ï¿½RXï¿½Ð¶Ï¡ï¿½
+// ï¿½ï¿½ï¿½Ý½á¹¹ï¿½ï¿½ï¿½ï¿½
 typedef struct {
     float roll;
     float pitch;
@@ -20,7 +20,7 @@ typedef struct {
 typedef struct {
     int16_t Accel[3];
 } stcAccel_t;
-// USARTÏà¹Øº¯ÊýÉùÃ÷
+// USARTï¿½ï¿½Øºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void USART1_Init(void);
 void USART4_Init(void);
 void USART3_Init(void);
@@ -28,6 +28,9 @@ void USART3_Init(void);
 void UART1_Put_Char(unsigned char DataToSend);
 void UART1_Put_String(unsigned char *Str);
 void CopeSerial3Data(unsigned char ucData);
+void usart1TxDateToVofa(float ch1, float ch2, float ch3,float ch4);
+
+
 
 extern Euler_t Euler;
 extern Accel_t Accel;

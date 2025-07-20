@@ -1,6 +1,9 @@
 .\objects\can.o: Hardware\CAN\can.c
 .\objects\can.o: .\User\Allheaderfile.h
-.\objects\can.o: .\System\sys\sys.h
+.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\can.o: .\Library\inc\stm32f4xx.h
 .\objects\can.o: .\Core\core_cm4.h
 .\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -36,10 +39,6 @@
 .\objects\can.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\can.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\can.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\can.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\can.o: .\System\delay\delay.h
 .\objects\can.o: .\System\usart\usart.h
 .\objects\can.o: Hardware\CAN\can.h

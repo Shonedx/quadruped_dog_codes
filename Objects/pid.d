@@ -1,6 +1,9 @@
 .\objects\pid.o: Hardware\PID\pid.c
 .\objects\pid.o: .\User\Allheaderfile.h
-.\objects\pid.o: .\System\sys\sys.h
+.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\pid.o: .\Library\inc\stm32f4xx.h
 .\objects\pid.o: .\Core\core_cm4.h
 .\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -36,10 +39,6 @@
 .\objects\pid.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\pid.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\pid.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\pid.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\pid.o: .\System\delay\delay.h
 .\objects\pid.o: .\System\usart\usart.h
 .\objects\pid.o: Hardware\PID\pid.h

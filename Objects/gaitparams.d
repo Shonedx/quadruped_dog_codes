@@ -2,8 +2,6 @@
 .\objects\gaitparams.o: User\ges_cal\GaitParams.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\gaitparams.o: User\ges_cal\ges_cal.h
-.\objects\gaitparams.o: .\User\Allheaderfile.h
-.\objects\gaitparams.o: .\System\sys\sys.h
 .\objects\gaitparams.o: .\Library\inc\stm32f4xx.h
 .\objects\gaitparams.o: .\Core\core_cm4.h
 .\objects\gaitparams.o: .\Core\core_cmInstr.h
@@ -38,6 +36,7 @@
 .\objects\gaitparams.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\gaitparams.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\gaitparams.o: .\Library\inc\stm32f4xx_fsmc.h
+.\objects\gaitparams.o: .\User\Allheaderfile.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h

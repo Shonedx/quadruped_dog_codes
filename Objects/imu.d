@@ -1,12 +1,9 @@
 .\objects\imu.o: User\IMU\IMU.c
 .\objects\imu.o: User\IMU\imu.h
 .\objects\imu.o: .\User\ges_cal\ges_cal.h
-.\objects\imu.o: .\User\ges_cal\gaitparams.h
-.\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
-.\objects\imu.o: .\User\Allheaderfile.h
-.\objects\imu.o: .\System\sys\sys.h
 .\objects\imu.o: .\Library\inc\stm32f4xx.h
 .\objects\imu.o: .\Core\core_cm4.h
+.\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\imu.o: .\Core\core_cmInstr.h
 .\objects\imu.o: .\Core\core_cmFunc.h
 .\objects\imu.o: .\Core\core_cm4_simd.h
@@ -39,6 +36,8 @@
 .\objects\imu.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\imu.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\imu.o: .\Library\inc\stm32f4xx_fsmc.h
+.\objects\imu.o: .\User\ges_cal\gaitparams.h
+.\objects\imu.o: .\User\Allheaderfile.h
 .\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h

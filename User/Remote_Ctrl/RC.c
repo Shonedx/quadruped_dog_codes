@@ -99,10 +99,7 @@ void RC_MotionCtrl(void) //切换机器狗运动状态的控制器
 	
 
 }
-extern uint16_t rc_left_x,rc_left_y,rc_right_x,rc_right_y;
-//中点值 middle 小于中点部分为左 or 上
-extern uint16_t rc_left_x_md,rc_left_y_md,rc_right_x_md,rc_right_y_md;	
- 
+
 void RC_StepLengthCtrl(GaitParams *gaitparams)
 {
 	if(if_in_normal_range(rc_left_x,rc_left_x_md-100,rc_left_x_md+100)) //当左摇杆只往纵轴拨时 前进 or 后退

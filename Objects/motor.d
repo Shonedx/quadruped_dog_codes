@@ -1,10 +1,13 @@
 .\objects\motor.o: Hardware\MOTOR\motor.c
 .\objects\motor.o: Hardware\MOTOR\motor.h
+.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\motor.o: .\User\Allheaderfile.h
-.\objects\motor.o: .\System\sys\sys.h
+.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\motor.o: .\Library\inc\stm32f4xx.h
 .\objects\motor.o: .\Core\core_cm4.h
-.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\motor.o: .\Core\core_cmInstr.h
 .\objects\motor.o: .\Core\core_cmFunc.h
 .\objects\motor.o: .\Core\core_cm4_simd.h
@@ -37,10 +40,6 @@
 .\objects\motor.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\motor.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\motor.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\motor.o: .\System\delay\delay.h
 .\objects\motor.o: .\System\usart\usart.h
 .\objects\motor.o: .\Hardware\PID\pid.h

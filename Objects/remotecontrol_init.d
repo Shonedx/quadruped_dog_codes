@@ -36,7 +36,6 @@
 .\objects\remotecontrol_init.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\remotecontrol_init.o: .\Library\inc\stm32f4xx_fsmc.h
 .\objects\remotecontrol_init.o: .\User\Allheaderfile.h
-.\objects\remotecontrol_init.o: .\System\sys\sys.h
 .\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h

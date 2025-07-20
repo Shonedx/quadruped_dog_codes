@@ -1,6 +1,9 @@
 .\objects\ges_cal.o: User\ges_cal\ges_cal.c
 .\objects\ges_cal.o: .\User\Allheaderfile.h
-.\objects\ges_cal.o: .\System\sys\sys.h
+.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\ges_cal.o: .\Library\inc\stm32f4xx.h
 .\objects\ges_cal.o: .\Core\core_cm4.h
 .\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -36,10 +39,6 @@
 .\objects\ges_cal.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\ges_cal.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\ges_cal.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\ges_cal.o: .\System\delay\delay.h
 .\objects\ges_cal.o: .\System\usart\usart.h
 .\objects\ges_cal.o: User\ges_cal\ges_cal.h

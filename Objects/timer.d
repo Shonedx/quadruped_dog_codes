@@ -1,6 +1,9 @@
 .\objects\timer.o: User\Time_ctrl\timer.c
 .\objects\timer.o: .\User\Allheaderfile.h
-.\objects\timer.o: .\System\sys\sys.h
+.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\timer.o: .\Library\inc\stm32f4xx.h
 .\objects\timer.o: .\Core\core_cm4.h
 .\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -36,10 +39,6 @@
 .\objects\timer.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\timer.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\timer.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\timer.o: .\System\delay\delay.h
 .\objects\timer.o: .\System\usart\usart.h
 .\objects\timer.o: User\Time_ctrl\ticks.h
@@ -48,3 +47,6 @@
 .\objects\timer.o: .\User\Remote_Ctrl\RC.h
 .\objects\timer.o: .\User\ges_cal\gaitparams.h
 .\objects\timer.o: .\Hardware\LED\led.h
+.\objects\timer.o: .\User\ges_cal\jump.h
+.\objects\timer.o: .\User\ges_cal\ges_cal.h
+.\objects\timer.o: .\System\sys\sys.h

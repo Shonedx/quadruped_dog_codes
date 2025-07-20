@@ -1,11 +1,12 @@
 #include "motor.h"
 #include "pid.h"
 #include "can.h"
-//Æô¶¯µç»úÏà¹Ø
+#include "stdint.h"
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 Motors motors;
-//¼ÆËã¾ø¶Ô½Ç¶È´¦Àí
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½Ç¶È´ï¿½ï¿½ï¿½
 
-// È«¾Ö±äÁ¿
+// È«ï¿½Ö±ï¿½ï¿½ï¿½
 static uint8_t cnt[8] = {1, 1, 1, 1, 1, 1, 1, 1};
 
 void Motor_Absolute_Angle_Cal(Motor_Property *motor, float T, uint8_t index)
@@ -26,16 +27,16 @@ void Motor_Absolute_Angle_Cal(Motor_Property *motor, float T, uint8_t index)
 
     if (motor_error[0] > 0)
     {
-        res1 = motor_error[0] - T; // ·´×ª×Ô¼õ
+        res1 = motor_error[0] - T; // ï¿½ï¿½×ªï¿½Ô¼ï¿½
         res2 = motor_error[0];
     }
     else
     {
-        res1 = motor_error[0] + T; // Õý×ª£¬×Ô¼ÓÒ»¸öÖÜÆÚµÄ½Ç¶ÈÖµ (360)
+        res1 = motor_error[0] + T; // ï¿½ï¿½×ªï¿½ï¿½ï¿½Ô¼ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ÚµÄ½Ç¶ï¿½Öµ (360)
         res2 = motor_error[0];
     }
 
-    if (abs(res1) < abs(res2)) // ²»¹ÜÕý·´×ª£¬¿Ï¶¨ÊÇ×ªµÄ½Ç¶ÈÐ¡µÄÄÇ¸öÊÇÕæµÄ
+    if (abs(res1) < abs(res2)) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½Ï¶ï¿½ï¿½ï¿½×ªï¿½Ä½Ç¶ï¿½Ð¡ï¿½ï¿½ï¿½Ç¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     {
         motor_error[1] = res1;
     }
@@ -49,14 +50,14 @@ void Motor_Absolute_Angle_Cal(Motor_Property *motor, float T, uint8_t index)
 }
 
 
-void Set_Max_Output_SL(int max_out)//ÉèÖÃËÙ¶È»·×î´óÊä³ö
+void Set_Max_Output_SL(int max_out)//ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	for(int i=0;i<8;i++)
 	{
 		motor_speed_loop_pid.ID[i].max_out =max_out;
 	}
 }
-void Set_Max_Output_PL( int max_out)//ÉèÖÃ½Ç¶È»·×î´óÊä³ö
+void Set_Max_Output_PL( int max_out)//ï¿½ï¿½ï¿½Ã½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	for(int i=0;i<8;i++)
 	{
@@ -68,16 +69,16 @@ void Set_Motor_Target_Angle(int i)
 {
 	
 	Set_Angle_Loop_Parameters(&motors.ID[i], motor_final_output_angles.ID[i],motors.ID[i].absolute_angle);
-	motors.ID[i].output_angle = PID_Calc(&motor_position_loop_pid.ID[i],  &motors.ID[i]);//½Ç¶È»·Êä³ö
+	motors.ID[i].output_angle = PID_Calc(&motor_position_loop_pid.ID[i],  &motors.ID[i]);//ï¿½Ç¶È»ï¿½ï¿½ï¿½ï¿½
 }
 void Set_Motor_Target_Speed(int i)
 {
-	motors.ID[i].target_speed = motors.ID[i].output_angle; // ½Ç¶È»·Êä³ö×÷ÎªËÙ¶È»·ÊäÈë
+	motors.ID[i].target_speed = motors.ID[i].output_angle; // ï¿½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 void Set_Motor_Output_Current(int i)
 {
-	motors.ID[i].output_current = PID_Calc(&motor_speed_loop_pid.ID[i], &motors.ID[i]); // Êä³ö¸øµç»úµÄµçÁ÷
+	motors.ID[i].output_current = PID_Calc(&motor_speed_loop_pid.ID[i], &motors.ID[i]); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½
 }
 
 void Load_Data_To_Canbuf(int i)
@@ -85,36 +86,36 @@ void Load_Data_To_Canbuf(int i)
 	switch(i)
 	{
 		case 0:
-			canbuf[0] = ((short)(motors.ID[0].output_current)) >> 8; //°ÑÊý¾Ý×°Èë´ý·¢ËÍµÄcanÊý¾Ý»º´æÊý×é
-			canbuf[1] = ((short)(motors.ID[0].output_current)) & 0x00FF;
+			canbuf[0] = ((int16_t)(motors.ID[0].output_current)) >> 8; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½canï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			canbuf[1] = ((int16_t)(motors.ID[0].output_current)) & 0x00FF;
 			break;
 		case 1:
-			canbuf[2] = ((short)(motors.ID[1].output_current)) >> 8;
-			canbuf[3] = ((short)(motors.ID[1].output_current)) & 0x00FF;
+			canbuf[2] = ((int16_t)(motors.ID[1].output_current)) >> 8;
+			canbuf[3] = ((int16_t)(motors.ID[1].output_current)) & 0x00FF;
 			break;
 		case 2:
-			canbuf[4] = ((short)(motors.ID[2].output_current)) >> 8;
-			canbuf[5] = ((short)(motors.ID[2].output_current)) & 0x00FF;
+			canbuf[4] = ((int16_t)(motors.ID[2].output_current)) >> 8;
+			canbuf[5] = ((int16_t)(motors.ID[2].output_current)) & 0x00FF;
 			break;
 		case 3:
-			canbuf[6] = ((short)(motors.ID[3].output_current)) >> 8;
-			canbuf[7] = ((short)(motors.ID[3].output_current)) & 0x00FF;
+			canbuf[6] = ((int16_t)(motors.ID[3].output_current)) >> 8;
+			canbuf[7] = ((int16_t)(motors.ID[3].output_current)) & 0x00FF;
 			break;
 		case 4:
-			canbuf2[0] = ((short)(motors.ID[4].output_current)) >> 8;
-			canbuf2[1] = ((short)(motors.ID[4].output_current)) & 0x00FF;
+			canbuf2[0] = ((int16_t)(motors.ID[4].output_current)) >> 8;
+			canbuf2[1] = ((int16_t)(motors.ID[4].output_current)) & 0x00FF;
 			break;
 		case 5:
-			canbuf2[2] = ((short)(motors.ID[5].output_current)) >> 8;
-			canbuf2[3] = ((short)(motors.ID[5].output_current)) & 0x00FF;
+			canbuf2[2] = ((int16_t)(motors.ID[5].output_current)) >> 8;
+			canbuf2[3] = ((int16_t)(motors.ID[5].output_current)) & 0x00FF;
 			break;
 		case 6:
-			canbuf2[4] = ((short)(motors.ID[6].output_current)) >> 8;
-			canbuf2[5] = ((short)(motors.ID[6].output_current)) & 0x00FF;
+			canbuf2[4] = ((int16_t)(motors.ID[6].output_current)) >> 8;
+			canbuf2[5] = ((int16_t)(motors.ID[6].output_current)) & 0x00FF;
 			break;
 		case 7:
-			canbuf2[6] = ((short)(motors.ID[7].output_current)) >> 8;
-			canbuf2[7] = ((short)(motors.ID[7].output_current)) & 0x00FF;
+			canbuf2[6] = ((int16_t)(motors.ID[7].output_current)) >> 8;
+			canbuf2[7] = ((int16_t)(motors.ID[7].output_current)) & 0x00FF;
 			break;
 
 	}
@@ -124,7 +125,7 @@ void SetZeroToCanBuf(int i)
 	switch(i)
 	{
 		case 0:
-			canbuf[0] = (0) >> 8; //°ÑÊý¾Ý×°Èë´ý·¢ËÍµÄcanÊý¾Ý»º´æÊý×é
+			canbuf[0] = (0) >> 8; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½canï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			canbuf[1] = (0) & 0x00FF;
 			break;
 		case 1:
@@ -160,28 +161,56 @@ void SetZeroToCanBuf(int i)
 }
 void Can1_Send_Msg_to_Motor(void)
 {
-	// ·¢ËÍCAN1ÏûÏ¢
+	// ï¿½ï¿½ï¿½ï¿½CAN1ï¿½ï¿½Ï¢
     CAN1_Send_Msg(canbuf, 8);
 }
 
 void Can2_Send_Msg_to_Motor(void)
 {
-	 // ·¢ËÍCAN2ÏûÏ¢
+	 // ï¿½ï¿½ï¿½ï¿½CAN2ï¿½ï¿½Ï¢
     CAN2_Send_Msg(canbuf2, 8);
 }
 
-void Motor_Auto_Run(void) //Çý¶¯µç»ú
+void Motor_Auto_Run(void) //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 
 	for(int i=0;i<8;i++)
 	{
-		Motor_Absolute_Angle_Cal(&motors.ID[i], 360, i); //¼ÆËã¾ø¶Ô½Ç¶ÈÖµ
-		Set_Motor_Target_Angle(i);
-		Set_Motor_Target_Speed(i);
-		Set_Motor_Output_Current(i);
-		Load_Data_To_Canbuf(i);
+		runSingleMotor(i);
 	}
 	Can1_Send_Msg_to_Motor();
 	Can2_Send_Msg_to_Motor();
 
+}
+void runSingleMotor(int i)
+{
+	Motor_Absolute_Angle_Cal(&motors.ID[i], 360, i); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½Ç¶ï¿½Öµ
+	Set_Motor_Target_Angle(i);
+	Set_Motor_Target_Speed(i);
+	Set_Motor_Output_Current(i);
+	Load_Data_To_Canbuf(i);
+}
+void runSingleLeg(int i)
+{
+	switch (i)
+	{
+	case 0 :
+		runSingleMotor(0);
+		runSingleMotor(1);
+		break;
+	case 1 :
+		runSingleMotor(2);
+		runSingleMotor(3);
+		break;
+	case 2 :
+		runSingleMotor(4);
+		runSingleMotor(5);
+		break;
+	case 3 :
+		runSingleMotor(6);
+		runSingleMotor(7);
+		break;
+	default:
+		break;
+	}
 }

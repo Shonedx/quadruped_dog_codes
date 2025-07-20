@@ -6,12 +6,12 @@
 #define L2 24.0f //30
 
 #define xa 3.5f            
-#define xb -3.5f        //xa,xbÎªÁ½µç»úµã×ø±ê,xa=-xb=motor_length/2(ÖáĞÄ¾à/2)
-#define PI 3.1415f  //¦°,ĞèÒª×ª»»Îªf,Ê¹Æä¿É²ÎÓëfloatÖµÔËËã
-#define val 180.0f/PI  //»¡¶ÈÖÆ×ª»»²ÎÊı
-#define AngleRaito 436.926337 //24Äê11.20 Õâ¸öÃ»ÓÃµ½
-#define Gaito     3591/187//3508×ª×Ó±È,½Ç¶È»·¿ØÖÆÊ±ĞèÒª½«Ï£ÍûµÄ½Ç¶È³ËÉÏÕâ¸ö
-#define t_length  0.0023//Ê±¼ä²½³¤ 0.0025
+#define xb -3.5f        //xa,xbÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,xa=-xb=motor_length/2(ï¿½ï¿½ï¿½Ä¾ï¿½/2)
+#define PI 3.1415f  //ï¿½ï¿½,ï¿½ï¿½Òª×ªï¿½ï¿½Îªf,Ê¹ï¿½ï¿½É²ï¿½ï¿½ï¿½floatÖµï¿½ï¿½ï¿½ï¿½
+#define val 180.0f/PI  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define AngleRaito 436.926337 //24ï¿½ï¿½11.20 ï¿½ï¿½ï¿½Ã»ï¿½Ãµï¿½
+#define Gaito     3591/187//3508×ªï¿½Ó±ï¿½,ï¿½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Òªï¿½ï¿½Ï£ï¿½ï¿½ï¿½Ä½Ç¶È³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define t_length  0.0023//Ê±ï¿½ä²½ï¿½ï¿½ 0.0025
 #define t_length_w  0.0020 //0.0020
 
 /***/
@@ -20,9 +20,17 @@
 #define StepLenthMin 2.0f
 #define StandHeight (20.0f) //max 30  min 12
 #define CrouchHeight (14.0f)
-#define HeigherHeight (30.0f)
+#define HeigherHeight (35.0f)
+//pid
+#define SPEED_P 12
+#define SPEED_I 0.1
+#define SPEED_D 0.01
+#define POS_P 15
+#define POS_I 0.01
+#define POS_D 0.5
 
-
+#include "stm32f4xx.h"
+#include "gaitparams.h"
 
 typedef struct
 {
@@ -33,7 +41,34 @@ typedef struct
     float fai1;
     float theta1;
     float theta2;
-} Leg; //ºÍÍÈ²¿ÔË¶¯ÓĞ¹Ø
+    float p;
+    float prev_t;
+} Leg; //ï¿½ï¿½ï¿½È²ï¿½ï¿½Ë¶ï¿½ï¿½Ğ¹ï¿½
+
+typedef struct  Rotate_Stretch
+{
+    float rotate_angle; //æ—‹è½¬è§’åº¦
+    float stretch_length; //ä¼¸å±•é•¿åº¦
+    
+    float rotate_time; //è®¡æ•°æœ€å¤§æ—¶é—´ 0-1
+    float stretch_time; 
+    
+    float rotate_freq; //è®¡æ•°é¢‘ç‡
+    float stretch_freq; 
+
+    float rotate_count; //è®¡æ•°
+    float stretch_count; 
+
+    float rotate_prev_t[2]; //ä¸Šä¸€æ¬¡è®¡æ•°æ—¶é—´
+    float stretch_prev_t[2]; 
+    
+    float rotate_k; //æ¯”ä¾‹ç³»æ•° 
+    float stretch_k; //æ¯”ä¾‹ç³»æ•°
+    
+    //å®Œæˆç½®ä½
+    u8 flag;
+}Rotate_Stretch_t; //é…åˆrotateAndStretchå‡½æ•°ä½¿ç”¨
+
 
 extern Leg legs[4];
 
@@ -46,16 +81,22 @@ void CartesianToTheta_Cycloid(Leg *leg);
 
 void CartesianToTheta_Cycloid_All_Legs(void);
 
-void Angle_Setting_Cycloid(int Legid);  // Moveleg Àï±»µ÷ÓÃ
+void Angle_Setting_Cycloid(int Legid);  // Moveleg ï¿½ï±»ï¿½ï¿½ï¿½ï¿½
 
 void Moveleg(void);
 
 void AllLeg_Set_angle(int target_angle, int offset);
 
-void Motor_Auto_Run(void); //Çı¶¯µç»ú
+void Motor_Auto_Run(void); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 void Motor_Set_Current(void);
 
 void Stand_Init(void);
+
+u8 rotateAndStretch(float t,  float rotate_angle, float stretch_length
+                    ,float original_length,float original_angle
+                    ,Leg *leg,Rotate_Stretch_t *rs); //å‡½æ•°å†…éƒ¨ä¼šå°†flagç½®ä½
+
+void updatePrevTime(float t);
 
 #endif

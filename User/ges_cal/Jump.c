@@ -3,512 +3,390 @@
 #include "pid.h"
 #include "motor.h"
 #include "RC.h"
-//from remotectrl_init.c
-//extern int left_x, left_y, right_x, right_y; 
+#include "GaitParams.h"
+#include "../DEFINE/define_file.h"
 
-
-
-//Ã¯‘æ ±º‰
-const float bend_time=200; //∏©…Ìª˘ ±º‰  
-const float lean_time=200; //«„–±ª˘ ±º‰
-const float exe_jump_time=80
-	; //µ≈Õ»÷¥–– ±º‰ 40ms // 0.04 
-const float fall_time=200; //¬‰µÿª÷∏¥ ±º‰ 0.03 30ms
-const float jump_time_offset=30
-	; //«∞∫ÛÕ»Ã¯‘æ∆´“∆÷µ ±ÿ–Î–°”⁄exe_jump_time
-
-//Ã¯‘æœ‡πÿÕ»≥§≤Œ ˝
-const double stretch_length=28.0f; //…Ï’π≥§∂»
-const double shrink_length=14.0f; // ’Àı≥§∂»
-const double fall_length=14.0f ;//¬‰µÿª∫≥Â≥§∂»
-
-
-//=============Ã¯‘æΩ«∂»…Ë÷√===============
-double pre_front_legs_angle=0;
-double pre_behind_legs_angle=0;
-
-double exe_front_legs_angle=-3;
-double exe_behind_legs_angle=-3;
-//∂®÷µ
-const double rcv_front_legs_angle=3;
-const double rcv_behind_legs_angle=2;
-
-//=============°∞Ã¯‘æ◊º±∏°±œ‡πÿ±‰¡ø================
-static uint16_t bend_count=0; //∏©…Ìº∆ ˝ ±º‰
-static uint16_t lean_count=0; //«„–±Ω«∂»º∆ ˝ ±º‰
-static uint16_t exe_jump_count=0; //Ã¯‘æº∆ ˝ ±º‰
-//±Í÷æŒª
-uint8_t bend_flag=0; //ÕÍ≥…∫Û÷√“ª
-uint8_t lean_flag=0; //ÕÍ≥…∫Û÷√“ª
-uint8_t Jump_OK=1;
+#define STRETCH_LENGTH 30.0f
+#define SHRINK_LENGTH 12.0f
+#define FALL_LENGTH 14.0f
+#define TIME_OFFSET 0.15f //0.15s ÂâçÂêéËÖøÂä®‰ΩúÊó∂Èó¥Â∑Æ
 
 extern uint16_t rc_left_x,rc_left_y,rc_right_x,rc_right_y;
 extern uint8_t pre_angle;
 extern JumpState_t jump_state;
 extern CtrlState_t ctrl_state;
-//================Ã¯‘æœ‡πÿ∫Ø ˝====================
-void Bend(void) //π∑◊”œ»∏©…Ì
-{
-	double x_front_legs=0;
-	double z_front_legs=StandHeight;
-	double x_behind_legs=0;
-	double z_behind_legs=StandHeight;
-	ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-	Set_Max_Output_SL(8000);
-	Set_Max_Output_PL(8000);
-//	double K =(float)bend_count/(float)bend_time;
-//	if(K>1)K=1;
-//	x_front_legs = (shrink_length*K+(1.0f-K)*StandHeight)*sin(K*0*PI/180.0f);
-//	z_front_legs = (shrink_length*K+(1.0f-K)*StandHeight)*cos(K*0*PI/180.0f);
-//	x_behind_legs = (shrink_length*K+(1.0f-K)*StandHeight)*sin(K*0*PI/180.0f);
-//	z_behind_legs = (shrink_length*K+(1.0f-K)*StandHeight)*cos(K*0*PI/180.0f);	
+extern Leg legs[4]; //legs[2],legs[3]ÊòØÂêéËÖøÔºålegs[0],legs[1]ÊòØÂâçËÖø
+extern GaitParams  gait_params[][4];
 
-	x_front_legs = (shrink_length)*sin(0*PI/180.0f);
-	z_front_legs = (shrink_length)*cos(0*PI/180.0f);
-	x_behind_legs = (shrink_length)*sin(0*PI/180.0f);
-	z_behind_legs = (shrink_length)*cos(0*PI/180.0f);	
-	
-	legs[2].x = x_behind_legs;
-	legs[2].z = z_behind_legs;
-	legs[3].x = x_behind_legs;
-	legs[3].z = z_behind_legs;
-	legs[0].x = x_front_legs;
-	legs[0].z = z_front_legs;
-	legs[1].x = x_front_legs;
-	legs[1].z = z_front_legs;
-	// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
-	CartesianToTheta_Cycloid_All_Legs();
-	// øÿ÷∆Õ»≤ø‘À∂Ø
-	Moveleg();
-	Motor_Auto_Run();
-	
-	if(bend_count<=bend_time)
-		bend_count++;
-	if(bend_count>=bend_time)
-		bend_flag=1;
-}
+JumpParameter_t jump_structure;
 
-void Lean(void) //0-30°„//…Ë÷√◊º±∏Ω◊∂Œµƒ«„–±Ω«∂»
+void jumpInit(JumpParameter_t *js)
 {
 	
-	pre_front_legs_angle=-(float)pre_angle;
-	pre_behind_legs_angle=pre_front_legs_angle;
-	
-	exe_front_legs_angle=pre_front_legs_angle-3;
-	exe_behind_legs_angle=pre_behind_legs_angle-3;
-	
-//=============================
-	double x_front_legs=0;
-	double z_front_legs=StandHeight;
-	double x_behind_legs=0;
-	double z_behind_legs=StandHeight;
-	ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-	Set_Max_Output_SL(8000);
-	Set_Max_Output_PL(8000);
-
-//	double K =(float)lean_count/(float)lean_time;
-//	if(K>1)K=1;
-	
-	x_front_legs=shrink_length*sin(1*pre_front_legs_angle*PI/180.0f);
-	z_front_legs=shrink_length*cos(1*pre_front_legs_angle*PI/180.0f);
-	x_behind_legs=shrink_length*sin(1*pre_behind_legs_angle*PI/180.0f);
-	z_behind_legs=shrink_length*cos(1*pre_behind_legs_angle*PI/180.0f);	
-
-	legs[2].x = x_behind_legs;
-	legs[2].z = z_behind_legs;
-	legs[3].x = x_behind_legs;
-	legs[3].z = z_behind_legs;
-	legs[0].x = x_front_legs;
-	legs[0].z = z_front_legs;
-	legs[1].x = x_front_legs;
-	legs[1].z = z_front_legs;
-	// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
-	CartesianToTheta_Cycloid_All_Legs();
-	// øÿ÷∆Õ»≤ø‘À∂Ø
-	Moveleg();
-	Motor_Auto_Run();
-	if(lean_count<=lean_time)
-		lean_count++;
-	if(lean_count>=lean_time)
-		lean_flag=1;
-}
-
-void executeJump(void)
-{
-	exe_jump_count++;
-	double x_front_legs=0;
-	double z_front_legs=StandHeight;
-	double x_behind_legs=0;
-	double z_behind_legs=StandHeight;
-	
-	if ( exe_jump_count <exe_jump_time) 
+	ZERO(js); //ÂàùÂßãÂåñ‰∏∫Èõ∂
+	REP(i,4)
 	{
-		ChangeTheGainOfPID_KP_KI_KD(8,0.3,1.1,22,0.3,5.5);
-		Set_Max_Output_SL(12000);
-		Set_Max_Output_PL(12000);
-		if(exe_jump_count<exe_jump_time-jump_time_offset) 
-		{
-			ChangeTheGainOfPID_KP_KI_KD(8,0.3,1.1,22,0.3,5.5);
-			Set_Max_Output_SL(12000);
-			Set_Max_Output_PL(12000);
-			x_front_legs = stretch_length*sin(exe_front_legs_angle*PI/180.0f); 
-			z_front_legs = stretch_length*cos(exe_front_legs_angle*PI/180.0f);
-		}
-		else //«∞Õ»œ» ’Õ»
-		{
-			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			Set_Max_Output_SL(8000);
-			Set_Max_Output_PL(8000);
-			x_front_legs = fall_length*sin(rcv_front_legs_angle*PI/180.0f);
-			z_front_legs = fall_length*cos(rcv_front_legs_angle*PI/180.0f);
-		}
+		// js->bend_struct[i].flag = 0;
+		// js->bend_struct[i].rotate_count = 0;
+		// js->bend_struct[i].stretch_count = 0;
+		// js->bend_struct[i].rotate_prev_t = 0;
+		// js->bend_struct[i].stretch_prev_t = 0;
+		// js->bend_struct[i].rotate_angle = 0.0f; //ËøõÂÖ•BendÂáΩÊï∞Êó∂ËÆæÁΩÆ
+		js->bend_struct[i].stretch_length = SHRINK_LENGTH;
+		js->bend_struct[i].rotate_freq = 1;
+		js->bend_struct[i].stretch_freq = 1;
+		js->bend_struct[i].rotate_time = 0.5;
+		js->bend_struct[i].stretch_time = 0.5;
+
 		
-		x_behind_legs = stretch_length*sin(exe_behind_legs_angle*PI/180.0f);
-		z_behind_legs = stretch_length*cos(exe_behind_legs_angle*PI/180.0f);
-	}
+		// js->lean_struct[i].flag = 0;
+		// js->lean_struct[i].rotate_count = 0;
+		// js->lean_struct[i].stretch_count = 0;
+		// js->lean_struct[i].rotate_prev_t = 0;
+		// js->lean_struct[i].stretch_prev_t = 0;
+		// js->lean_struct[i].rotate_angle = 0.0f; //ËøõÂÖ•LeanÂáΩÊï∞Êó∂ËÆæÁΩÆ
+		js->lean_struct[i].rotate_freq = 1;
+		js->lean_struct[i].stretch_freq = 1;
+		js->lean_struct[i].rotate_time = 0.5;
+		js->lean_struct[i].stretch_time = 0.5;
+		js->lean_struct[i].stretch_length = SHRINK_LENGTH;
 
-	else 
-	{
-		ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-		Set_Max_Output_SL(8000);
-		Set_Max_Output_PL(8000);
-		x_front_legs = fall_length*sin(rcv_front_legs_angle*PI/180.0f);
-		z_front_legs = fall_length*cos(rcv_front_legs_angle*PI/180.0f);
-		x_behind_legs = fall_length*sin(rcv_behind_legs_angle*PI/180.0f);
-		z_behind_legs = fall_length*cos(rcv_behind_legs_angle*PI/180.0f);
-		if(exe_jump_count>=exe_jump_time+fall_time)
-		{
-			
-			exe_jump_count=0; //Ã¯‘æ ±º‰÷√¡„
-			Jump_OK = 1;	//ÕÍ≥…Ã¯‘æ÷√“ª
-		}
+		// js->exe_jump_struct[i].flag = 0;
+		// js->exe_jump_struct[i].rotate_count = 0;
+		// js->exe_jump_struct[i].stretch_count = 0;
+		// js->exe_jump_struct[i].rotate_prev_t = 0;
+		// js->exe_jump_struct[i].stretch_prev_t = 0;
+		// js->exe_jump_struct[i].rotate_angle = 0.0f; //ËøõÂÖ•exeJumpÂáΩÊï∞Êó∂ËÆæÁΩÆ
+		js->exe_jump_struct[i].stretch_length = STRETCH_LENGTH;
+		js->exe_jump_struct[i].rotate_freq = 10.0;
+		js->exe_jump_struct[i].stretch_freq = 12.0;
+		js->exe_jump_struct[i].rotate_time = 0.8;
+		js->exe_jump_struct[i].stretch_time = 0.8;
+
+		// js->rcv_jump_struct[i].flag = 0;
+		// js->rcv_jump_struct[i].rotate_count = 0;
+		// js->rcv_jump_struct[i].stretch_count = 0;
+		// js->rcv_jump_struct[i].rotate_prev_t = 0;
+		// js->rcv_jump_struct[i].stretch_prev_t = 0;
+
+		js->rcv_jump_struct[i].rotate_freq = 5;
+		js->rcv_jump_struct[i].stretch_freq = 5;
+		js->rcv_jump_struct[i].rotate_time =0.5;
+		js->rcv_jump_struct[i].stretch_time = 0.5;
+		js->rcv_jump_struct[i].stretch_length = FALL_LENGTH;
+		js->rcv_jump_struct[i].rotate_angle = 3.0f; //ËøõÂÖ•rcvJumpÂáΩÊï∞Êó∂ËÆæÁΩÆ
+
 	}
-	
-	legs[2].x = x_behind_legs;
-	legs[2].z = z_behind_legs;
-	legs[3].x = x_behind_legs;
-	legs[3].z = z_behind_legs;
-	legs[0].x = x_front_legs;
-	legs[0].z = z_front_legs;
-	legs[1].x = x_front_legs;
-	legs[1].z = z_front_legs;
-	CartesianToTheta_Cycloid_All_Legs();
-	// øÿ÷∆Õ»≤ø‘À∂Ø
-	Moveleg();
-	Motor_Auto_Run();
-	
+	// js->Jump_OK = 0; //‰∏ÄÂàáË∑≥Ë∑ÉÂÆåÊàêÂêéÁΩÆ1
+	// js->Bend_Flag=0;
+	// js->Lean_Flag=0;
 }
-//  IDLE,	ø’œ–
-//	BEND,	∏©…Ì step1
-//	LEAN,	«„–± step2
-//	EXE, 	÷¥–– step3
-void jumpCtrl(void)
+
+void resetJumpStructure(float t, JumpParameter_t *jump_structure)
+{
+	REP(i,4)
+	{
+		jump_structure->bend_struct[i].rotate_count = 0;
+		jump_structure->bend_struct[i].stretch_count = 0;
+		jump_structure->bend_struct[i].rotate_prev_t[0] = 0;
+		jump_structure->bend_struct[i].stretch_prev_t[0] = 0;
+		jump_structure->bend_struct[i].rotate_prev_t[1] = 0;
+		jump_structure->bend_struct[i].stretch_prev_t[1] = 0;
+		jump_structure->bend_struct[i].flag = 0;
+
+		jump_structure->lean_struct[i].rotate_count = 0;
+		jump_structure->lean_struct[i].stretch_count = 0;
+		jump_structure->lean_struct[i].rotate_prev_t[0]  = 0;
+		jump_structure->lean_struct[i].stretch_prev_t[0]  = 0;
+		jump_structure->lean_struct[i].rotate_prev_t[1]  = 0;
+		jump_structure->lean_struct[i].stretch_prev_t[1]  = 0;
+		jump_structure->lean_struct[i].flag = 0;
+
+		jump_structure->exe_jump_struct[i].rotate_count = 0;
+		jump_structure->exe_jump_struct[i].stretch_count = 0;
+		jump_structure->exe_jump_struct[i].rotate_prev_t[0]  = 0;
+		jump_structure->exe_jump_struct[i].stretch_prev_t[0]  = 0;
+		jump_structure->exe_jump_struct[i].rotate_prev_t[1]  = 0;
+		jump_structure->exe_jump_struct[i].stretch_prev_t[1]  = 0;
+		jump_structure->exe_jump_struct[i].flag = 0;
+
+		jump_structure->rcv_jump_struct[i].rotate_count = 0;
+		jump_structure->rcv_jump_struct[i].stretch_count = 0;
+		jump_structure->rcv_jump_struct[i].rotate_prev_t[0]  = 0;
+		jump_structure->rcv_jump_struct[i].stretch_prev_t[0]  = 0;
+		jump_structure->rcv_jump_struct[i].rotate_prev_t[1]  = 0;
+		jump_structure->rcv_jump_struct[i].stretch_prev_t[1]  = 0;
+		jump_structure->rcv_jump_struct[i].flag = 0;
+	}
+	jump_structure->Jump_OK = 0; //‰∏ÄÂàáË∑≥Ë∑ÉÂÆåÊàêÂêéÁΩÆ1
+	jump_structure->Bend_Flag=0;
+	jump_structure->Lean_Flag=0;
+}
+
+byte test1(float t, JumpParameter_t *js)
+{
+	REP(i,4)
+	{
+		js->exe_jump_struct[i].rotate_angle=js->lean_struct[i].rotate_angle-3;	
+		js->exe_jump_struct[i].flag=rotateAndStretch(t,js->exe_jump_struct[i].rotate_angle
+												,js->exe_jump_struct[i].stretch_length,
+												js->lean_struct[i].stretch_length, //Á´ôÁ´ãÈ´òÂ∫¶
+												js->lean_struct[i].rotate_angle,
+												&legs[i],
+												&js->exe_jump_struct[i]);
+	}
+	if(js->exe_jump_struct[0].flag
+	&&js->exe_jump_struct[1].flag
+	&&js->exe_jump_struct[2].flag
+	&&js->exe_jump_struct[3].flag) 
+	{
+		return 1; //bendÂÆåÊàê
+	}
+	return 0;
+}
+
+byte test2(float t, JumpParameter_t *js)
+{
+	REP(i,4)
+	{
+		js->rcv_jump_struct[i].flag=rotateAndStretch(t,js->rcv_jump_struct[i].rotate_angle
+												,js->rcv_jump_struct[i].stretch_length,
+												js->exe_jump_struct[i].stretch_length, //Á´ôÁ´ãÈ´òÂ∫¶
+												js->exe_jump_struct[i].rotate_angle,
+												&legs[i],
+												&js->rcv_jump_struct[i]);
+	}
+	if(js->rcv_jump_struct[0].flag
+	&&js->rcv_jump_struct[1].flag
+	&&js->rcv_jump_struct[2].flag
+	&&js->rcv_jump_struct[3].flag) 
+	{
+		return 1; //bendÂÆåÊàê
+	}
+	return 0;
+}
+byte Bend(float t, JumpParameter_t *js)
+{
+	REP(i,4)
+	{
+		js->bend_struct[i].flag=rotateAndStretch(t,js->bend_struct[i].rotate_angle
+												,js->bend_struct[i].stretch_length,
+												gait_params[0][i].stanceheight, //Á´ôÁ´ãÈ´òÂ∫¶
+												0,
+												&legs[i],
+												&js->bend_struct[i]);
+	}
+	if(js->bend_struct[0].flag
+	&&js->bend_struct[1].flag
+	&&js->bend_struct[2].flag
+	&&js->bend_struct[3].flag) 
+	{
+		return 1; //bendÂÆåÊàê
+	}
+	return 0;
+}
+byte Lean(float t, JumpParameter_t *js)
+{
+	REP(i,2)
+	{
+		js->lean_struct[i].rotate_angle=-(float)pre_angle;
+		js->lean_struct[i].flag=rotateAndStretch(t,js->lean_struct[i].rotate_angle
+												,js->lean_struct[i].stretch_length,
+												js->bend_struct[i].stretch_length, //bendÂêéÈ´òÂ∫¶
+												0,			
+												&legs[i],
+												&js->lean_struct[i]);
+		js->lean_struct[i+2].rotate_angle=-(float)pre_angle;
+		js->lean_struct[i+2].flag=rotateAndStretch(t,js->lean_struct[i+2].rotate_angle
+												,js->lean_struct[i+2].stretch_length,
+												js->bend_struct[i+2].stretch_length, //bendÂêéÈ´òÂ∫¶
+												0,			
+												&legs[i+2],
+												&js->lean_struct[i+2]);
+	}
+	if(js->lean_struct[0].flag
+	&&js->lean_struct[1].flag
+	&&js->lean_struct[2].flag
+	&&js->lean_struct[3].flag) 
+	{
+		return 1; //leanÂÆåÊàê
+	}
+	return 0;
+}
+
+byte exeJump(float t, JumpParameter_t *js)
+{
+	//ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+	ChangeTheGainOfPID_KP_KI_KD(12,0.1,0.01,25,0.01,1.5);
+	REP(i,2)
+	{
+		js->exe_jump_struct[i].rotate_angle=js->lean_struct[i].rotate_angle-3;	
+		js->exe_jump_struct[i].flag=rotateAndStretch(t,js->exe_jump_struct[i].rotate_angle
+												,js->exe_jump_struct[i].stretch_length,
+												js->lean_struct[i].stretch_length, //‰º∏Â±ïÈ´òÂ∫¶
+												js->lean_struct[i].rotate_angle,
+												&legs[i],
+												&js->exe_jump_struct[i]);
+		Set_Max_Output_SL(16384);
+		Set_Max_Output_PL(16384);	
+		//ÂçïÁã¨È©±Âä®ÂâçËÖø
+		CartesianToTheta_Cycloid(&legs[i]);
+		Angle_Setting_Cycloid(i);
+		runSingleLeg(i);
+
+		js->exe_jump_struct[i+2].rotate_angle=js->lean_struct[i+2].rotate_angle-3;	
+		//ÂêéËÖøË∑≥Ë∑ÉËπ¨ËÖøÊó∂Êúü
+		js->exe_jump_struct[i+2].flag=rotateAndStretch(t,js->exe_jump_struct[i+2].rotate_angle
+												,js->exe_jump_struct[i+2].stretch_length,
+												js->lean_struct[i+2].stretch_length, //‰º∏Â±ïÈ´òÂ∫¶
+												js->lean_struct[i+2].rotate_angle,
+												&legs[i+2],
+												&js->exe_jump_struct[i+2]);
+		Set_Max_Output_SL(16384);
+		Set_Max_Output_PL(16384);	
+		//ÂçïÁã¨È©±Âä®ÂâçËÖø
+		CartesianToTheta_Cycloid(&legs[i+2]);
+		Angle_Setting_Cycloid(i+2);
+		runSingleLeg(i+2);
+		
+	}
+	if(js->exe_jump_struct[0].flag
+		&&js->exe_jump_struct[1].flag
+		&&js->exe_jump_struct[2].flag
+		&&js->exe_jump_struct[3].flag) //ÂâçÂêéËÖøÈÉΩËêΩÂú∞‰∫Ü
+	{
+		return 1; //ÂÆåÊàê
+	}
+	return 0;
+
+}
+byte rcvJump(float t,JumpParameter_t *js)
+{
+	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+	REP(i,2)
+	{
+		//ÂâçËÖøËêΩÂú∞ÊÅ¢Â§çÊó∂Êúü
+		js->rcv_jump_struct[i].flag=rotateAndStretch(t,js->rcv_jump_struct[i].rotate_angle
+											,js->rcv_jump_struct[i].stretch_length,
+											js->exe_jump_struct[i].stretch_length, //‰º∏Â±ïÈ´òÂ∫¶
+											js->exe_jump_struct[i].rotate_angle,
+											&legs[i],
+											&js->rcv_jump_struct[i]);
+		Set_Max_Output_SL(8000);
+		Set_Max_Output_PL(8000);	
+		//ÂçïÁã¨È©±Âä®ÂâçËÖø
+		CartesianToTheta_Cycloid(&legs[i]);
+		Angle_Setting_Cycloid(i);
+		runSingleLeg(i);
+
+		js->rcv_jump_struct[i+2].flag=rotateAndStretch(t,js->rcv_jump_struct[i+2].rotate_angle
+											,js->rcv_jump_struct[i+2].stretch_length,
+											js->exe_jump_struct[i+2].stretch_length, //‰º∏Â±ïÈ´òÂ∫¶
+											js->exe_jump_struct[i+2].rotate_angle,
+											&legs[i+2],
+											&js->rcv_jump_struct[i+2]);
+		Set_Max_Output_SL(8000);
+		Set_Max_Output_PL(8000);	
+		//ÂçïÁã¨È©±Âä®ÂâçËÖø
+		CartesianToTheta_Cycloid(&legs[i+2]);
+		Angle_Setting_Cycloid(i+2);
+		runSingleLeg(i+2);
+	}
+	if(js->rcv_jump_struct[0].flag
+		&&js->rcv_jump_struct[1].flag
+		&&js->rcv_jump_struct[2].flag
+		&&js->rcv_jump_struct[3].flag) //ÂâçÂêéËÖøÈÉΩËêΩÂú∞‰∫Ü
+	{
+		return 1; //ÂÆåÊàê
+	}
+	return 0;
+}
+byte exe_flag=0;
+byte rcv_flag=0;
+uint16_t count1=0;
+void jumpCtrl(float t,JumpParameter_t *js)
 {
 	switch (jump_state)
 	{
 		case IDLE:
-		//œ‡πÿ±Í÷æŒª÷√¡„	
-			Jump_OK=0;
-			bend_flag=0;
-			lean_flag=0;
-		//º∆ ˝ ±º‰÷√¡„
-			exe_jump_count=0;
-			lean_count=0;
-			bend_count=0;
+			resetJumpStructure(t,js);
+			exe_flag=0;
+			rcv_flag=0;
+			count1=0;
+			ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 			Set_Max_Output_SL(8000);
 			Set_Max_Output_PL(8000);
-			// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
 			CartesianToTheta_Cycloid_All_Legs();
-			// øÿ÷∆Õ»≤ø‘À∂Ø
 			Moveleg();
 			Motor_Auto_Run();
 			break;
 		if(ctrl_state==CS_PRE_JUMP)
 		{
 			case BEND:
-				if(bend_flag==0&&lean_flag==0)
+				if(!js->Bend_Flag)
 				{
-					Bend();
+					js->Bend_Flag=Bend(t,js);
 				}
-				else if(bend_flag==1&&lean_flag==0)
-				{
-					Set_Max_Output_SL(8000);
-					Set_Max_Output_PL(8000);
-					// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
-					CartesianToTheta_Cycloid_All_Legs();
-					// øÿ÷∆Õ»≤ø‘À∂Ø
-					Moveleg();
-					Motor_Auto_Run();
-				}
+				ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+				Set_Max_Output_SL(8000);
+				Set_Max_Output_PL(8000);
+				CartesianToTheta_Cycloid_All_Legs();
+				Moveleg();
+				Motor_Auto_Run();	
 				break;
 			case LEAN:
-				if(bend_flag==1&&lean_flag==0)
+				if(!js->Lean_Flag)
 				{
-					Lean();
+					js->Lean_Flag=Lean(t,js);
 				}
-				else if(bend_flag==1&&lean_flag==1)
-				{
-					Set_Max_Output_SL(8000);
-					Set_Max_Output_PL(8000);
-					// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
-					CartesianToTheta_Cycloid_All_Legs();
-					// øÿ÷∆Õ»≤ø‘À∂Ø
-					Moveleg();
-					Motor_Auto_Run();
-				}
-				break;
+				ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+				Set_Max_Output_SL(8000);
+				Set_Max_Output_PL(8000);
+				CartesianToTheta_Cycloid_All_Legs();
+				Moveleg();
+				Motor_Auto_Run();
 		}
 		else if(ctrl_state==CS_EXE_JUMP)
 		{
 			case EXE:
-				if(bend_flag==1&&lean_flag==1)
+				if(!exe_flag&&!rcv_flag)
 				{
-					if(Jump_OK==0)
+					exe_flag=exeJump(t,js);
+					Can1_Send_Msg_to_Motor();
+					Can2_Send_Msg_to_Motor();
+				}
+				else if(!rcv_flag&&exe_flag)
+				{
+					if(count1++>50)
 					{
-						executeJump();
+						rcv_flag=rcvJump(t,js);
+						Can1_Send_Msg_to_Motor();
+						Can2_Send_Msg_to_Motor();
 					}
-					else
+					else 
 					{
-						Set_Max_Output_SL(8000);
-						Set_Max_Output_PL(8000);
-						// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
 						CartesianToTheta_Cycloid_All_Legs();
-						// øÿ÷∆Õ»≤ø‘À∂Ø
 						Moveleg();
 						Motor_Auto_Run();
 					}
+						
 				}
+				
+				else if(
+					exe_flag
+					&&
+					rcv_flag
+				)
+				{
+					ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+					CartesianToTheta_Cycloid_All_Legs();
+					Moveleg();
+					Motor_Auto_Run();
+				}
+				
 				break;
 		}
-		
 		default:
 			break;
 	}
-
-}	
-
-
-////prepare
-////front
-//const double pre_jump1_front_legs_rotate_angle=-12.0f;
-//const double pre_jump1_behind_legs_rotate_angle=-15.0f;
-////behind
-//const double pre_jump2_front_legs_rotate_angle=-23.0f;
-//const double pre_jump2_behind_legs_rotate_angle=-23.0f;
-////execute
-////front
-//const double exe_jump1_front_legs_rotate_angle=-20.0f;
-//const double exe_jump1_behind_legs_rotate_angle=-20.0f;
-////behind
-//const double exe_jump2_front_legs_rotate_angle=-28.0f;
-//const double exe_jump2_behind_legs_rotate_angle=-28.0f;
-////recovery
-////front
-//const double rcv_jump1_front_legs_rotate_angle=3.0f;
-//const double rcv_jump1_behind_legs_rotate_angle=3.0f;
-////behind
-//const double rcv_jump2_front_legs_rotate_angle=1.0f;
-//const double rcv_jump2_behind_legs_rotate_angle=2.0f;
-
-
-//void Execute_Jump(void) //∂® ±∆˜¿Ô√Ê5ms“ª÷–∂œ
-//{
-//    uint16_t t =Get_Jump_Time();;
-//   
-//	if(ctrl_state==CS_JUMP_1)
-//	{
-//			
-//			if (t < prep_time) {
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			double K =t/prep_time;
-//			if(K>1)K=1;
-//			double x__for_front_legs = (shrink_length*K+(1.0f-K)*StandHeight)*sin(K*pre_jump1_front_legs_rotate_angle*PI/180.0f);
-//			double z__for_front_legs = (shrink_length*K+(1.0f-K)*StandHeight)*cos(K*pre_jump1_front_legs_rotate_angle*PI/180.0f);
-//			double x_for_back_legs = (shrink_length*K+(1.0f-K)*StandHeight)*sin(K*pre_jump1_behind_legs_rotate_angle*PI/180.0f);
-//			double z_for_back_legs = (shrink_length*K+(1.0f-K)*StandHeight)*cos(K*pre_jump1_behind_legs_rotate_angle*PI/180.0f);	
-//				legs[2].x = x_for_back_legs;
-//				legs[2].z = z_for_back_legs;
-//				legs[3].x = x_for_back_legs;
-//				legs[3].z = z_for_back_legs;
-//				legs[0].x = x__for_front_legs;
-//				legs[0].z = z__for_front_legs;
-//				legs[1].x = x__for_front_legs;
-//				legs[1].z = z__for_front_legs;
-//			// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
-//			CartesianToTheta_Cycloid_All_Legs();
-//			// øÿ÷∆Õ»≤ø‘À∂Ø
-//			Moveleg();
-//			Motor_Auto_Run();
-
-//			}
-//			else if ( t < prep_time+execute_time_1) {
-//				ChangeTheGainOfPID_KP_KI_KD(8,0.3,1.1,22,0.3,5.5);
-//				Set_Max_Output_SL(12000);
-//				Set_Max_Output_PL(12000);
-//				double x__for_front_legs;
-//				double z__for_front_legs;
-//				if(t<prep_time+front_legs_execute_time)
-//				{
-//					 x__for_front_legs = stretch_length*sin(exe_jump1_front_legs_rotate_angle*PI/180.0f);
-//					 z__for_front_legs = stretch_length*cos(exe_jump1_front_legs_rotate_angle*PI/180.0f);
-//				}
-//				else
-//				{
-//					 x__for_front_legs = shrink_length*sin(rcv_jump1_front_legs_rotate_angle*PI/180.0f);
-//					 z__for_front_legs = shrink_length*cos(rcv_jump1_front_legs_rotate_angle*PI/180.0f);
-//				}
-//				
-//				double x_for_back_legs = stretch_length*sin(exe_jump1_behind_legs_rotate_angle*PI/180.0f);
-//				double z_for_back_legs = stretch_length*cos(exe_jump1_behind_legs_rotate_angle*PI/180.0f);
-//				legs[2].x = x_for_back_legs;
-//				legs[2].z = z_for_back_legs;
-//				legs[3].x = x_for_back_legs;
-//				legs[3].z = z_for_back_legs;
-//				legs[0].x = x__for_front_legs;
-//				legs[0].z = z__for_front_legs;
-//				legs[1].x = x__for_front_legs;
-//				legs[1].z = z__for_front_legs;
-//				// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
-//				CartesianToTheta_Cycloid_All_Legs();
-//				// øÿ÷∆Õ»≤ø‘À∂Ø
-//				Moveleg();
-//				Motor_Auto_Run();
-//			}
-
-//		else 
-//		{
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-////			double K2=(t-(prep_time+execute_time_1+execute_time_2+fly_time))/(recovery_time);
-//		
-////			double x = (StandHeight*K2+(1.0f-K2)*6.0f)*sin(0.0f*PI/180.0f);
-////            double z = (StandHeight*K2+(1.0f-K2)*6.0f)*cos(0.0f*PI/180.0f);
-//			double x__for_front_legs = fall_length*sin(rcv_jump1_front_legs_rotate_angle*PI/180.0f);
-//            double z__for_front_legs = fall_length*cos(rcv_jump1_front_legs_rotate_angle*PI/180.0f);
-//			double x_for_back_legs = fall_length*sin(rcv_jump1_behind_legs_rotate_angle*PI/180.0f);
-//            double z_for_back_legs = fall_length*cos(rcv_jump1_behind_legs_rotate_angle*PI/180.0f);
-////			double x = 6*sin(3.0f*PI/180.0f);
-////            double z =6*cos(3.0f*PI/180.0f);
-//			legs[2].x = x_for_back_legs;
-//			legs[2].z = z_for_back_legs;
-//			legs[3].x = x_for_back_legs;
-//			legs[3].z = z_for_back_legs;
-//			legs[0].x = x__for_front_legs;
-//			legs[0].z = z__for_front_legs;
-//			legs[1].x = x__for_front_legs;
-//			legs[1].z = z__for_front_legs;
-//			CartesianToTheta_Cycloid_All_Legs();
-//			// øÿ÷∆Õ»≤ø‘À∂Ø
-//			Moveleg();
-//			Motor_Auto_Run();
-//			if(t>=prep_time+execute_time_1+recovery_time)
-//			{
-//				
-//				Reset_jump_time();
-//				Jump_OK = 0;	//ÕÍ≥…Ã¯‘æ÷√¡„
-//			}
-//			
-//			
-//		}
-//	
-//	}
-//	else if (ctrl_state == CS_JUMP_2)
-//	{
-//		ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			if (t < prep_time) {
-//			double K =t/prep_time;
-//			if(K>1)K=1;
-//            double x__for_front_legs = (shrink_length*K+(1.0f-K)*StandHeight)*sin(K*pre_jump2_front_legs_rotate_angle*PI/180.0f);
-//            double z__for_front_legs = (shrink_length*K+(1.0f-K)*StandHeight)*cos(K*pre_jump2_front_legs_rotate_angle*PI/180.0f);
-//			double x_for_back_legs = (shrink_length*K+(1.0f-K)*StandHeight)*sin(K*pre_jump2_behind_legs_rotate_angle*PI/180.0f);
-//            double z_for_back_legs = (shrink_length*K+(1.0f-K)*StandHeight)*cos(K*pre_jump2_behind_legs_rotate_angle*PI/180.0f);
-//			legs[2].x = x_for_back_legs;
-//			legs[2].z = z_for_back_legs;
-//			legs[3].x = x_for_back_legs;
-//			legs[3].z = z_for_back_legs;
-//			legs[0].x = x__for_front_legs;
-//			legs[0].z = z__for_front_legs;
-//			legs[1].x = x__for_front_legs;
-//			legs[1].z = z__for_front_legs;
-//			// ◊™ªªµΩƒÊ‘À∂Ø—ßµƒΩ«∂»
-//			CartesianToTheta_Cycloid_All_Legs();
-//			// øÿ÷∆Õ»≤ø‘À∂Ø
-//			Moveleg();
-//			Motor_Auto_Run();
-//           //printf("waiting\n");
-//        }
-//        else if ( t < prep_time+execute_time_1) {
-//			ChangeTheGainOfPID_KP_KI_KD(8,0.3,1.1,22,0.3,2.5);
-////			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			Set_Max_Output_SL(12000);
-//			Set_Max_Output_PL(12000);
-//			
-//			double x__for_front_legs;
-//			double z__for_front_legs;
-//			if(t<prep_time+front_legs_execute_time)
-//			{
-//				x__for_front_legs = stretch_length*sin(exe_jump2_front_legs_rotate_angle*PI/180.0f);
-//				z__for_front_legs = stretch_length*cos(exe_jump2_front_legs_rotate_angle*PI/180.0f);
-//			}
-//			else
-//			{
-//				x__for_front_legs = fall_length*sin(rcv_jump2_front_legs_rotate_angle*PI/180.0f);
-//				z__for_front_legs = fall_length*cos(rcv_jump2_front_legs_rotate_angle*PI/180.0f);
-//			}
-//						
-//			double x_for_back_legs = stretch_length*sin(exe_jump2_behind_legs_rotate_angle*PI/180.0f);
-//			double z_for_back_legs = stretch_length*cos(exe_jump2_behind_legs_rotate_angle*PI/180.0f);
-//			legs[2].x = x_for_back_legs;
-//			legs[2].z = z_for_back_legs;
-//			legs[3].x = x_for_back_legs;
-//			legs[3].z = z_for_back_legs;
-//			legs[0].x = x__for_front_legs;
-//			legs[0].z = z__for_front_legs;
-//			legs[1].x = x__for_front_legs;
-//			legs[1].z = z__for_front_legs;
-//			CartesianToTheta_Cycloid_All_Legs();
-//			// øÿ÷∆Õ»≤ø‘À∂Ø
-//			Moveleg();
-//			Motor_Auto_Run();
-//			
-//        }
-
-//		else 
-//		{
-//			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-//			Set_Max_Output_SL(8000);
-//			Set_Max_Output_PL(8000);
-//			double x__for_front_legs = fall_length*sin(rcv_jump2_front_legs_rotate_angle*PI/180.0f);
-//            double z__for_front_legs =fall_length*cos(rcv_jump2_front_legs_rotate_angle*PI/180.0f);
-//			double x_for_back_legs = fall_length*sin(rcv_jump2_behind_legs_rotate_angle*PI/180.0f);
-//            double z_for_back_legs = fall_length*cos(rcv_jump2_behind_legs_rotate_angle*PI/180.0f);
-//		
-//			legs[2].x = x_for_back_legs;
-//			legs[2].z = z_for_back_legs;
-//			legs[3].x = x_for_back_legs;
-//			legs[3].z = z_for_back_legs;
-//			legs[0].x = x__for_front_legs;
-//			legs[0].z = z__for_front_legs;
-//			legs[1].x = x__for_front_legs;
-//			legs[1].z = z__for_front_legs;
-//			CartesianToTheta_Cycloid_All_Legs();
-//			// øÿ÷∆Õ»≤ø‘À∂Ø
-//			Moveleg();
-//			Motor_Auto_Run();
-//			if(t>=prep_time+execute_time_1+recovery_time)
-//			{
-//				
-//				Reset_jump_time();
-//				Jump_OK = 0;	//ÕÍ≥…Ã¯‘æ÷√¡„
-//			}
-//			
-//			
-//		}
-//	}
-//}
-
+}

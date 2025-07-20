@@ -21,11 +21,11 @@
 #include 	"Jump.h"
 
 #include	"main_params.h"
-//CAN_1 : PA11(RX)   PA12(TX)        CAN_2 : PB12(RX)      PB13(TX)
-//Ò£¿ØÊä³ö:PA3
-//ÍÓÂÝÒÇ:PB10(RX)    PB11(TX)
 
-//test=============
+#include    "stdio.h"
+//CAN_1 : PA11(RX)   PA12(TX)        CAN_2 : PB12(RX)      PB13(TX)
+
+//æ˜¾ç¤ºå¯¹åº”å­—ç¬¦ä¸²=============
 char ctrlstate_names[7][15]=
 {
 	{"CS_NONE"},
@@ -46,7 +46,6 @@ char current_motion_state_names[4][20]=
 };
 //===============
 
-// ½ÓÊÕÊý¾Ý»º³åÇø
 uint8_t rx_buffer[NRF_PAYLOAD_LENGTH]={0};
 extern uint16_t formal_datas[FORMAL_DATAS_LENGTH];
 extern MotionState_t current_motion_state;
@@ -56,26 +55,27 @@ extern IdleState_t idle_state;
 extern uint8_t pre_angle;
 extern uint8_t setted_height;
 extern uint8_t jump_state;
+extern JumpParameter_t jump_structure;
 
-
-int feed=1; //Î¹¹·
-int start=0;			//¿ªÊ¼±êÖ¾Á¿
-int reset=1;			//Ò£¿ØÆ÷ÔÚÖÐÑëÊ±reset¸³1 
-int left_push_stick,right_push_stick; //Ò£¿ØÆ÷×óÉÏ£¬ÓÒÉÏÍÆ¸Ë±äÁ¿³õÊ¼»¯
+int feed=1; 
+int start=0;			
+int reset=1;			
+int left_push_stick,right_push_stick; 
 
 extern uint16_t rc_left_x,rc_left_y,rc_right_x,rc_right_y;
+extern uint64_t timer;
+extern Motors motors;
+extern uint16_t count1;
 
-
-uint16_t test=0;
 int main()
 {
 	
-	HAL_InitTick(0);//³õÊ¼»¯halÓÐ¹Ø£¬ÒòÎªÒªÓÃµ½HAL_GetTickº¯Êý
-	delay_init();    //delay³õÊ¼»¯
-	USART1_Init();	//´®¿Úµ÷ÊÔ
-	USART3_Init();  //ÍÓÂÝÒÇÊý¾Ý½ÓÊÕ
+	HAL_InitTick(0);
+	delay_init();    
+	USART1_Init();	
+	USART3_Init(); 
 	LED_Init();		//LED
-/********Ô¶³Ì¿ØÖÆ*********/	
+/********remote ctrl*********/	
 //	remote_control_init();
 	NRF24L01_Init();
 	NRF24L01_Set_RX_Mode();
@@ -85,38 +85,41 @@ int main()
 	TIM5_Init(); //5 ms
 	TIM4_Init(); //1 ms					
 	Can_Init(CAN_SJW_1tq,CAN_BS2_2tq,CAN_BS1_4tq,6,CAN_Mode_Normal); //can
-	PID_Init();		//pid¿ØÖÆ
-	OLED_Init(); 	//oled¿ØÖÆ
-	
-	ChangeTheGainOfPID_KP_KI_KD(5.1,0.3,1.81,5.1,0.3,1.81);
+	PID_Init();		//pid
+	OLED_Init(); 	//oled
+	jumpInit(&jump_structure);
+	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 
-/********·Ç³õÊ¼»¯ÇøÓò*********/	
+
+/********oled init*********/	
 	OLED_NewFrame();
 	OLED_PrintASCIIString(0,0,"Init Done",&afont16x8,OLED_COLOR_NORMAL);
 	OLED_ShowFrame();
 	delay_ms(1000);	
 	
-	while(1) //Ö÷³ÌÐò
+	while(1) 
 	{
-//		test++;
+		usart1TxDateToVofa(motors.ID[6].target_angle,motors.ID[6].absolute_angle,motors.ID[6].received_current,count1);
 		trans_rx_buffer_to_formal_datas();
-		//============²âÊÔ´úÂë================		
+		char now_time_str_buffer[20];
+		sprintf(now_time_str_buffer, "%.2f", timer/1000.0f); 
+		//============oled================		
 				OLED_NewFrame();
 				OLED_PrintASCIIString(0,0,ctrlstate_names[ctrl_state],&afont16x8,OLED_COLOR_NORMAL); //ctrl state
 //				OLED_PrintASCIINum(0,16,rc_left_x,4,&afont16x8,OLED_COLOR_NORMAL);
 //				OLED_PrintASCIINum(40,16,rc_left_y,4,&afont16x8,OLED_COLOR_NORMAL);
 //				OLED_PrintASCIINum(0,32,rc_right_x,4,&afont16x8,OLED_COLOR_NORMAL);
 //				OLED_PrintASCIINum(40,32,rc_right_y,4,&afont16x8,OLED_COLOR_NORMAL);
-				OLED_PrintASCIINum(0,16,(uint8_t)translate_state,2,&afont16x8,OLED_COLOR_NORMAL); //Æ½ÒÆ
-				OLED_PrintASCIINum(20,16,(uint8_t)idle_state,2,&afont16x8,OLED_COLOR_NORMAL);  //Í£Ö¹»òÔ­µØÌ¤²½
-				OLED_PrintASCIINum(40,16,(uint8_t)jump_state,2,&afont16x8,OLED_COLOR_NORMAL); //ÌøÔ¾×´Ì¬
-				OLED_PrintASCIINum(0,32,(uint8_t)setted_height,2,&afont16x8,OLED_COLOR_NORMAL); // ¸ß¶È
-				OLED_PrintASCIINum(50,32,(uint8_t)pre_angle,2,&afont16x8,OLED_COLOR_NORMAL);  // ÇãÐ±½Ç¶È
-
+				OLED_PrintASCIINum(0,16,(uint8_t)translate_state,2,&afont16x8,OLED_COLOR_NORMAL); //Æ½ï¿½ï¿½
+				OLED_PrintASCIINum(20,16,(uint8_t)idle_state,2,&afont16x8,OLED_COLOR_NORMAL);  //Í£Ö¹ï¿½ï¿½Ô­ï¿½ï¿½Ì¤ï¿½ï¿½
+				OLED_PrintASCIINum(40,16,(uint8_t)jump_state,2,&afont16x8,OLED_COLOR_NORMAL); //ï¿½ï¿½Ô¾×´Ì¬
+				// OLED_PrintASCIINum(0,32,(uint8_t)setted_height,2,&afont16x8,OLED_COLOR_NORMAL); // ï¿½ß¶ï¿½
+				// OLED_PrintASCIINum(50,32,(uint8_t)pre_angle,2,&afont16x8,OLED_COLOR_NORMAL);  // ï¿½ï¿½Ð±ï¿½Ç¶ï¿½
+				OLED_PrintASCIIString(0,32,now_time_str_buffer,&afont16x8,OLED_COLOR_NORMAL); // ï¿½Ë¶ï¿½×´Ì¬
 				OLED_PrintASCIIString(0,48,current_motion_state_names[current_motion_state],&afont16x8,OLED_COLOR_NORMAL);
 				OLED_ShowFrame();
-		//============²âÊÔ´úÂë================		
-		//========================Ö÷³ÌÐò´úÂë=================================
+		//============================		
+		//========================mainctrl =================================
 				motion_state_ctrl();	
 		feed_dog();
 	}

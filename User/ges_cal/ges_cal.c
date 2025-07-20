@@ -19,32 +19,56 @@
 //     (id:2)                     (id4)
 //
 // 2023-3-16  Motor_id_Sign
-	
 
 
 
+extern MotionState_t current_motion_state;
+extern Motor_Final_Output_Angles motor_final_output_angles; 
+extern 	int start;
+extern CtrlState_t ctrl_state;
+extern uint8_t setted_height;
+extern JumpState_t jump_state;
 
-	extern MotionState_t current_motion_state;
+Leg legs[4];
 
-	//from timer.c
-	extern double now_time;
-	//from jump.c
+//rotateAndStretch
+//å£°æ˜å‡½æ•°
 
-	extern uint8_t Jump_OK ;
-	//from pid.c
-	extern Motor_Final_Output_Angles motor_final_output_angles; 
-	Leg legs[4];
-//²½Ì¬Ïà¹Ø	
+//å£°æ˜ç»“æ„ä½“
+Rotate_Stretch_t rotate_stretch_struct = { 
+	.rotate_angle = 0.0f, // æ—‹è½¬è§’åº¦
+	.stretch_length = 0.0f, // ä¼¸å±•é•¿åº¦
+	.rotate_time = 0.25f, // æ—‹è½¬æ—¶é—´
+	.stretch_time = 0.25f, // ä¼¸å±•æ—¶é—´
+	.rotate_count = 0.0f, //è®¡æ•°å€¼
+	.stretch_count = 0.0f, 
+	.rotate_prev_t = 0.0f, // ä¸Šä¸€æ¬¡è®¡æ•°æ—¶é—´
+	.stretch_prev_t = 0.0f, // ä¸Šä¸€æ¬¡è®¡æ•°æ—¶é—´
+	.flag = 0, // å®Œæˆç½®ä½
+	.rotate_freq = 8.5f, // æ—‹è½¬é¢‘ç‡
+	.stretch_freq= 8.5f // ä¼¸å±•é¢‘ç‡
+};
  /******************************************************************************************************/
-
-void SinTrajectory(double t, GaitParams gait_params)
+ static float constrain(float value,float min,float max)
+ {
+	if(value<min) value=min;
+	if(value>max) value=max;
+	return value;
+}
+static void SinTrajectory(double t, GaitParams gait_params,Leg *leg)
 {
 	double x, z, gp;
-	static double p = 0;
-	static double prev_t = 0;
-	p += gait_params.freq * (t - prev_t);
-	prev_t = t;
-	gp = fmod(p + gait_params.gaitoffset, 1);
+	// volatile static double p = 0;
+	// volatile static double prev_t = 0;
+	leg->p += gait_params.freq * (t - leg->prev_t);
+	leg->prev_t = t;
+	gp = fmod(leg->p + gait_params.gaitoffset, 1);
+	if(current_motion_state==MS_STOP)
+    {
+       leg-> p=0;
+       leg-> prev_t = t;
+    }
+
 	if (gp <= gait_params.swingpercent) {
 		x = (gp / gait_params.swingpercent) * gait_params.steplength - gait_params.steplength / 2.0+ gait_params.x_offset;
 		z = -gait_params.Up_Amp * sin(PI * gp / gait_params.swingpercent) + gait_params.stanceheight;
@@ -66,7 +90,7 @@ void Stand_Init(void)
 	Set_Max_Output_PL(10000);
 	ChangeTheGainOfPID_KP_KI_KD(1,0,0.5,1,0,0);
 
-	motor_final_output_angles.ID[0] =	-0.0f * Gaito;  //Õâ¸öº¯Êı°ÑÄæ½âº¯ÊıÄæ½â³öµÄ½Ç¶È¸øµ½×î×îÖÕÒªËÍÖÁPID¿ØÖÆÆ÷½øĞĞ¼ÆËãµÄÊı×é
+	motor_final_output_angles.ID[0] =	-0.0f * Gaito;  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½Ç¶È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	motor_final_output_angles.ID[1] =	-180.0f * Gaito;
 		
 	motor_final_output_angles.ID[2] =	180.0f * Gaito;  
@@ -89,29 +113,27 @@ void Stand_Init(void)
 //	CS_EXE_JUMP,
 //	CS_HEIGHT,
 //	CS_QUIT,
-extern 	int start;
-extern CtrlState_t ctrl_state;
-extern uint8_t setted_height;
+
 
 void motion_state_ctrl(void)
 {
 	switch(ctrl_state)
 	{
-		case CS_NONE://³õÊ¼×´Ì¬ 
+		case CS_NONE://ï¿½ï¿½Ê¼×´Ì¬ 
 			start=0;
 			break;
-		case CS_INIT://³õÊ¼»¯»úÆ÷¹·
+		case CS_INIT://ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			start=0;
 			M3508_ALL_ZERO_SET();
 			break;
-		case CS_MAIN://Ö÷¿ØÖÆ
+		case CS_MAIN://ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			RC_MotionCtrl();
 			start=1;
 			break;
-		case CS_PRE_JUMP:// ÌøÔ¾×¼±¸
+		case CS_PRE_JUMP:// ï¿½ï¿½Ô¾×¼ï¿½ï¿½
 			start=1;
 			break;
-		case CS_EXE_JUMP:// ÌøÔ¾Ö´ĞĞ
+		case CS_EXE_JUMP:// ï¿½ï¿½Ô¾Ö´ï¿½ï¿½
 			start=1;
 			break;
 		case CS_HEIGHT:
@@ -136,7 +158,6 @@ void motion_state_ctrl(void)
 
 
 }
-extern JumpState_t jump_state;
  void Gait(double t)
 {
 	
@@ -147,32 +168,35 @@ extern JumpState_t jump_state;
 			case MS_NORMAL:
 				Set_Max_Output_SL(8000);
 				Set_Max_Output_PL(8000);
-				ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+				ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 				RC_StepLengthCtrl(gait_params[0]);
 				for (int i=0 ; i < 4; i++)
 				{
-					SinTrajectory(t, gait_params[0][i]);
+					SinTrajectory(t, gait_params[0][i],&legs[i]);
+					//rotate_stretch_struct.flag=rotateAndStretch(t,  -30, 32,&legs[i], &rotate_stretch_struct,&gait_params[0][i]);
 				}
 				break;
-			if(if_in_normal_range(setted_height, 14, 30)) //¸ß¶ÈºÏÊÊÊ±
+			if(if_in_normal_range(setted_height, 14, 30)) //ï¿½ß¶Èºï¿½ï¿½ï¿½Ê±
 			{
 				case MS_TRANSLATE_LEFT:
 					Set_Max_Output_SL(10000);
 					Set_Max_Output_PL(10000);
-					ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+					ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+					// ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 					for (int i = 0; i < 4; i++)
 					{
-						SinTrajectory(t, gait_params[2][i]);
+						SinTrajectory(t, gait_params[2][i],&legs[i]);
 					}
 					break;
 				
 				case MS_TRANSLATE_RIGHT:
 					Set_Max_Output_SL(10000);
 					Set_Max_Output_PL(10000);
-					ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
+					ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+					// ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 					for (int i = 0; i < 4; i++)
 					{
-						SinTrajectory(t, gait_params[3][i]);
+						SinTrajectory(t, gait_params[3][i],&legs[i]);
 					}
 					break;
 			}
@@ -180,31 +204,33 @@ extern JumpState_t jump_state;
 		case MS_STOP:
 			Set_Max_Output_SL(8000);
 			Set_Max_Output_PL(8000);
-			ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
-			now_time=0;
+			ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+			// ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 			for (int i = 0; i < 4; i++)
 			{
 				legs[gait_params[1][i].i].x = 0;
 				legs[gait_params[1][i].i].z = gait_params[1][i].stanceheight;
 			}
-			
+			// if(rotate_stretch_struct.flag==1) //å¦‚æœæ—‹è½¬ä¼¸å±•å®Œæˆ
+			// {
+			// 	rotate_stretch_struct.flag=0; //å½’é›¶
+			// }
+			updatePrevTime(t);//æ›´æ–°ä¸Šä¸€æ¬¡è®¡æ•°æ—¶é—´
 			break;
 		
 	
 	}
 	jump_state=IDLE;
 	
-	// ×ª»»µ½ÄæÔË¶¯Ñ§µÄ½Ç¶È
 	CartesianToTheta_Cycloid_All_Legs();
-	// ¿ØÖÆÍÈ²¿ÔË¶¯
 	Moveleg();
 	Motor_Auto_Run();
 	
 
 }
-//ÔË¶¯Ïà¹Ø
+//ï¿½Ë¶ï¿½ï¿½ï¿½ï¿½
 /******************************************************************************************************/
-// Äæ½âº¯Êı
+// ï¿½ï¿½âº¯ï¿½ï¿½
 void CartesianToTheta_Cycloid(Leg *leg)
 {
     leg->L = sqrt(leg->x * leg->x + leg->z * leg->z);
@@ -215,7 +241,7 @@ void CartesianToTheta_Cycloid(Leg *leg)
     leg->theta2 = 180.0f * (leg->fai1 - leg->psai1) / PI - 90.0f;
     leg->theta1 = 180.0f * (leg->fai1 + leg->psai1) / PI - 90.0f;
 }
-////Äæ½âËùÓĞÍÈ
+////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void CartesianToTheta_Cycloid_All_Legs(void)
 {
 	for(int i=0;i<4;i++)
@@ -223,13 +249,13 @@ void CartesianToTheta_Cycloid_All_Legs(void)
 		CartesianToTheta_Cycloid(&legs[i]);
 	}
 }
-//ÉèÖÃÏà¹Ø°Ú¶¯½Ç
-void Angle_Setting_Cycloid(int LegID)  // Moveleg Àï±»µ÷ÓÃ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø°Ú¶ï¿½ï¿½ï¿½
+void Angle_Setting_Cycloid(int LegID)  // Moveleg ï¿½ï±»ï¿½ï¿½ï¿½ï¿½
 { 
 	switch (LegID)
 	{
 		case 0:
-			motor_final_output_angles.ID[0] =	legs[0].theta1 * Gaito;  //Õâ¸öº¯Êı°ÑÄæ½âº¯ÊıÄæ½â³öµÄ½Ç¶È¸øµ½×î×îÖÕÒªËÍÖÁPID¿ØÖÆÆ÷½øĞĞ¼ÆËãµÄÊı×é
+			motor_final_output_angles.ID[0] =	legs[0].theta1 * Gaito;  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½Ç¶È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			motor_final_output_angles.ID[1] =	legs[0].theta2 * Gaito;
 		break;
 		case 1:
@@ -246,15 +272,76 @@ void Angle_Setting_Cycloid(int LegID)  // Moveleg Àï±»µ÷ÓÃ
 		break;
 	}
 }
-// ÒÆ¶¯ÍÈº¯Êı
+// ï¿½Æ¶ï¿½ï¿½Èºï¿½ï¿½ï¿½
 void Moveleg(void)
 {
-    // ²ÎÊıËµÃ÷£º
-    // direction: ·½Ïò±êÖ¾
-    // ÎªÃ¿ÌõÍÈÉèÖÃ½Ç¶È
-    // Legid ´Ó 0 µ½ 3 ·Ö±ğ´ú±íËÄÌõÍÈ
-    Angle_Setting_Cycloid(0);  // ÉèÖÃµÚ 0 ÌõÍÈµÄ½Ç¶È
-    Angle_Setting_Cycloid(1);  // ÉèÖÃµÚ 1 ÌõÍÈµÄ½Ç¶È
-    Angle_Setting_Cycloid(2);  // ÉèÖÃµÚ 2 ÌõÍÈµÄ½Ç¶È
-    Angle_Setting_Cycloid(3);  // ÉèÖÃµÚ 3 ÌõÍÈµÄ½Ç¶È
+    // ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½
+    // direction: ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾
+    // ÎªÃ¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã½Ç¶ï¿½
+    // Legid ï¿½ï¿½ 0 ï¿½ï¿½ 3 ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    Angle_Setting_Cycloid(0);  // ï¿½ï¿½ï¿½Ãµï¿½ 0 ï¿½ï¿½ï¿½ÈµÄ½Ç¶ï¿½
+    Angle_Setting_Cycloid(1);  // ï¿½ï¿½ï¿½Ãµï¿½ 1 ï¿½ï¿½ï¿½ÈµÄ½Ç¶ï¿½
+    Angle_Setting_Cycloid(2);  // ï¿½ï¿½ï¿½Ãµï¿½ 2 ï¿½ï¿½ï¿½ÈµÄ½Ç¶ï¿½
+    Angle_Setting_Cycloid(3);  // ï¿½ï¿½ï¿½Ãµï¿½ 3 ï¿½ï¿½ï¿½ÈµÄ½Ç¶ï¿½
+}
+
+//å®šä¹‰å‡½æ•°ç»“æ„ä½“
+u8 rotateAndStretch(float t,  float rotate_angle, float stretch_length,float original_length,float original_angle,Leg *leg,Rotate_Stretch_t *rs)
+{
+	
+	if(rs->flag) //å¦‚æœå·²ç½®ä½åˆ™å½’é›¶æ‰€æœ‰prev_t
+	{
+		rs->rotate_prev_t[0] = 0;
+		rs->stretch_prev_t[0] = 0;
+		rs->rotate_prev_t[1] =0;
+		rs->stretch_prev_t[1] =0;
+		return 1; //æ ‡å¿—ä½å·²ç½®ä½ï¼Œéœ€è¦æ­£å¸¸ä½¿ç”¨è¯¥å‡½æ•°éœ€å°†å…¶å½’é›¶
+	}
+	if(!rs->rotate_prev_t[0]
+		&&!rs->stretch_prev_t[0]
+		&&!rs->rotate_prev_t[1]
+		&&!rs->stretch_prev_t[1]) //å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡è¿›å…¥è¯¥å‡½æ•°
+	{
+		rs->rotate_prev_t[0]=t;
+		rs->stretch_prev_t[0]=t;
+		return 0; //ç«‹åˆ»è¿”å›0
+	}
+	//åˆ¤æ–­æ—¶é—´æ˜¯å¦åˆé€‚
+	if(rs->rotate_time<0) rs->rotate_time=0;
+	if(rs->stretch_time<0) rs->stretch_time=0;
+	if(rs->rotate_time>1) rs->rotate_time=1;
+	if(rs->stretch_time>1) rs->stretch_time=1;
+	//
+	rs->rotate_count += rs->rotate_freq*(t - rs->rotate_prev_t[0]);
+	rs->stretch_count += rs->stretch_freq*(t - rs->stretch_prev_t[0]);
+	rs->rotate_prev_t[0] = t;
+	rs->stretch_prev_t[0] = t;
+	rs->rotate_prev_t[1] = rs->rotate_prev_t[0];
+	rs->stretch_prev_t[1] = rs->stretch_prev_t[0];
+	
+	rs->rotate_count=constrain(rs->rotate_count, 0, rs->rotate_time); //æ—‹è½¬å’Œä¼¸å±•éƒ¨åˆ†æ—¶é—´åˆ†å¼€è®¡æ—¶ï¼Œé»˜è®¤äºŒè€…æ˜¯ç›¸åŒæ—¶é—´
+	rs->rotate_count=constrain(rs->rotate_count, 0, rs->stretch_time);
+
+	rs->stretch_k=rs->stretch_count/rs->stretch_time;
+	rs->rotate_k=rs->rotate_count/rs->rotate_time;
+	leg->x =(rs->stretch_k *stretch_length+(1-rs->stretch_k)*original_length) * sin((rs->rotate_k * rotate_angle +(1-rs->rotate_k)*original_angle)* PI / 180.0f);
+	leg->z =(rs->stretch_k *stretch_length+(1-rs->stretch_k)*original_length) * cos((rs->rotate_k * rotate_angle +(1-rs->rotate_k)*original_angle) * PI / 180.0f);
+
+	if(rs->rotate_k>=1&&rs->stretch_k>=1) //æ—‹è½¬å’Œä¼¸å±•éƒ½å®Œæˆ
+	{
+		rs->rotate_count=0;
+		rs->stretch_count=0;
+		rs->flag=1; //ç»“æ„ä½“çš„flagä½ç½®ä½å®Œæˆ
+		return 1; //è¿”å›1è¡¨ç¤ºå®Œæˆ å¤–éƒ¨ä½¿ç”¨å¯ä»¥ç”¨åˆ«çš„å˜é‡æ¥æ”¶ç½®ä½ 
+	}
+	return 0; //è¿”å›0è¡¨ç¤ºæœªå®Œæˆ
+}
+void updatePrevTime(float t)
+{
+	// rotate_stretch_struct.rotate_prev_t = t;
+	// rotate_stretch_struct.stretch_prev_t = t;
+	for(u8 i;i<4;i++)
+	{
+		legs[i].prev_t = t;
+	}
 }

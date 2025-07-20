@@ -1,9 +1,8 @@
 #ifndef __MAIN_PARAMS_H
 #define __MAIN_PARAMS_H
 #include "Allheaderfile.h"
-#include "sys.h"
 
-//×¢:¸ÃÎÄ¼şÓÃÓÚÍ³Ò»½²mainÖĞÉùÃ÷µÄ±äÁ¿·Åµ½Í·ÎÄ¼şÖĞÓÃÒÔ¸øÆäËûÎÄ¼şµ÷ÓÃ±äÁ¿£¬·½±ã¹ÜÀíºÍ²é¿´
+//×¢:ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Í³Ò»ï¿½ï¿½mainï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½Åµï¿½Í·ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Ã±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í²é¿´
 
 extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH];
 
@@ -11,7 +10,7 @@ extern 	int start;
 extern int feed;
 extern  int reset;	
 
-extern	int left_x,left_y,right_x,right_y; //RemoteControlÖĞÉùÃ÷µÄ
-extern 	int left_push_stick, right_push_stick; //×óÉÏ£¬ÓÒÉÏÍÆ¸Ë
+extern	int left_x,left_y,right_x,right_y; //RemoteControlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+extern 	int left_push_stick, right_push_stick; //ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¸ï¿½
 
 #endif

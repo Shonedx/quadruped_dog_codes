@@ -5,55 +5,39 @@
 #include "nrf24l01.h"
 #include "RC.h"
 #include "led.h"
-double now_time=0;
-const double dt=0.007; //0.007
+#include "jump.h"
+#include "sys.h"
 extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH];
 extern int start;
 extern CtrlState_t ctrl_state;
- static void Update_Time(void) //获取当前时间，通过自增一个dt值来自增时间
+uint64_t timer=0;
+ static void Update_Time(void) //鏇存柊鏃堕棿
  {
-		now_time+=dt;
-		now_time=fmod(now_time,1000000);
+	    timer++;
  }
-//Ft=168Mhz/4*时钟分频
 
 void TIM4_Init(void) //1 ms
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    // 1. 使能 TIM4 时钟
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-
-    // 2. 配置 TIM4 实现 1ms 中断
-    //    假设 TIM4 时钟 (TIMxCLK) = 84MHz (PCLK1=42MHz, APB1 预分频器 > 1)
-    //    期望的中断频率 = 1ms (1000Hz)
-    //    计算公式：(预分频器 + 1) * (周期 + 1) = TIM4_时钟频率 / 期望频率
-    //    (预分频器 + 1) * (周期 + 1) = 84,000,000 Hz / 1000 Hz = 84000
-
-    //    为了实现 1us (1MHz) 的计数器步进：
-    //    预分频器 + 1 = 84,000,000 / 1,000,000 = 84  => 预分频器 = 83
-    //    然后，为了实现 1ms (1000us) 的中断：
-    //    周期 + 1 = 1000 => 周期 = 999
 
     TIM_TimeBaseInitStructure.TIM_Prescaler = 84 - 1;   
     TIM_TimeBaseInitStructure.TIM_Period = 1000 - 1;   
-    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数模式
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1; // 无时钟分频
+    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up; 
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
 
-    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure); // 初始化 TIM4
+    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure); 
 
-    // 3. 使能 TIM4 更新中断
     TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 
-    // 4. 启动定时器
     TIM_Cmd(TIM4, ENABLE);
 
-    // 5. 配置 NVIC 以启用 TIM4 中断
-    NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;             // TIM4 全局中断
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; // 抢占优先级
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;      // 子优先级
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;             // 使能中断通道
+    NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;             
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; 
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;     
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;            
     NVIC_Init(&NVIC_InitStructure);
 }
 void TIM5_Init(void) //5 ms
@@ -63,9 +47,9 @@ void TIM5_Init(void) //5 ms
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5,ENABLE);
 	
-	TIM_TimeBaseStructure.TIM_Prescaler=84-1;  //定时器分频
-	TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up; //向上计数模式
-	TIM_TimeBaseStructure.TIM_Period=5000-1;   //自动重装载值
+	TIM_TimeBaseStructure.TIM_Prescaler=84-1;  
+	TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up; 
+	TIM_TimeBaseStructure.TIM_Period=2000-1;  
 	TIM_TimeBaseStructure.TIM_ClockDivision=TIM_CKD_DIV1; 
 	TIM_TimeBaseInit(TIM5,&TIM_TimeBaseStructure);
 	
@@ -74,31 +58,29 @@ void TIM5_Init(void) //5 ms
 	TIM_Cmd(TIM5,ENABLE);
 	
 	NVIC_InitStructure.NVIC_IRQChannel=TIM5_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0; //抢占优先级
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0; 
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
 
-void TIM4_IRQHandler() //控制类逻辑 10 ms
+void TIM4_IRQHandler() 
 {  
 	if(TIM_GetITStatus(TIM4, TIM_IT_Update) !=RESET)
 	{
-		
+		Update_Time();
 		NRF24L01_RxPacket_IRQ(rx_buffer);
 
 		TIM_ClearITPendingBit(TIM4,TIM_IT_Update);
 	}
 }
-static int start_stand_flag=0;
-extern uint16_t test;
 extern JumpState_t jump_state;
-void TIM5_IRQHandler(void) //更新时间 5ms
+extern JumpParameter_t jump_structure;
+
+void TIM5_IRQHandler(void) 
 {
 	if(TIM_GetITStatus(TIM5,TIM_IT_Update)!= RESET)
 	{		
-//		test++;
-		Update_Time();
 		if(start==1)
 		{		
 ////			if (currentstate != Jump&& ctrl_state!=Start_Ctrl)
@@ -108,11 +90,11 @@ void TIM5_IRQHandler(void) //更新时间 5ms
 ////			 }
 			if(ctrl_state!=CS_PRE_JUMP && ctrl_state!=CS_EXE_JUMP)
 			{	
-				Gait(now_time); //执行步态逻辑
+				Gait(timer/1000.0f);
 				jump_state=IDLE;
 			}
 			else
-				jumpCtrl();
+				jumpCtrl(timer/1000.0f,&jump_structure);
 		}
 		else if(start==0&&ctrl_state==CS_QUIT)
 		{
@@ -124,7 +106,7 @@ void TIM5_IRQHandler(void) //更新时间 5ms
 			Can2_Send_Msg_to_Motor();
 		}
 		
-		TIM_ClearITPendingBit(TIM5,TIM_IT_Update); //清除中断标志位
+		TIM_ClearITPendingBit(TIM5,TIM_IT_Update); 
 	}
 }
 extern int feed; 

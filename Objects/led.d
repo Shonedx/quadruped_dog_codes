@@ -1,6 +1,9 @@
 .\objects\led.o: Hardware\LED\led.c
 .\objects\led.o: .\User\Allheaderfile.h
-.\objects\led.o: .\System\sys\sys.h
+.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\led.o: .\Library\inc\stm32f4xx.h
 .\objects\led.o: .\Core\core_cm4.h
 .\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -36,10 +39,6 @@
 .\objects\led.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\led.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\led.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\led.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\led.o: .\System\delay\delay.h
 .\objects\led.o: .\System\usart\usart.h
 .\objects\led.o: Hardware\LED\led.h

@@ -1,14 +1,13 @@
-#include	"sys.h"
 #include 	<stdio.h>
 #include 	<stdlib.h> 
 #include 	"math.h"
 #include	"string.h"
-
+#include    "stm32f4xx.h"
 #include	"delay.h"
 #include	"usart.h"
 
 
 
-#define LPS left_push_stick 	//вСиомф╦к
-#define RPS right_push_stick 	//сриомф╦к
+#define LPS left_push_stick 	//О©╫О©╫О©╫О©╫О©╫ф╦О©╫
+#define RPS right_push_stick 	//О©╫О©╫О©╫О©╫О©╫ф╦О©╫
 

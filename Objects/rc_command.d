@@ -35,7 +35,6 @@
 .\objects\rc_command.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\rc_command.o: .\Library\inc\stm32f4xx_fsmc.h
 .\objects\rc_command.o: .\User\Allheaderfile.h
-.\objects\rc_command.o: .\System\sys\sys.h
 .\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h

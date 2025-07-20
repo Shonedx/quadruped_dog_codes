@@ -35,4 +35,3 @@
 .\objects\delay.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\delay.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\delay.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\delay.o: .\System\sys\sys.h

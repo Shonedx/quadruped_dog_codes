@@ -1,6 +1,9 @@
 .\objects\iwdg.o: User\IWDG\IWDG.c
 .\objects\iwdg.o: .\User\Allheaderfile.h
-.\objects\iwdg.o: .\System\sys\sys.h
+.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\iwdg.o: .\Library\inc\stm32f4xx.h
 .\objects\iwdg.o: .\Core\core_cm4.h
 .\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -36,9 +39,5 @@
 .\objects\iwdg.o: .\Library\inc\stm32f4xx_dac.h
 .\objects\iwdg.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\iwdg.o: .\Library\inc\stm32f4xx_fsmc.h
-.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\iwdg.o: .\System\delay\delay.h
 .\objects\iwdg.o: .\System\usart\usart.h

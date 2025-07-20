@@ -1,59 +1,62 @@
 #ifndef __MOTOR_H
 #define __MOTOR_H
-
+#include "stdint.h"
 typedef struct
 {
-    int current_angle;              // µ±Ç°½Ç¶È
-    int absolute_angle;            // ¾ø¶Ô½Ç¶È
+    int current_angle;              // ï¿½ï¿½Ç°ï¿½Ç¶ï¿½
+    int absolute_angle;            // ï¿½ï¿½ï¿½Ô½Ç¶ï¿½
 	
-    int target_angle;       // Ä¿±ê½Ç¶È
+    int target_angle;       // Ä¿ï¿½ï¿½Ç¶ï¿½
 	int output_angle;
 	
-    short output_current;   // ×îÖÕÊä³öµçÁ÷
-	int received_current;	//½ÓÊÕµÄµçÁ÷
+	int16_t output_current;   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	int received_current;	//ï¿½ï¿½ï¿½ÕµÄµï¿½ï¿½ï¿½
 	
-	int current_speed;				//µ±Ç°ËÙ¶È
-	int target_speed;		//Ä¿±êËÙ¶È
+	int current_speed;				//ï¿½ï¿½Ç°ï¿½Ù¶ï¿½
+	int target_speed;		//Ä¿ï¿½ï¿½ï¿½Ù¶ï¿½
 	
-	int last_ecd; 			//ÉÏÒ»´Î»úÐµ½Ç¶È
-	int ecd;				//»ñµÃ×ª×Ó»úÐµ½Ç¶È·¶Î§ÊÇ0~8191£¬¶ÔÓ¦360¶È
+	int last_ecd; 			//ï¿½ï¿½Ò»ï¿½Î»ï¿½Ðµï¿½Ç¶ï¿½
+	int ecd;				//ï¿½ï¿½ï¿½×ªï¿½Ó»ï¿½Ðµï¿½Ç¶È·ï¿½Î§ï¿½ï¿½0~8191ï¿½ï¿½ï¿½ï¿½Ó¦360ï¿½ï¿½
+
+	float pos_old;
+	float pos;
 	
-} Motor_Property; //µç»úÊôÐÔ½á¹¹Ìå
+} Motor_Property; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½á¹¹ï¿½ï¿½
 
 typedef struct
 {
-    Motor_Property ID[8];				//µç»úÏà¹Ø½á¹¹Ìå
-} Motors; //¸Ã½á¹¹ÌåÓÃÀ´×°°Ë¸öµç»úµÄÊôÐÔ
+    Motor_Property ID[8];				//ï¿½ï¿½ï¿½ï¿½ï¿½Ø½á¹¹ï¿½ï¿½
+} Motors; //ï¿½Ã½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×°ï¿½Ë¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 extern Motors motors;
 
 #include "Allheaderfile.h"
- //¾ø¶Ô½Ç¶È¼ÆËãº¯Êý
+ //ï¿½ï¿½ï¿½Ô½Ç¶È¼ï¿½ï¿½ãº¯ï¿½ï¿½
 void Motor_Absolute_Angle_Cal(Motor_Property *motor, float T, uint8_t index); 
 
-//ÉèÖÃËÙ¶È»·×î´óÊä³ö
+//ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void Set_Max_Output_SL(int max_out);//SL Speed Loop
 
-//ÉèÖÃ½Ç¶È»·×î´óÊä³ö
+//ï¿½ï¿½ï¿½Ã½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void Set_Max_Output_PL( int max_out); //PL Postion Loop
 
-void Set_Motor_Target_Angle(int i); //¼ÆËã½Ç¶È»·Êä³ö
+void Set_Motor_Target_Angle(int i); //ï¿½ï¿½ï¿½ï¿½Ç¶È»ï¿½ï¿½ï¿½ï¿½
 
-void Set_Motor_Target_Speed(int i); // ½Ç¶È»·Êä³ö×÷ÎªËÙ¶È»·ÊäÈë
+void Set_Motor_Target_Speed(int i); // ï¿½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ù¶È»ï¿½ï¿½ï¿½ï¿½ï¿½
 
-void Set_Motor_Output_Current(int i); //ÉèÖÃµçµ÷Êä³ö¸øµç»úµÄµçÁ÷´óÐ¡
+void Set_Motor_Output_Current(int i); //ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½Ð¡
 
-void Load_Data_To_Canbuf(int i); //×°ÔØ¶ÔÓ¦Êý¾Ýµ½»º´æÇø
+void Load_Data_To_Canbuf(int i); //×°ï¿½Ø¶ï¿½Ó¦ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SetZeroToCanBuf(int i);
 
-/**********µçµ÷·¢ËÍÊý¾Ý¸øµç»ú*****************/
+/**********ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½*****************/
 void Can1_Send_Msg_to_Motor(void); 
 void Can2_Send_Msg_to_Motor(void);
 /********************************************/
 
-void Motor_Auto_Run(void); //Çý¶¯µç»ú
-
-
+void Motor_Auto_Run(void); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void runSingleMotor(int i);
+void runSingleLeg(int i);
 
 #endif
 
