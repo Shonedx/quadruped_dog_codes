@@ -59,5 +59,6 @@
 .\objects\main.o: .\User\IWDG\IWDG.h
 .\objects\main.o: .\User\ges_cal\ges_cal.h
 .\objects\main.o: .\User\ges_cal\Jump.h
+.\objects\main.o: .\Core\../DEFINE/define_file.h
 .\objects\main.o: User\main_params.h
 .\objects\main.o: User\Allheaderfile.h

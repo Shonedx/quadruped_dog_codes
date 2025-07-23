@@ -16,7 +16,7 @@
 
 /***/
 #define X_OFFSET 0.0f
-#define Freq 1.5f
+#define Freq 2.2f //1.5-2.3
 #define StepLenthMin 2.0f
 #define StandHeight (20.0f) //max 30  min 12
 #define CrouchHeight (14.0f)

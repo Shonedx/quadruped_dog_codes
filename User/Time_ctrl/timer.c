@@ -40,7 +40,7 @@ void TIM4_Init(void) //1 ms
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;            
     NVIC_Init(&NVIC_InitStructure);
 }
-void TIM5_Init(void) //5 ms
+void TIM5_Init(void) //2 ms
 {
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -75,7 +75,8 @@ void TIM4_IRQHandler()
 	}
 }
 extern JumpState_t jump_state;
-extern JumpParameter_t jump_structure;
+extern JumpParameter_t jump1_struct;
+extern JumpParameter_t jump2_struct;
 
 void TIM5_IRQHandler(void) 
 {
@@ -88,13 +89,22 @@ void TIM5_IRQHandler(void)
 ////				 IMU_Pos_Cal(0, Euler.pitch, Euler.roll);
 ////				 Set_Standheight_Offset();
 ////			 }
-			if(ctrl_state!=CS_PRE_JUMP && ctrl_state!=CS_EXE_JUMP)
+			if(ctrl_state!=CS_JUMP_1&&ctrl_state!=CS_JUMP_2)
 			{	
 				Gait(timer/1000.0f);
 				jump_state=IDLE;
 			}
-			else
-				jumpCtrl(timer/1000.0f,&jump_structure);
+			else 
+			{
+				if(ctrl_state==CS_JUMP_1)
+				{
+					jumpCtrl(timer/1000.0f,&jump1_struct);
+				}
+				else if(ctrl_state==CS_JUMP_2)
+				{
+					jumpCtrl(timer/1000.0f,&jump2_struct);
+				}
+			}
 		}
 		else if(start==0&&ctrl_state==CS_QUIT)
 		{

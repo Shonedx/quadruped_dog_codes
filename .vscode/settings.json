@@ -86,6 +86,8 @@
     "gaitparams.h": "c",
     "cmath": "c",
     "ges_cal.h": "c",
-    "random": "c"
+    "random": "c",
+    "math.h": "c",
+    "define_file.h": "c"
   }
 }

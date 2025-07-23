@@ -85,10 +85,11 @@ void UART1_Put_String(unsigned char *Str) {
         Str++;
     }
 }
-void usart1TxDateToVofa(float ch1, float ch2, float ch3,float ch4) {
-    char buffer[80];
+
+void usart1TxDateToVofa(float ch1, float ch2, float ch3,float ch4,float ch5) {
+    char buffer[100];
     // 格式化为JustFloat格式：浮点数用逗号分隔，保留2位小数，结尾为\r\n
-    sprintf(buffer, "%.2f,%.2f,%.2f,%.2f\r\n", ch1, ch2, ch3,ch4);
+    sprintf(buffer, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n", ch1, ch2, ch3,ch4,ch5);
     UART1_Put_String((unsigned char *)buffer);
 }
 extern uint8_t setted_height;   // 外部声明：设定高度

@@ -8,7 +8,11 @@ Motors motors;
 
 // ȫ�ֱ���
 static uint8_t cnt[8] = {1, 1, 1, 1, 1, 1, 1, 1};
-
+static float constrain(float value, float min, float max) { //�޷�����
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
 void Motor_Absolute_Angle_Cal(Motor_Property *motor, float T, uint8_t index)
 {
     float res1, res2;
@@ -46,9 +50,9 @@ void Motor_Absolute_Angle_Cal(Motor_Property *motor, float T, uint8_t index)
     }
 
     motor->absolute_angle += motor_error[1];
+	motor->absolute_angle =constrain( motor->absolute_angle,-40960,40960 ); //40960为5圈
     pos_old[index] = pos;
 }
-
 
 void Set_Max_Output_SL(int max_out)//�����ٶȻ�������
 {
@@ -64,6 +68,63 @@ void Set_Max_Output_PL( int max_out)//���ýǶȻ�������
 		motor_position_loop_pid.ID[i].max_out =max_out;
 	}
 
+}
+
+void setMaxOfSpeedLoop(int max_out,uint8_t index)
+{
+	motor_speed_loop_pid.ID[index].max_out =max_out;
+}
+void setMaxOfPosLoop(int max_out,uint8_t index)
+{
+	motor_position_loop_pid.ID[index].max_out =max_out;
+}
+void setMaxSLForSingleLeg(int max_out,uint8_t leg_id)
+{
+	switch (leg_id)
+	{
+	case 0 :
+		setMaxOfSpeedLoop(max_out,0);
+		setMaxOfSpeedLoop(max_out,1);
+		break;
+	case 1 :
+		setMaxOfSpeedLoop(max_out,2);
+		setMaxOfSpeedLoop(max_out,3);
+		break;
+	case 2 :
+		setMaxOfSpeedLoop(max_out,4);
+		setMaxOfSpeedLoop(max_out,5);
+		break;
+	case 3 :
+		setMaxOfSpeedLoop(max_out,6);
+		setMaxOfSpeedLoop(max_out,7);
+		break;
+	default:
+		break;
+	}
+}
+void setMaxPLForSingleLeg(int max_out,uint8_t leg_id)
+{
+	switch (leg_id)
+	{
+	case 0 :
+		setMaxOfPosLoop(max_out,0);
+		setMaxOfPosLoop(max_out,1);
+		break;
+	case 1 :
+		setMaxOfPosLoop(max_out,2);
+		setMaxOfPosLoop(max_out,3);
+		break;
+	case 2 :
+		setMaxOfPosLoop(max_out,4);
+		setMaxOfPosLoop(max_out,5);
+		break;
+	case 3 :
+		setMaxOfPosLoop(max_out,6);
+		setMaxOfPosLoop(max_out,7);
+		break;
+	default:
+		break;
+	}
 }
 void Set_Motor_Target_Angle(int i)
 {

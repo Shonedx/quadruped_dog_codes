@@ -12,33 +12,33 @@ CtrlState_t ctrl_state=CS_NONE;
 JumpState_t jump_state=IDLE;
 uint8_t setted_height=StandHeight;
 uint8_t pre_angle=0;
-
+uint8_t check_angle_trigger=0;
 uint16_t formal_datas[FORMAL_DATAS_LENGTH]={0};
 //0-4096
-uint16_t rc_left_x=0;	//ÖÐµã 2075
-uint16_t rc_left_y=0;	//ÖÐµã 2030
-uint16_t rc_right_x=0;	//ÖÐµã 2050
-uint16_t rc_right_y=0;	//ÖÐµã 2020
-//ÖÐµãÖµ middle Ð¡ÓÚÖÐµã²¿·ÖÎª×ó or ÉÏ
+uint16_t rc_left_x=0;	//ï¿½Ðµï¿½ 2075
+uint16_t rc_left_y=0;	//ï¿½Ðµï¿½ 2030
+uint16_t rc_right_x=0;	//ï¿½Ðµï¿½ 2050
+uint16_t rc_right_y=0;	//ï¿½Ðµï¿½ 2020
+//ï¿½Ðµï¿½Öµ middle Ð¡ï¿½ï¿½ï¿½Ðµã²¿ï¿½ï¿½Îªï¿½ï¿½ or ï¿½ï¿½
 uint16_t rc_left_x_md=2075;	
 uint16_t rc_left_y_md=2030;	
 uint16_t rc_right_x_md=2050;	
 uint16_t rc_right_y_md=2020;	
 //
-extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH]; //½ÓÊÕÊý×é
+extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH]; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 extern MotionState_t current_motion_state;
 extern const float step_length;
-//static uint16_t constrain(uint16_t value, uint16_t min, uint16_t max) { //ÏÞ·ùº¯Êý
+//static uint16_t constrain(uint16_t value, uint16_t min, uint16_t max) { //ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½
 //    if (value < min) return min;
 //    if (value > max) return max;
 //    return value;
 //}
-static float constrain(float value, float min, float max) { //ÏÞ·ùº¯Êý
+static float constrain(float value, float min, float max) { //ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½
     if (value < min) return min;
     if (value > max) return max;
     return value;
 }
-void trans_rx_buffer_to_formal_datas(void) //×ª»»½ÓÊÕµÄÊý¾ÝÎª±ê×¼¸ñÊ½
+void trans_rx_buffer_to_formal_datas(void) //×ªï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½×¼ï¿½ï¿½Ê½
 {
 	formal_datas[0]=rx_buffer[0]&0x0f;
 	formal_datas[1]=(uint16_t)rx_buffer[3]<<8|((uint16_t)rx_buffer[2]); //rightx
@@ -57,41 +57,45 @@ void trans_rx_buffer_to_formal_datas(void) //×ª»»½ÓÊÕµÄÊý¾ÝÎª±ê×¼¸ñÊ½
 	ctrl_state=formal_datas[0];
 	translate_state=formal_datas[5];
 	idle_state=formal_datas[6];
-	rc_left_x=formal_datas[3];	//ÖÐµã 2075
-	rc_left_y=formal_datas[4];	//ÖÐµã 2030
-	rc_right_x=formal_datas[1];	//ÖÐµã 2050
-	rc_right_y=formal_datas[2];	//ÖÐµã 2020
+	rc_left_x=formal_datas[3];	//ï¿½Ðµï¿½ 2075
+	rc_left_y=formal_datas[4];	//ï¿½Ðµï¿½ 2030
+	rc_right_x=formal_datas[1];	//ï¿½Ðµï¿½ 2050
+	rc_right_y=formal_datas[2];	//ï¿½Ðµï¿½ 2020
+	check_angle_trigger=0x01&rx_buffer[11];
 }
-uint8_t if_in_normal_range(uint16_t value, uint16_t min, uint16_t max) //ÅÐ¶ÏÄ³¸öÊýÊÇ·ñÔÚÒ»¶¨·¶Î§
+uint8_t if_in_normal_range(uint16_t value, uint16_t min, uint16_t max) //ï¿½Ð¶ï¿½Ä³ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Î§
 {
 	if(value == constrain(value,min,max))
 		return 1;
 	return 0;
 }
-void RC_MotionCtrl(void) //ÇÐ»»»úÆ÷¹·ÔË¶¯×´Ì¬µÄ¿ØÖÆÆ÷ 
+void RC_MotionCtrl(void) //ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½×´Ì¬ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ 
 {
 
-	if(if_in_normal_range(rc_left_x,rc_left_x_md-500,rc_left_x_md+500) && if_in_normal_range(rc_left_y,rc_left_y_md-500,rc_left_y_md+500))
+	if(if_in_normal_range(rc_left_x,rc_left_x_md-500,rc_left_x_md+500) 
+		&& if_in_normal_range(rc_left_y,rc_left_y_md-500,rc_left_y_md+500)
+		&& if_in_normal_range(rc_right_x,rc_right_x_md-500,rc_right_x_md+500) 
+		&& if_in_normal_range(rc_right_y,rc_right_y_md-500,rc_right_y_md+500)) //å½“ä¸¤è¾¹æ‘‡æ†æ²¡å˜åŒ–
 	{	
 		if(idle_state==NORMAL)
-		current_motion_state=MS_NORMAL; //Ô­µØÌ¤²½
+		current_motion_state=MS_NORMAL; //Ô­ï¿½ï¿½Ì¤ï¿½ï¿½
 		else if(idle_state==STOP)
 		current_motion_state=MS_STOP;   //Í£Ö¹
 	}
-	else if (if_in_normal_range(rc_right_x,rc_right_x_md-500,rc_right_x_md+500) && if_in_normal_range(rc_right_y,rc_right_y_md-500,rc_right_y_md+500))
+	else //æ­£å¸¸è¿è¡Œ
 	{
 		current_motion_state=MS_NORMAL; 
 	}
 	
-	if(translate_state==TRANS_ENABLE)
+	if(translate_state==TRANS_ENABLE) //å¹³ç§»
 	{
-		// Ô­µØ×óÆ½ÒÆ
-		if (rc_right_x < rc_right_x_md-100) //100ÊÇÆ«ÒÆÖµ
+		// 
+		if (rc_right_y < rc_right_y_md-100) 
 		{
 			current_motion_state=MS_TRANSLATE_LEFT;
 		}
-		// Ô­µØÓÒÆ½ÒÆ
-		else if (rc_right_x > rc_right_x_md+100) 
+		// 
+		else if (rc_right_y > rc_right_y_md+100) 
 		{
 			current_motion_state=MS_TRANSLATE_RIGHT;
 		}
@@ -102,33 +106,24 @@ void RC_MotionCtrl(void) //ÇÐ»»»úÆ÷¹·ÔË¶¯×´Ì¬µÄ¿ØÖÆÆ÷
 
 void RC_StepLengthCtrl(GaitParams *gaitparams)
 {
-	if(if_in_normal_range(rc_left_x,rc_left_x_md-100,rc_left_x_md+100)) //µ±×óÒ¡¸ËÖ»Íù×ÝÖá²¦Ê± Ç°½ø or ºóÍË
+	if(if_in_normal_range(rc_right_x,rc_right_x_md-100,rc_right_x_md+100)&&if_in_normal_range(rc_right_y,rc_right_y_md-100,rc_right_y_md+100)) //while right rocker don't move 
 	{
-		float K=constrain(-((float)rc_left_y-(float)rc_left_y_md)/2048.0f,-1,1);
+		float K=constrain(((float)rc_left_y-(float)rc_left_y_md)/2048.0f,-1,1);
 		//left legs
 		gaitparams[0].steplength=K*step_length;
 		gaitparams[2].steplength=K*step_length;
 		//right legs
 		gaitparams[1].steplength=K*step_length;
 		gaitparams[3].steplength=K*step_length;
-	}
-	else//×ªÍä
+	} 
+	else if(if_in_normal_range(rc_left_x,rc_left_x_md-100,rc_left_x_md+100)&&if_in_normal_range(rc_left_y,rc_left_y_md-100,rc_left_y_md+100)) //while left rocker don't move 
 	{
-		float K=constrain(((float)rc_left_x-(float)rc_left_x_md)/2048.0f,-1,1); 
+		float K=constrain(((float)rc_right_x-(float)rc_right_x_md)/2048.0f,-1,1);  
 		//left legs
-		gaitparams[0].steplength=K*step_length;
-		gaitparams[2].steplength=K*step_length;
+		gaitparams[0].steplength=-K*step_length;
+		gaitparams[2].steplength=-K*step_length;
 		//right legs
-		gaitparams[1].steplength=-K*step_length;
-		gaitparams[3].steplength=-K*step_length;
-	}
-	if(if_in_normal_range(rc_left_x,rc_left_x_md-100,rc_left_x_md+100)&&if_in_normal_range(rc_left_y,rc_left_y_md-100,rc_left_y_md+100)) //µ±×óÒ¡¸ËÃ»Õ¦¶¯Ê±
-	{
-		//left legs
-		gaitparams[0].steplength*=0;
-		gaitparams[2].steplength*=0;
-		//right legs
-		gaitparams[1].steplength*=0;
-		gaitparams[3].steplength*=0;
+		gaitparams[1].steplength=K*step_length;
+		gaitparams[3].steplength=K*step_length;
 	}
 }

@@ -4,8 +4,8 @@
 #include "rc.h"
 
 MotionState_t current_motion_state=MS_NORMAL;
-const float step_length=16; //正常站立高度时的步长
-const float up_amp=5;  //腿的上摆
+const float step_length=18; //正常站立高度时的步长
+const float up_amp=7.5;  //腿的上摆
 //const float higher_step_length=10; //�������߲���
 //const float crouch_step_length=4; //�¶����߲���
 
@@ -17,10 +17,10 @@ GaitParams gait_params[][4] = {
 	//	上摆幅度 下摆幅度
 
 	{//Normal 0
-		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.35, 0, 0,X_OFFSET},
-		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.35, 0.5, 1,X_OFFSET},
-		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.35, 0.5, 2,X_OFFSET},
-		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.35, 0, 3,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.45, 0, 0,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.45, 0.5, 1,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.45, 0.5, 2,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, step_length, Freq, 0.45, 0, 3,X_OFFSET},
 	},
 	{//停止	1
 		{ 0, 0, StandHeight, 0, 0, 0, 0, 0,X_OFFSET},
@@ -29,16 +29,16 @@ GaitParams gait_params[][4] = {
 		{ 0, 0, StandHeight, 0, 0, 0, 0, 3,X_OFFSET},
 	},
 	{//左平移 2
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.0, 0.25, 0.5, 0,X_OFFSET},
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.0, 0.25, 0, 1,X_OFFSET},
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.0 ,0.25, 0.5, 2,X_OFFSET},
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.0, 0.25, 0, 3,X_OFFSET},
+		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1, 0.35, 0.5, 0,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0, 1,X_OFFSET},
+		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1 ,0.35, 0.5, 2,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0, 3,X_OFFSET},
 	},
 	{//右平移 3
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.0, 0.25, 0.5, 0,X_OFFSET},
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.0, 0.25, 0, 1,X_OFFSET},
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.0, 0.25, 0.5, 2,X_OFFSET},
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.0, 0.25, 0, 3,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0.5, 0,X_OFFSET},
+		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1, 0.35, 0, 1,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0.5, 2,X_OFFSET},
+		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1, 0.35, 0, 3,X_OFFSET},
 	},
 
 ////crouch

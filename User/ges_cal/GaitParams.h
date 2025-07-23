@@ -7,7 +7,7 @@ typedef enum MotionState
 	MS_TRANSLATE_LEFT,
 	MS_TRANSLATE_RIGHT,
 	MS_STOP,
-}MotionState_t; //»úÆ÷¹·ÔËÐÐ×´Ì¬
+}MotionState_t; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 
 //typedef enum 
 //{
@@ -17,19 +17,19 @@ typedef enum MotionState
 //	Translate_Right,
 //	Jump,
 //	Stop,
-//}State; //»úÆ÷¹·ÔËÐÐ×´Ì¬
+//}State; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 
 typedef struct
 {
-    double Up_Amp; //Amplitude ÉÏÉý·ù¶È
-    double Down_Amp; //ÏÂ½µ¸ß¶È
-    double stanceheight; //Õ¾Á¢¸ß¶È
-    double steplength;  //ÂõÍÈ²½³¤
-    double freq; //ÆµÂÊ
-    double swingpercent; //°Ú¶¯ÆÚÕ¼±È
-    double gaitoffset;  //¸÷ÍÈµÄÏàÎ»
-    int i; //ÍÈÐòºÅ
-    double x_offset; //x³õÊ¼Öµ
+    float Up_Amp; //Amplitude ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float Down_Amp; //ï¿½Â½ï¿½ï¿½ß¶ï¿½
+    float stanceheight; //Õ¾ï¿½ï¿½ï¿½ß¶ï¿½
+    float steplength;  //ï¿½ï¿½ï¿½È²ï¿½ï¿½ï¿½
+    float freq; //Æµï¿½ï¿½
+    float swingpercent; //ï¿½Ú¶ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½
+    float gaitoffset;  //ï¿½ï¿½ï¿½Èµï¿½ï¿½ï¿½Î»
+    int i; //ï¿½ï¿½ï¿½ï¿½ï¿½
+    float x_offset; //xï¿½ï¿½Ê¼Öµ
 } GaitParams;
 
 extern GaitParams  gait_params[][4];

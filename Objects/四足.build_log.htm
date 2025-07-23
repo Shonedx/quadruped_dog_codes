@@ -21,13 +21,29 @@ Target DLL:      CMSIS_AGDI.dll V1.28.3.0
 Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
-f:\四足项目\四足（主要开发文件）\backup\四足.uvprojx
-Project File Date:  07/18/2025
+f:\四足项目\四足（主要开发文件）\四足\四足.uvprojx
+Project File Date:  07/20/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\Ceil5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-".\Objects\四足.axf" - 0 Error(s), 0 Warning(s).
+compiling ges_cal.c...
+.\User\Remote_Ctrl\RC.h(47): warning:  #1-D: last line of file ends without a newline
+  #endif
+User\ges_cal\ges_cal.c(124): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		x = (gp / gait_params.swingpercent) * gait_params.steplength - gait_params.steplength / 2.0+ gait_params.x_offset;
+User\ges_cal\ges_cal.c(128): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		float percentBack = (gp - gait_params.swingpercent) / (1.0 - gait_params.swingpercent);
+User\ges_cal\ges_cal.c(129): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		x = -percentBack * gait_params.steplength + gait_params.steplength / 2.0 + gait_params.x_offset;
+User\ges_cal\ges_cal.c(253): warning:  #111-D: statement is unreachable
+  		if(ctrl_state!=CS_HEIGHT)
+User\ges_cal\ges_cal.c(267): warning:  #111-D: statement is unreachable
+  			if(if_in_normal_range(setted_height, 14, 30)) //锟竭度猴拷锟斤拷时
+User\ges_cal\ges_cal.c: 6 warnings, 0 errors
+linking...
+Program Size: Code=39364 RO-data=8076 RW-data=988 ZI-data=7572  
+".\Objects\四足.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -41,7 +57,7 @@ Package Vendor: Keil
   D:\Ceil5\ARM\PACK\Keil\STM32F4xx_DFP\2.8.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

@@ -2,7 +2,7 @@
 #define __NRF24L01_H
 #include "stm32f4xx_gpio.h"
 
-// Òý½ÅÅäÖÃ£¨ÔÚnrf24l01.cÖÐ¶¨Òå£©
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½nrf24l01.cï¿½Ð¶ï¿½ï¿½å£©
 extern GPIO_TypeDef* NRF_CE_Port;
 extern uint16_t      NRF_CE_Pin;
 extern GPIO_TypeDef* NRF_CSN_Port;
@@ -18,11 +18,11 @@ extern uint16_t      NRF_SCK_Pin;
 
 #define NRF_SPI         SPI1
 
-// Í¨ÐÅ²ÎÊýÅäÖÃ
-#define NRF_PAYLOAD_LENGTH  11
+// Í¨ï¿½Å²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define NRF_PAYLOAD_LENGTH  12
 
 
-// ¼Ä´æÆ÷²Ù×÷ÃüÁî
+// ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 #define NRF_READ_REG        0x00
 #define NRF_WRITE_REG       0x20
 #define RD_RX_PLOAD         0x61
@@ -31,7 +31,7 @@ extern uint16_t      NRF_SCK_Pin;
 #define FLUSH_RX            0xE2
 #define NOP                 0xFF
 
-// ¼Ä´æÆ÷µØÖ·
+// ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
 #define CONFIG          0x00
 #define EN_AA           0x01
 #define EN_RXADDR       0x02
@@ -45,19 +45,19 @@ extern uint16_t      NRF_SCK_Pin;
 #define RX_PW_P0        0x11
 #define FIFO_STATUS     0x17
 
-// ×´Ì¬¼Ä´æÆ÷Î»
+// ×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½Î»
 #define RX_DR   6
 #define TX_DS   5
 #define MAX_RT  4
 
-// Òý½Å¿ØÖÆºê
+// ï¿½ï¿½ï¿½Å¿ï¿½ï¿½Æºï¿½
 #define NRF_CE_H()      GPIO_SetBits(NRF_CE_Port, NRF_CE_Pin)
 #define NRF_CE_L()      GPIO_ResetBits(NRF_CE_Port, NRF_CE_Pin)
 #define NRF_CSN_H()     GPIO_SetBits(NRF_CSN_Port, NRF_CSN_Pin)
 #define NRF_CSN_L()     GPIO_ResetBits(NRF_CSN_Port, NRF_CSN_Pin)
 #define NRF_IRQ_READ()  GPIO_ReadInputDataBit(NRF_IRQ_Port, NRF_IRQ_Pin)
 
-// º¯ÊýÉùÃ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void NRF24L01_Init(void);
 uint8_t NRF24L01_Check(void);
 void NRF24L01_Set_RX_Mode(void);

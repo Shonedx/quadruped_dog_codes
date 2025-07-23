@@ -49,3 +49,4 @@
 .\objects\ges_cal.o: .\User\Remote_Ctrl\RC.h
 .\objects\ges_cal.o: .\User\Remote_Ctrl\nrf24l01.h
 .\objects\ges_cal.o: .\Hardware\CAN\can.h
+.\objects\ges_cal.o: .\Core\../DEFINE/define_file.h

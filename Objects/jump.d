@@ -37,15 +37,15 @@
 .\objects\jump.o: .\Library\inc\stm32f4xx_fsmc.h
 .\objects\jump.o: User\ges_cal\ges_cal.h
 .\objects\jump.o: User\ges_cal\gaitparams.h
+.\objects\jump.o: .\Core\../DEFINE/define_file.h
+.\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\jump.o: .\Hardware\PID\pid.h
 .\objects\jump.o: .\Hardware\MOTOR\motor.h
 .\objects\jump.o: .\User\Allheaderfile.h
 .\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
-.\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\jump.o: .\System\delay\delay.h
 .\objects\jump.o: .\System\usart\usart.h
 .\objects\jump.o: .\User\Remote_Ctrl\RC.h
 .\objects\jump.o: .\User\Remote_Ctrl\nrf24l01.h
-.\objects\jump.o: .\Core\../DEFINE/define_file.h

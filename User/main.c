@@ -23,16 +23,17 @@
 #include	"main_params.h"
 
 #include    "stdio.h"
+#include 	"../DEFINE/define_file.h"
 //CAN_1 : PA11(RX)   PA12(TX)        CAN_2 : PB12(RX)      PB13(TX)
 
-//显示对应字符串=============
+//显示对应字�?�串=============
 char ctrlstate_names[7][15]=
 {
 	{"CS_NONE"},
 	{"CS_INIT"},
 	{"CS_MAIN"},
-	{"CS_PRE_JUMP"},
-	{"CS_EXE_JUMP"},
+	{"CS_JUMP_1"},
+	{"CS_JUMP_2"},
 	{"CS_HEIGHT"},
 	{"CS_QUIT"},
 };
@@ -55,7 +56,8 @@ extern IdleState_t idle_state;
 extern uint8_t pre_angle;
 extern uint8_t setted_height;
 extern uint8_t jump_state;
-extern JumpParameter_t jump_structure;
+extern JumpParameter_t jump1_struct;
+extern JumpParameter_t jump2_struct;
 
 int feed=1; 
 int start=0;			
@@ -65,7 +67,6 @@ int left_push_stick,right_push_stick;
 extern uint16_t rc_left_x,rc_left_y,rc_right_x,rc_right_y;
 extern uint64_t timer;
 extern Motors motors;
-extern uint16_t count1;
 
 int main()
 {
@@ -87,7 +88,12 @@ int main()
 	Can_Init(CAN_SJW_1tq,CAN_BS2_2tq,CAN_BS1_4tq,6,CAN_Mode_Normal); //can
 	PID_Init();		//pid
 	OLED_Init(); 	//oled
-	jumpInit(&jump_structure);
+
+	//jump1
+	jumpInit(&jump1_struct,1);
+	//jump2
+	jumpInit(&jump2_struct,2);
+	
 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 
 
@@ -99,7 +105,9 @@ int main()
 	
 	while(1) 
 	{
-		usart1TxDateToVofa(motors.ID[6].target_angle,motors.ID[6].absolute_angle,motors.ID[6].received_current,count1);
+		// usart1TxDateToVofa(motors.ID[5].target_angle,motors.ID[5].absolute_angle,motors.ID[5].target_speed,motors.ID[5].current_speed,motors.ID[5].ecd/8192.0f*360.0f);
+		 usart1TxDateToVofa(legs[0].x,legs[0].z,legs[2].x,legs[2].z,0);
+		//usart1TxDateToVofa(jump2_count[0],jump2_count[1],jump2_count[2],jump2_count[3],0);
 		trans_rx_buffer_to_formal_datas();
 		char now_time_str_buffer[20];
 		sprintf(now_time_str_buffer, "%.2f", timer/1000.0f); 

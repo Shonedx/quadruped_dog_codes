@@ -1,19 +1,19 @@
 #include "Allheaderfile.h"
 #include "pid.h"
 #include "motor.h"
-//ÉùÃ÷ÁËÒ»Ð©½á¹¹Ìå
-Motor_Speed_Loop_Pid  motor_speed_loop_pid; //ËÙ¶È»·½á¹¹Ìå
-Motor_Position_Loop_Pid motor_position_loop_pid; //½Ç¶È»·½á¹¹Ìå
-IMU_Euler_Angle_Pid imu_euler_angle_pid; //imuÅ·À­½Çpid¿ØÖÆÆ÷½á¹¹Ìå
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ð©ï¿½á¹¹ï¿½ï¿½
+Motor_Speed_Loop_Pid  motor_speed_loop_pid; //ï¿½Ù¶È»ï¿½ï¿½á¹¹ï¿½ï¿½
+Motor_Position_Loop_Pid motor_position_loop_pid; //ï¿½Ç¶È»ï¿½ï¿½á¹¹ï¿½ï¿½
+IMU_Euler_Angle_Pid imu_euler_angle_pid; //imuÅ·ï¿½ï¿½ï¿½ï¿½pidï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹ï¿½ï¿½
 
-Motor_Final_Output_Angles motor_final_output_angles={0}; //´¢´æ×îÖÕÊä³öµç»úµÄÄ¿±ê¾ø¶Ô½Ç¶È£¨absolute angle)µÄ½á¹¹ÌåÊý×é
+Motor_Final_Output_Angles motor_final_output_angles={0}; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½Ô½Ç¶È£ï¿½absolute angle)ï¿½Ä½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-float constrain(float value, float min, float max) { //ÏÞ·ùº¯Êý
+float constrain(float value, float min, float max) { //ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½
     if (value < min) return min;
     if (value > max) return max;
     return value;
 }
-void Pid_Speed_Loop_Init(Motor_Speed_Loop_Pid *pid) //ËÙ¶È»·³õÊ¼»¯
+void Pid_Speed_Loop_Init(Motor_Speed_Loop_Pid *pid) //ï¿½Ù¶È»ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 {
 	for(int i=0;i<8;i++)
 	{
@@ -29,7 +29,7 @@ void Pid_Speed_Loop_Init(Motor_Speed_Loop_Pid *pid) //ËÙ¶È»·³õÊ¼»¯
 		
 	}
 }
-void Pid_Position_Loop_Init(Motor_Position_Loop_Pid *pid) //Î»ÖÃ»·³õÊ¼»¯
+void Pid_Position_Loop_Init(Motor_Position_Loop_Pid *pid) //Î»ï¿½Ã»ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 {
 	for(int i=0;i<8;i++)
 	{
@@ -45,7 +45,7 @@ void Pid_Position_Loop_Init(Motor_Position_Loop_Pid *pid) //Î»ÖÃ»·³õÊ¼»¯
 		
 	}
 }
-void IMU_Euler_Angle_Pid_Init(IMU_Euler_Angle_Pid *pid) //Å·À­½Çpid»·³õÊ¼»¯
+void IMU_Euler_Angle_Pid_Init(IMU_Euler_Angle_Pid *pid) //Å·ï¿½ï¿½ï¿½ï¿½pidï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 {
 	/***Yaw***/
 		pid->Yaw.Kp=0;//8.2
@@ -81,7 +81,7 @@ void IMU_Euler_Angle_Pid_Init(IMU_Euler_Angle_Pid *pid) //Å·À­½Çpid»·³õÊ¼»¯
 		pid->Roll.mode =PID_POSITION;
 	
 }
-void PID_Init(void) //pid³õÊ¼»¯
+void PID_Init(void) //pidï¿½ï¿½Ê¼ï¿½ï¿½
 {
     Pid_Speed_Loop_Init(&motor_speed_loop_pid); 
 	Pid_Position_Loop_Init(&motor_position_loop_pid);
@@ -89,7 +89,7 @@ void PID_Init(void) //pid³õÊ¼»¯
 }
 
 
-float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs) // PID¼ÆËã¹«Ê½
+float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs) // PIDï¿½ï¿½ï¿½ã¹«Ê½
 {
     if (pid == NULL)
     {
@@ -99,7 +99,7 @@ float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs) // PID¼ÆËã¹«Ê½
     pid->error[1] = pid->error[0];
    
 
-    if (pid->mode == PID_POSITION) //Î»ÖÃÊ½ //ÕâÀïÖ»ÓÃÀ´Ëã½Ç¶È»·
+    if (pid->mode == PID_POSITION) //Î»ï¿½ï¿½Ê½ //ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶È»ï¿½
     {
 		pid->set =  motor_msgs->target_angle;
 		pid->fdb =  motor_msgs->current_angle;
@@ -114,9 +114,9 @@ float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs) // PID¼ÆËã¹«Ê½
         pid->out = pid->Pout + pid->Iout + pid->Dout;
         pid->out = constrain(pid->out, -pid->max_out, pid->max_out);
     }
-    else if (pid->mode == PID_INCREMENTAL)//ÔöÁ¿Ê½
+    else if (pid->mode == PID_INCREMENTAL)//ï¿½ï¿½ï¿½ï¿½Ê½
     {
-		pid->set =  motor_msgs->target_speed; //ÕâÀïÖ»ÓÃÔöÁ¿Ê½ËãËÙ¶È»·
+		pid->set =  motor_msgs->target_speed; //ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½Ù¶È»ï¿½
 		pid->fdb =  motor_msgs->current_speed;
 		pid->error[0] = pid->set - pid->fdb;
         pid->Pout = pid->Kp * (pid->error[0] - pid->error[1]);
@@ -133,27 +133,55 @@ float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs) // PID¼ÆËã¹«Ê½
 
 
 
-void Set_Angle_Loop_Parameters(Motor_Property *motor,float target_angle,float current_angle) //ÉèÖÃ½Ç¶È»·Ïà¹Ø²ÎÊý£¬ÕâÀï´«ÈëÁË½Ç¶È»·µÄÄ¿±ê½Ç¶ÈºÍµ±Ç°½Ç¶È
+void Set_Angle_Loop_Parameters(Motor_Property *motor,float target_angle,float current_angle) //ï¿½ï¿½ï¿½Ã½Ç¶È»ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï´«ï¿½ï¿½ï¿½Ë½Ç¶È»ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½Ç¶ÈºÍµï¿½Ç°ï¿½Ç¶ï¿½
 {
 	motor->target_angle = target_angle;
 	motor->current_angle= current_angle;
 }
 
-void PID_Setting(Pid_Property *pid,float kp,float kd,float ki) //ÉèÖÃpid P I D ¶ÔÓ¦²ÎÊý
+void PID_Setting(Pid_Property *pid,float kp,float kd,float ki) //ï¿½ï¿½ï¿½ï¿½pid P I D ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
 {
 	pid->Kp=kp;
 	pid->Kd=kd;
 	pid->Ki=ki;
 }
 
-void ChangeTheGainOfPID_KP_KI_KD(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd) //ÉèÖÃ½Ç¶È»·ºÍËÙ¶È»·µÄ¶ÔÓ¦²ÎÊý
+void ChangeTheGainOfPID_KP_KI_KD(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd) //ï¿½ï¿½ï¿½Ã½Ç¶È»ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½Ä¶ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
 {
 	for(int i=0;i<8;i++)
 	{
-		/**ËÙ¶È»·**/
+		/**ï¿½Ù¶È»ï¿½**/
 		PID_Setting(&motor_speed_loop_pid.ID[i],sp_kp,sp_kd,sp_ki);
-		/**Î»ÖÃ»·**/
+		/**Î»ï¿½Ã»ï¿½**/
 		PID_Setting(&motor_position_loop_pid.ID[i],pos_kp,pos_kd,pos_ki);
 	}
 }
-
+void changePosSpdPID(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd,uint8_t i)
+{
+	PID_Setting(&motor_speed_loop_pid.ID[i],sp_kp,sp_kd,sp_ki);
+	PID_Setting(&motor_position_loop_pid.ID[i],pos_kp,pos_kd,pos_ki);
+} 
+void changePIDForSingleLeg(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd,uint8_t leg_id)
+{
+	switch (leg_id)
+	{
+	case 0 :
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,0);
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,1);
+		break;
+	case 1 :
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,2);
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,3);
+		break;
+	case 2 :
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,4);
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,5);
+		break;
+	case 3 :
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,6);
+		changePosSpdPID(sp_kp,sp_ki,sp_kd,pos_kp,pos_ki,pos_kd,7);
+		break;
+	default:
+		break;
+	}
+}

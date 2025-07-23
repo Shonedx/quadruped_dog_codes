@@ -44,3 +44,6 @@
 .\objects\can.o: Hardware\CAN\can.h
 .\objects\can.o: .\Hardware\MOTOR\motor.h
 .\objects\can.o: .\User\Allheaderfile.h
+.\objects\can.o: .\User\main_params.h
+.\objects\can.o: .\User\Allheaderfile.h
+.\objects\can.o: .\User\Remote_Ctrl\NRF24L01.h

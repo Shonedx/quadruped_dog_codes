@@ -4,6 +4,7 @@
 #include "pid.h"
 #include "RC.h"
 #include "can.h"
+#include "../DEFINE/define_file.h"
 //  LF(0)--------------------RF(3)
 //  motor1       |             motor3             
 //    (id:1)     |               (id:3)
@@ -35,18 +36,68 @@ Leg legs[4];
 //声明函数
 
 //声明结构体
-Rotate_Stretch_t rotate_stretch_struct = { 
-	.rotate_angle = 0.0f, // 旋转角度
-	.stretch_length = 0.0f, // 伸展长度
-	.rotate_time = 0.25f, // 旋转时间
-	.stretch_time = 0.25f, // 伸展时间
+
+Rotate_Stretch_t stand_init_struct[4] = {
+	{ 
+	.rotate_angle = -90.0f, // 旋转角度
+	.stretch_length =StandHeight, // 伸展长度
+	.rotate_time = 1.0f, // 旋转时间
+	.stretch_time = 1.0f, // 伸展时间
 	.rotate_count = 0.0f, //计数值
 	.stretch_count = 0.0f, 
-	.rotate_prev_t = 0.0f, // 上一次计数时间
-	.stretch_prev_t = 0.0f, // 上一次计数时间
+	.rotate_prev_t[0] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[0] = 0.0f, // 上一次计数时间
+	.rotate_prev_t[1] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[1] = 0.0f, // 上一次计数时间
 	.flag = 0, // 完成置位
-	.rotate_freq = 8.5f, // 旋转频率
-	.stretch_freq= 8.5f // 伸展频率
+	.rotate_freq =0.5f, // 旋转频率
+	.stretch_freq= 0.5f // 伸展频率
+	},//0
+	{ 
+	.rotate_angle = -90.0f, // 旋转角度
+	.stretch_length =StandHeight, // 伸展长度
+	.rotate_time = 1.0f, // 旋转时间
+	.stretch_time = 1.0f, // 伸展时间
+	.rotate_count = 0.0f, //计数值
+	.stretch_count = 0.0f, 
+	.rotate_prev_t[0] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[0] = 0.0f, // 上一次计数时间
+	.rotate_prev_t[1] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[1] = 0.0f, // 上一次计数时间
+	.flag = 0, // 完成置位
+	.rotate_freq = 0.5f, // 旋转频率
+	.stretch_freq= 0.5f// 伸展频率
+	},//1
+	{ 
+	.rotate_angle = 90.0f, // 旋转角度
+	.stretch_length =StandHeight, // 伸展长度
+	.rotate_time = 1.0f, // 旋转时间
+	.stretch_time = 1.0f, // 伸展时间
+	.rotate_count = 0.0f, //计数值
+	.stretch_count = 0.0f, 
+	.rotate_prev_t[0] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[0] = 0.0f, // 上一次计数时间
+	.rotate_prev_t[1] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[1] = 0.0f, // 上一次计数时间
+	.flag = 0, // 完成置位
+	.rotate_freq = 0.5f, // 旋转频率
+	.stretch_freq= 0.5f,// 伸展频率
+	},//2
+	{ 
+	.rotate_angle = 90.0f, // 旋转角度
+	.stretch_length =StandHeight, // 伸展长度
+	.rotate_time = 1.0f, // 旋转时间
+	.stretch_time = 1.0f, // 伸展时间
+	.rotate_count = 0.0f, //计数值
+	.stretch_count = 0.0f, 
+	.rotate_prev_t[0] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[0] = 0.0f, // 上一次计数时间
+	.rotate_prev_t[1] = 0.0f, // 上一次计数时间
+	.stretch_prev_t[1] = 0.0f, // 上一次计数时间
+	.flag = 0, // 完成置位
+	.rotate_freq = 0.5f, // 旋转频率
+	.stretch_freq= 0.5f // 伸展频率
+	},//3
 };
  /******************************************************************************************************/
  static float constrain(float value,float min,float max)
@@ -83,27 +134,31 @@ static void SinTrajectory(double t, GaitParams gait_params,Leg *leg)
 } 
 
 
-void Stand_Init(void)
+byte standInit(float t)
 {
-	
 	Set_Max_Output_SL(10000);
 	Set_Max_Output_PL(10000);
-	ChangeTheGainOfPID_KP_KI_KD(1,0,0.5,1,0,0);
-
-	motor_final_output_angles.ID[0] =	-0.0f * Gaito;  //�����������⺯�������ĽǶȸ���������Ҫ����PID���������м��������
-	motor_final_output_angles.ID[1] =	-180.0f * Gaito;
+	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+	REP(i,4)
+	{
+		stand_init_struct[i].flag=rotateAndStretch(t,stand_init_struct[i].rotate_angle
+												,stand_init_struct[i].stretch_length,
+												15, //原高度
+												0,			//原角度
+												&legs[i],
+												&stand_init_struct[i]);
 		
-	motor_final_output_angles.ID[2] =	180.0f * Gaito;  
-	motor_final_output_angles.ID[3] =	-0.0f * Gaito;
-	
-	motor_final_output_angles.ID[4] =	-180.0f * Gaito;
-	motor_final_output_angles.ID[5] =	-0.0f * Gaito;
-	
-	motor_final_output_angles.ID[6] =	-180 * Gaito;  
-	motor_final_output_angles.ID[7] =	-0.0f * Gaito;
-	
-	Motor_Auto_Run();
-	
+	}
+
+	if(stand_init_struct[0].flag
+	&&stand_init_struct[1].flag
+	&&stand_init_struct[2].flag
+	&&stand_init_struct[3].flag
+	)
+	{
+		return 1; //lean完成
+	}
+	return 0;
 	
 }
 //	CS_NONE,
@@ -114,26 +169,51 @@ void Stand_Init(void)
 //	CS_HEIGHT,
 //	CS_QUIT,
 
-
+byte stand_flag=0;
+extern uint64_t timer;
 void motion_state_ctrl(void)
 {
 	switch(ctrl_state)
 	{
-		case CS_NONE://��ʼ״̬ 
+		case CS_NONE:
 			start=0;
 			break;
-		case CS_INIT://��ʼ��������
+		case CS_INIT:
 			start=0;
 			M3508_ALL_ZERO_SET();
+			// if(!start)
+			// {
+			// 	M3508_ALL_ZERO_SET();
+			// 	start=1;
+			// }
+			// if(start&&!stand_flag)
+			// {
+			// 	stand_flag=standInit(timer/1000.0f);
+			// 	CartesianToTheta_Cycloid_All_Legs();
+			// 	Moveleg();
+			// 	Motor_Auto_Run();
+			// }
+			// else if(start&&stand_flag)
+			// {
+			// 	CartesianToTheta_Cycloid_All_Legs();
+			// 	Moveleg();
+			// 	Motor_Auto_Run();
+			// }
 			break;
-		case CS_MAIN://������
+		case CS_MAIN:
+			// if(stand_flag)
+			// {
+			// 	M3508_ALL_ZERO_SET();
+			// 	stand_flag=0;
+			// }
+			// else if (!stand_flag)
 			RC_MotionCtrl();
 			start=1;
 			break;
-		case CS_PRE_JUMP:// ��Ծ׼��
+		case CS_JUMP_1:
 			start=1;
 			break;
-		case CS_EXE_JUMP:// ��Ծִ��
+		case CS_JUMP_2:
 			start=1;
 			break;
 		case CS_HEIGHT:
@@ -158,6 +238,13 @@ void motion_state_ctrl(void)
 
 
 }
+#define tsp_kp 12
+#define tsp_ki 0
+#define tsp_kd 0
+#define tpo_kp 1
+#define tpo_ki 0
+#define tpo_kd 0
+
  void Gait(double t)
 {
 	
@@ -169,7 +256,8 @@ void motion_state_ctrl(void)
 				Set_Max_Output_SL(8000);
 				Set_Max_Output_PL(8000);
 				ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
-				RC_StepLengthCtrl(gait_params[0]);
+				//ChangeTheGainOfPID_KP_KI_KD(tsp_kp,tsp_ki,tsp_kd,tpo_kp,tpo_ki,tpo_kd);
+				RC_StepLengthCtrl(gait_params[0]); //使得步长随着摇杆的推出程度变化
 				for (int i=0 ; i < 4; i++)
 				{
 					SinTrajectory(t, gait_params[0][i],&legs[i]);
@@ -228,9 +316,9 @@ void motion_state_ctrl(void)
 	
 
 }
-//�˶����
+//motion cal
 /******************************************************************************************************/
-// ��⺯��
+//inverse solution
 void CartesianToTheta_Cycloid(Leg *leg)
 {
     leg->L = sqrt(leg->x * leg->x + leg->z * leg->z);
@@ -241,7 +329,7 @@ void CartesianToTheta_Cycloid(Leg *leg)
     leg->theta2 = 180.0f * (leg->fai1 - leg->psai1) / PI - 90.0f;
     leg->theta1 = 180.0f * (leg->fai1 + leg->psai1) / PI - 90.0f;
 }
-////���������
+//cal for all legs
 void CartesianToTheta_Cycloid_All_Legs(void)
 {
 	for(int i=0;i<4;i++)
@@ -249,13 +337,13 @@ void CartesianToTheta_Cycloid_All_Legs(void)
 		CartesianToTheta_Cycloid(&legs[i]);
 	}
 }
-//������ذڶ���
-void Angle_Setting_Cycloid(int LegID)  // Moveleg �ﱻ����
+//give every motors angle
+void Angle_Setting_Cycloid(int LegID)  // Moveleg 
 { 
 	switch (LegID)
 	{
 		case 0:
-			motor_final_output_angles.ID[0] =	legs[0].theta1 * Gaito;  //�����������⺯�������ĽǶȸ���������Ҫ����PID���������м��������
+			motor_final_output_angles.ID[0] =	legs[0].theta1 * Gaito;  //after the pid cal, this is the output current to the motor
 			motor_final_output_angles.ID[1] =	legs[0].theta2 * Gaito;
 		break;
 		case 1:
@@ -272,21 +360,16 @@ void Angle_Setting_Cycloid(int LegID)  // Moveleg �ﱻ����
 		break;
 	}
 }
-// �ƶ��Ⱥ���
 void Moveleg(void)
 {
-    // ����˵����
-    // direction: �����־
-    // Ϊÿ�������ýǶ�
-    // Legid �� 0 �� 3 �ֱ����������
-    Angle_Setting_Cycloid(0);  // ���õ� 0 ���ȵĽǶ�
-    Angle_Setting_Cycloid(1);  // ���õ� 1 ���ȵĽǶ�
-    Angle_Setting_Cycloid(2);  // ���õ� 2 ���ȵĽǶ�
-    Angle_Setting_Cycloid(3);  // ���õ� 3 ���ȵĽǶ�
+    Angle_Setting_Cycloid(0);  
+    Angle_Setting_Cycloid(1);  
+    Angle_Setting_Cycloid(2);  
+    Angle_Setting_Cycloid(3);  
 }
 
 //定义函数结构体
-u8 rotateAndStretch(float t,  float rotate_angle, float stretch_length,float original_length,float original_angle,Leg *leg,Rotate_Stretch_t *rs)
+u8 rotateAndStretch(float t,  float rotate_angle, float stretch_length,float original_length,float original_angle,Leg *leg,Rotate_Stretch_t *rs) //rotate func
 {
 	
 	if(rs->flag) //如果已置位则归零所有prev_t
@@ -320,7 +403,7 @@ u8 rotateAndStretch(float t,  float rotate_angle, float stretch_length,float ori
 	rs->stretch_prev_t[1] = rs->stretch_prev_t[0];
 	
 	rs->rotate_count=constrain(rs->rotate_count, 0, rs->rotate_time); //旋转和伸展部分时间分开计时，默认二者是相同时间
-	rs->rotate_count=constrain(rs->rotate_count, 0, rs->stretch_time);
+	rs->stretch_count=constrain(rs->stretch_count, 0, rs->stretch_time);
 
 	rs->stretch_k=rs->stretch_count/rs->stretch_time;
 	rs->rotate_k=rs->rotate_count/rs->rotate_time;

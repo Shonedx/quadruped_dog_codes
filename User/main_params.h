@@ -1,7 +1,7 @@
 #ifndef __MAIN_PARAMS_H
 #define __MAIN_PARAMS_H
 #include "Allheaderfile.h"
-
+#include "NRF24L01.h"
 //ע:���ļ�����ͳһ��main�������ı����ŵ�ͷ�ļ������Ը������ļ����ñ�������������Ͳ鿴
 
 extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH];

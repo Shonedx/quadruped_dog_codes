@@ -8,34 +8,34 @@ typedef enum CtrlState
 	CS_NONE,
 	CS_INIT,
 	CS_MAIN,
-	CS_PRE_JUMP,
-	CS_EXE_JUMP,
+	CS_JUMP_1,
+	CS_JUMP_2,
 	CS_HEIGHT,
 	CS_QUIT,
-}CtrlState_t; //¿ØÖÆÀà×´Ì¬»ú
+}CtrlState_t;//ctrl state
 typedef enum TranslateState
 {
 	TRANS_DISABLE,
 	TRANS_ENABLE,
-}TranslateState_t; //¿ØÖÆÀà×´Ì¬»ú
+}TranslateState_t; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½
 typedef enum IdleState
 {
 	STOP,
 	NORMAL,
-}IdleState_t; //¿ØÖÆÀà×´Ì¬»ú
+}IdleState_t; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½
 typedef enum JumpState
 {
 	IDLE, 
-	BEND,//¸©Éí step1
-	LEAN,//ÇãÐ± step2
-	EXE, //Ö´ÐÐ step3
-}JumpState_t; //¿ØÖÆÀà×´Ì¬»ú
+	ANGLE_SET,
+	JUMP1,
+	JUMP2,
+}JumpState_t; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½
 
 typedef enum ConnectState
 {
 	UNCONNECTED,
 	CONNECTED
-}ConnectState_t; //¿ØÖÆÀà×´Ì¬»ú
+}ConnectState_t; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½
 
 extern uint16_t formal_datas[FORMAL_DATAS_LENGTH];
 

@@ -34,11 +34,10 @@ extern Motors motors;
  //���ԽǶȼ��㺯��
 void Motor_Absolute_Angle_Cal(Motor_Property *motor, float T, uint8_t index); 
 
-//�����ٶȻ�������
 void Set_Max_Output_SL(int max_out);//SL Speed Loop
-
-//���ýǶȻ�������
 void Set_Max_Output_PL( int max_out); //PL Postion Loop
+void setMaxSLForSingleLeg(int max_out,uint8_t leg_id);
+void setMaxPLForSingleLeg(int max_out,uint8_t leg_id);
 
 void Set_Motor_Target_Angle(int i); //����ǶȻ����
 

@@ -2,7 +2,7 @@
 #define __PID_H
 #include "stdint.h"
 #include "motor.h"
- enum PID_MODE //pidÎ»ÖÃ»·ºÍËÙ¶È»·µÄÑ¡Ôñ
+ enum PID_MODE //pidÎ»ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
 {
     PID_POSITION = 0,
     PID_INCREMENTAL     = 1
@@ -10,24 +10,24 @@
 
 typedef struct
 {
-    uint8_t mode;           // ¿ØÖÆÄ£Ê½£ºPID_POSITION »ò PID_DELTA
+    uint8_t mode;           // ï¿½ï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½PID_POSITION ï¿½ï¿½ PID_DELTA
 
-    float Kp;               // ±ÈÀýÔöÒæ
-    float Ki;               // »ý·ÖÔöÒæ
-    float Kd;               // Î¢·ÖÔöÒæ
+    float Kp;               // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float Ki;               // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float Kd;               // Î¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    float max_out;          // ×î´óÊä³ö
-    float max_iout;         // ×î´ó»ý·ÖÊä³ö
+    float max_out;          // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float max_iout;         // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    float set;              // Éè¶¨Öµ
-    float fdb;              // ·´À¡Öµ
+    float set;              // ï¿½è¶¨Öµ
+    float fdb;              // ï¿½ï¿½ï¿½ï¿½Öµ
 
-    float out;              // ×ÜÊä³ö
-    float Pout;             // ±ÈÀýÏîÊä³ö
-    float Iout;             // »ý·ÖÏîÊä³ö
-    float Dout;             // Î¢·ÖÏîÊä³ö
-    float Dbuf[3];          // Î¢·ÖÏî»º´æ
-    float error[3];         // Îó²î»º´æ
+    float out;              // ï¿½ï¿½ï¿½ï¿½ï¿½
+    float Pout;             // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float Iout;             // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float Dout;             // Î¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    float Dbuf[3];          // Î¢ï¿½ï¿½ï¿½î»ºï¿½ï¿½
+    float error[3];         // ï¿½ï¿½î»ºï¿½ï¿½
 } Pid_Property;
 
 
@@ -49,9 +49,9 @@ typedef struct
 typedef struct
 {
 	float ID[8];
-}Motor_Final_Output_Angles;  			//¹·ÍÈµç»ú½Ç¶È
+}Motor_Final_Output_Angles;  			//ï¿½ï¿½ï¿½Èµï¿½ï¿½ï¿½Ç¶ï¿½
 
-//Õâ¸ö¶¼ÔÚpid.cÎÄ¼þÖÐÉùÃ÷ÁË
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pid.cï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 extern Motor_Speed_Loop_Pid  motor_speed_loop_pid;
 extern Motor_Position_Loop_Pid motor_position_loop_pid;
 extern IMU_Euler_Angle_Pid imu_euler_angle_pid;
@@ -59,22 +59,24 @@ extern IMU_Euler_Angle_Pid imu_euler_angle_pid;
 extern Motor_Final_Output_Angles motor_final_output_angles;
 
 /***********************************/
-float constrain(float value, float min, float max); //ÏÞ·ùº¯Êý
+float constrain(float value, float min, float max); //ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½
 
-void Pid_Speed_Loop_Init(Motor_Speed_Loop_Pid *pid); //ËÙ¶È»·³õÊ¼»¯
+void Pid_Speed_Loop_Init(Motor_Speed_Loop_Pid *pid); //ï¿½Ù¶È»ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 
-void Pid_Position_Loop_Init(Motor_Position_Loop_Pid *pid); //Î»ÖÃ»·³õÊ¼»¯
+void Pid_Position_Loop_Init(Motor_Position_Loop_Pid *pid); //Î»ï¿½Ã»ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 
-void IMU_Euler_Angle_Pid_Init(IMU_Euler_Angle_Pid *pid); //Å·À­½Çpid»·³õÊ¼»¯
+void IMU_Euler_Angle_Pid_Init(IMU_Euler_Angle_Pid *pid); //Å·ï¿½ï¿½ï¿½ï¿½pidï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 
-void PID_Init(void); //pid³õÊ¼»¯
+void PID_Init(void); //pidï¿½ï¿½Ê¼ï¿½ï¿½
 
-float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs); // ËÙ¶È»·PID¹«Ê½
+float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs); // ï¿½Ù¶È»ï¿½PIDï¿½ï¿½Ê½
 
-void Set_Angle_Loop_Parameters(Motor_Property *motor,float target_angle,float current_angle); //ÉèÖÃ½Ç¶È»·Ïà¹Ø²ÎÊý£¬ÕâÀï´«ÈëÁË½Ç¶È»·µÄÄ¿±ê½Ç¶ÈºÍµ±Ç°½Ç¶È
+void Set_Angle_Loop_Parameters(Motor_Property *motor,float target_angle,float current_angle); //ï¿½ï¿½ï¿½Ã½Ç¶È»ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï´«ï¿½ï¿½ï¿½Ë½Ç¶È»ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½Ç¶ÈºÍµï¿½Ç°ï¿½Ç¶ï¿½
 
-void PID_Setting(Pid_Property *pid,float kp,float kd,float ki); //ÉèÖÃpid P I D ¶ÔÓ¦²ÎÊý
+void PID_Setting(Pid_Property *pid,float kp,float kd,float ki); //ï¿½ï¿½ï¿½ï¿½pid P I D ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
 
-void ChangeTheGainOfPID_KP_KI_KD(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd); //ÉèÖÃ½Ç¶È»·ºÍËÙ¶È»·µÄ¶ÔÓ¦²ÎÊý
+void ChangeTheGainOfPID_KP_KI_KD(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd); //ï¿½ï¿½ï¿½Ã½Ç¶È»ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½ï¿½Ä¶ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
+
+void changePIDForSingleLeg(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd,uint8_t leg_id);
 
 #endif
