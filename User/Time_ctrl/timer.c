@@ -7,6 +7,7 @@
 #include "led.h"
 #include "jump.h"
 #include "sys.h"
+#include "Kalman.h"
 extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH];
 extern int start;
 extern CtrlState_t ctrl_state;
@@ -63,14 +64,19 @@ void TIM5_Init(void) //2 ms
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
-
+extern MovingAverageFilter_t yaw_filter;
+extern MovingAverageFilter_t roll_filter;
+extern MovingAverageFilter_t pitch_filter;
+float yaw,pitch,roll;
 void TIM4_IRQHandler() 
 {  
 	if(TIM_GetITStatus(TIM4, TIM_IT_Update) !=RESET)
 	{
 		Update_Time();
+		yaw=movAveUpdate(&yaw_filter,Euler.yaw);
+		roll=movAveUpdate(&roll_filter,Euler.roll);
+		pitch=movAveUpdate(&pitch_filter,Euler.pitch);
 		NRF24L01_RxPacket_IRQ(rx_buffer);
-
 		TIM_ClearITPendingBit(TIM4,TIM_IT_Update);
 	}
 }

@@ -27,23 +27,19 @@ Project File Date:  07/20/2025
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\Ceil5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling ges_cal.c...
+compiling main.c...
+.\User\Time_ctrl\ticks.h(10): warning:  #1-D: last line of file ends without a newline
+  #endif
+.\User\IMU\kalman.h(28): warning:  #1-D: last line of file ends without a newline
+  #endif // KALMAN_H
 .\User\Remote_Ctrl\RC.h(47): warning:  #1-D: last line of file ends without a newline
   #endif
-User\ges_cal\ges_cal.c(124): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		x = (gp / gait_params.swingpercent) * gait_params.steplength - gait_params.steplength / 2.0+ gait_params.x_offset;
-User\ges_cal\ges_cal.c(128): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		float percentBack = (gp - gait_params.swingpercent) / (1.0 - gait_params.swingpercent);
-User\ges_cal\ges_cal.c(129): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		x = -percentBack * gait_params.steplength + gait_params.steplength / 2.0 + gait_params.x_offset;
-User\ges_cal\ges_cal.c(253): warning:  #111-D: statement is unreachable
-  		if(ctrl_state!=CS_HEIGHT)
-User\ges_cal\ges_cal.c(267): warning:  #111-D: statement is unreachable
-  			if(if_in_normal_range(setted_height, 14, 30)) //ï¿½ß¶Èºï¿½ï¿½ï¿½Ê±
-User\ges_cal\ges_cal.c: 6 warnings, 0 errors
+User\main.c(146): warning:  #111-D: statement is unreachable
+  	movAveFree(&yaw_filter);
+User\main.c: 4 warnings, 0 errors
 linking...
-Program Size: Code=39364 RO-data=8076 RW-data=988 ZI-data=7572  
-".\Objects\ËÄ×ã.axf" - 0 Error(s), 6 Warning(s).
+Program Size: Code=39640 RO-data=8080 RW-data=1000 ZI-data=7632  
+".\Objects\ËÄ×ã.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -57,7 +53,7 @@ Package Vendor: Keil
   D:\Ceil5\ARM\PACK\Keil\STM32F4xx_DFP\2.8.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

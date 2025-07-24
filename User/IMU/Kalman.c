@@ -1,289 +1,40 @@
+// kalman.c
 #include "kalman.h"
-#include <math.h>   // ÓÃÓÚ fabs()
-#include <string.h> // ÓÃÓÚ memcpy
-
-// --- ¾²Ì¬¾ØÕó¸¨Öúº¯Êı ---
-// ÕâĞ©º¯ÊıÊ¹ÓÃ±âÆ½µÄ float Êı×éºÍÏÔÊ½µÄÎ¬¶ÈÀ´Ìá¹©Í¨ÓÃĞÔ¡£
-
-// ¾ØÕó³Ë·¨º¯Êı£ºC = A * B
-// A ÊÇ rowsA x colsA£¬B ÊÇ rowsB x colsB¡£C ÊÇ rowsA x colsB¡£
-// colsA ±ØĞëµÈÓÚ rowsB¡£
-static void mat_mult(const float* A, int rowsA, int colsA,
-                       const float* B, int rowsB, int colsB,
-                       float* C) {
-    if (colsA != rowsB) {
-        // Î¬¶È²»Æ¥Åä£¬´¦Àí´íÎó»ò¶ÏÑÔ
-        return;
-    }
-    for (int i = 0; i < rowsA; i++) {
-        for (int j = 0; j < colsB; j++) {
-            C[i * colsB + j] = 0;
-            for (int k = 0; k < colsA; k++) {
-                C[i * colsB + j] += A[i * colsA + k] * B[k * colsB + j];
-            }
-        }
-    }
+#include <math.h>
+#include <string.h>
+#include "../DEFINE/define_file.h"
+MovingAverageFilter_t yaw_filter;
+MovingAverageFilter_t roll_filter;
+MovingAverageFilter_t pitch_filter;
+//ç§»åŠ¨å¹³å‡æ»¤æ³¢
+void movAveInit(MovingAverageFilter_t *filter, int window_size) {
+    filter->size = window_size;
+    filter->buffer = (float *)malloc(window_size * sizeof(float));
+    filter->index = 0;
+    filter->sum = 0;
+    filter->count = 0;
+    memset(filter->buffer, 0, window_size * sizeof(float));
 }
 
-// ¾ØÕó×ªÖÃº¯Êı£ºAT = A^T
-// A ÊÇ rows x cols¡£AT ÊÇ cols x rows¡£
-static void mat_transpose(const float* A, int rows, int cols, float* AT) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            AT[j * rows + i] = A[i * cols + j];
-        }
-    }
-}
-
-// ¾ØÕó¼õ·¨º¯Êı£ºC = A - B
-// A, B, C ¶¼ÊÇ rows x cols¡£
-static void mat_subtract(const float* A, const float* B, int rows, int cols, float* C) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            C[i * cols + j] = A[i * cols + j] - B[i * cols + j];
-        }
-    }
-}
-
-// ¾ØÕó¼Ó·¨º¯Êı£ºC = A + B
-// A, B, C ¶¼ÊÇ rows x cols¡£
-static void mat_add(const float* A, const float* B, int rows, int cols, float* C) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            C[i * cols + j] = A[i * cols + j] + B[i * cols + j];
-        }
-    }
-}
-
-// ´´½¨µ¥Î»¾ØÕóº¯Êı
-static void mat_identity(int rows, int cols, float* I) {
-    if (rows != cols) {
-         // ²»ÊÇ·½Õó£¬²»ÄÜÊÇ³£¹æÒâÒåÉÏµÄµ¥Î»¾ØÕó
-         return;
-    }
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            I[i * cols + j] = (i == j) ? 1.0f : 0.0f;
-        }
-    }
-}
-
-
-// --- ¿¨¶ûÂüÂË²¨Æ÷º¯ÊıÊµÏÖ ---
-
-void KalmanFilter_Init(KalmanFilter* kf,
-                       float initial_angle,
-                       float initial_angular_velocity,
-                       float dt,
-                       float process_noise_variance,
-                       float measurement_noise_variance,
-                       float initial_covariance) {
-
-    // ´æ´¢²ÎÊı
-    kf->dt = dt;
-    kf->process_noise_variance = process_noise_variance;
-    kf->measurement_noise_variance = measurement_noise_variance;
-
-    // ³õÊ¼»¯×´Ì¬ÏòÁ¿ [½Ç¶È, ½ÇËÙ¶È]
-    kf->x[0] = initial_angle;
-    kf->x[1] = initial_angular_velocity;
-    // Èç¹û N_STATE > 2£¬È·±£ÆäÓà×´Ì¬ÔªËØÎªÁã
-    for (int i = 2; i < N_STATE; ++i) {
-        kf->x[i] = 0.0f;
-    }
-
-
-    // ³õÊ¼»¯×´Ì¬Ğ­·½²î¾ØÕó P (µ¥Î»¾ØÕó³ËÒÔ initial_covariance)
-    for (int i = 0; i < N_STATE; i++) {
-        for (int j = 0; j < N_STATE; j++) {
-            kf->P[i][j] = (i == j) ? initial_covariance : 0.0f;
-        }
-    }
-
-    // ³õÊ¼»¯×´Ì¬×ªÒÆ¾ØÕó F
-    // ¶ÔÓÚÔÈËÙÄ£ĞÍ£º
-    // [ 1  dt ]
-    // [ 0  1  ]
-    // Èç¹û N_STATE > 2£¬ÕâĞèÒªµ÷Õû
-    mat_identity(N_STATE, N_STATE, &kf->F[0][0]); // ´Óµ¥Î»¾ØÕó¿ªÊ¼
-    if (N_STATE >= 2) {
-        kf->F[0][1] = dt; // Èç¹û×´Ì¬°üº¬Î»ÖÃ/ËÙ¶È£¬ÔòÔÚÓÒÉÏ½ÇÌí¼Ó dt
-    }
-    // Èç¹û N_STATE > 2£¬¸ù¾İÄãµÄÄ£ĞÍÌí¼ÓÆäËû×ªÒÆÏî
-
-    // ³õÊ¼»¯¹ı³ÌÔëÉùĞ­·½²î¾ØÕó Q
-    // ¼òµ¥³õÊ¼»¯£º¶Ô½Ç¾ØÕó£¬¶Ô½ÇÏßÖµÎª process_noise_variance
-    // ¶ÔÓÚ¸ü¸´ÔÓµÄÄ£ĞÍ£¬Q ¿ÉÄÜ²»Í¬
-    for (int i = 0; i < N_STATE; i++) {
-        for (int j = 0; j < N_STATE; j++) {
-            kf->Q[i][j] = (i == j) ? process_noise_variance : 0.0f;
-        }
-    }
-    // ¶ÔÓÚ N_STATE=2£¬[Î»ÖÃ, ËÙ¶È] µÄ¸ü¾ßÎïÀíÒâÒåµÄ Q ¿ÉÒÔÊÇ [dt^3/3 dt^2/2; dt^2/2 dt] * ¼ÓËÙ¶ÈÔëÉù·½²î
-    // Èç¹ûÄãĞèÒªÕâ¸ö£¬Ìæ»»ÉÏÃæµÄÑ­»·»òÌí¼ÓÁíÒ»¸öº¯Êı¡£
-    // ÀıÈç£¬¶ÔÓÚ N_STATE=2£¬[Î»ÖÃ, ËÙ¶È]£º
-    // kf->Q[0][0] = process_noise_variance * (dt*dt*dt/3.0f);
-    // kf->Q[0][1] = process_noise_variance * (dt*dt/2.0f);
-    // kf->Q[1][0] = process_noise_variance * (dt*dt/2.0f);
-    // kf->Q[1][1] = process_noise_variance * dt;
-
-
-    // ³õÊ¼»¯¹Û²â¾ØÕó H
-    // ÎÒÃÇ²âÁ¿½Ç¶È (µÚÒ»¸ö×´Ì¬±äÁ¿)
-    // [ 1  0 ... ]
-    // ¼ÙÉè measurement[0] ÊÇ½Ç¶È
-    for (int i = 0; i < N_MEASUREMENT; i++) {
-         for (int j = 0; j < N_STATE; j++) {
-             kf->H[i][j] = 0.0f;
-         }
-    }
-    if (N_MEASUREMENT >= 1 && N_STATE >= 1) {
-         kf->H[0][0] = 1.0f; // ÎÒÃÇ²âÁ¿µÚÒ»¸ö×´Ì¬±äÁ¿ (½Ç¶È)
-    }
-    // Èç¹û N_MEASUREMENT > 1£¬¸ù¾İÄã²âÁ¿µÄ±äÁ¿ÉèÖÃÆäËû H ÌõÄ¿
-
-    // ³õÊ¼»¯²âÁ¿ÔëÉùĞ­·½²î¾ØÕó R
-    // ¼òµ¥³õÊ¼»¯£º¶Ô½Ç¾ØÕó£¬¶Ô½ÇÏßÖµÎª measurement_noise_variance
-    // Èç¹û N_MEASUREMENT > 1£¬R ½«ÊÇ N_MEASUREMENT x N_MEASUREMENT
-    for (int i = 0; i < N_MEASUREMENT; i++) {
-         for (int j = 0; j < N_MEASUREMENT; j++) {
-             kf->R[i][j] = (i == j) ? measurement_noise_variance : 0.0f;
-         }
-    }
-
-    // ¿¨¶ûÂüÔöÒæ K ÔÚ¸üĞÂ²½ÖèÖĞÉÔºó³õÊ¼»¯
-}
-
-void KalmanFilter_Predict(KalmanFilter* kf) {
-    // --- Ô¤²â²½Öè ---
-    // 1. Ô¤²âÏÂÒ»¸ö×´Ì¬£ºx_k|k-1 = F * x_k-1|k-1
-    //    ÓÉÓÚ x ÊÇÒ»¸öÁĞÏòÁ¿ (N_STATE x 1)£¬Ê¹ÓÃ mat_mult
-    float predicted_x[N_STATE];
-    mat_mult(&kf->F[0][0], N_STATE, N_STATE,
-             &kf->x[0], N_STATE, 1,
-             predicted_x);
-    // ½«½á¹û¸´ÖÆ»Ø kf->x
-    memcpy(kf->x, predicted_x, sizeof(predicted_x));
-
-
-    // 2. Ô¤²âÏÂÒ»¸öĞ­·½²î£ºP_k|k-1 = F * P_k-1|k-1 * F^T + Q
-    float FT[N_STATE][N_STATE];
-    mat_transpose(&kf->F[0][0], N_STATE, N_STATE, &FT[0][0]);
-
-    float FP[N_STATE][N_STATE];
-    mat_mult(&kf->F[0][0], N_STATE, N_STATE,
-             &kf->P[0][0], N_STATE, N_STATE,
-             &FP[0][0]);
-
-    float FPF_T[N_STATE][N_STATE];
-     mat_mult(&FP[0][0], N_STATE, N_STATE,
-             &FT[0][0], N_STATE, N_STATE,
-             &FPF_T[0][0]); // Ê¹ÓÃ FPF_T ×÷ÎªÁÙÊ±´æ´¢
-
-    // Ìí¼Ó¹ı³ÌÔëÉùĞ­·½²î£ºP = F*P*F' + Q
-    mat_add(&FPF_T[0][0], &kf->Q[0][0], N_STATE, N_STATE, &kf->P[0][0]);
-
-    // kf ÖĞµÄ×´Ì¬ÏòÁ¿ºÍĞ­·½²î¾ØÕóÏÖÔÚÊÇÔ¤²âÖµ (k|k-1)
-}
-
-void KalmanFilter_Update(KalmanFilter* kf, const float measurement[N_MEASUREMENT]) {
-    // --- ¸üĞÂ²½Öè ---
-    // Ê¹ÓÃÀ´×ÔÔ¤²â²½ÖèµÄÔ¤²â×´Ì¬ (kf->x) ºÍĞ­·½²î (kf->P)
-
-    // 1. ¼ÆËã²âÁ¿²Ğ²î (ĞÂÏ¢)£ºy_k = z_k - H * x_k|k-1
-    float Hx[N_MEASUREMENT];
-    mat_mult(&kf->H[0][0], N_MEASUREMENT, N_STATE,
-             &kf->x[0], N_STATE, 1,
-             Hx); // H*x ÊÇÒ»¸ö N_MEASUREMENT x 1 µÄÏòÁ¿
-
-    float residual[N_MEASUREMENT]; // y_k ÊÇÒ»¸öÏòÁ¿
-    // residual = measurement - Hx
-    for(int i = 0; i < N_MEASUREMENT; i++) {
-        residual[i] = measurement[i] - Hx[i];
-    }
-
-
-    // 2. ¼ÆËã²Ğ²îĞ­·½²î (ĞÂÏ¢Ğ­·½²î)£ºS_k = H * P_k|k-1 * H^T + R
-    float HT[N_STATE][N_MEASUREMENT];
-    mat_transpose(&kf->H[0][0], N_MEASUREMENT, N_STATE, &HT[0][0]);
-
-    float PHt[N_STATE][N_MEASUREMENT];
-    mat_mult(&kf->P[0][0], N_STATE, N_STATE,
-             &HT[0][0], N_STATE, N_MEASUREMENT,
-             &PHt[0][0]); // P * H^T ÊÇ N_STATE x N_MEASUREMENT
-
-    float HPHt[N_MEASUREMENT][N_MEASUREMENT];
-    mat_mult(&kf->H[0][0], N_MEASUREMENT, N_STATE,
-             &PHt[0][0], N_STATE, N_MEASUREMENT,
-             &HPHt[0][0]); // H * P * H^T ÊÇ N_MEASUREMENT x N_MEASUREMENT
-
-    float S_matrix[N_MEASUREMENT][N_MEASUREMENT];
-    mat_add(&HPHt[0][0], &kf->R[0][0], N_MEASUREMENT, N_MEASUREMENT, &S_matrix[0][0]);
-
-    // ¶ÔÓÚ N_MEASUREMENT = 1£¬S ÊÇÒ»¸ö±êÁ¿¡£ĞèÒª S µÄÄæ¡£
-    // ¶ÔÓÚ N_MEASUREMENT > 1£¬ÕâÀïĞèÒªÒ»¸öÍ¨ÓÃµÄ¾ØÕóÇóÄæº¯Êı¡£
-    // ÊµÏÖÍ¨ÓÃµÄ¾ØÕóÇóÄæ (ÀıÈç£¬Ê¹ÓÃ¸ßË¹ÏûÔª·¨) »áÏÔÖøÔö¼Ó¸´ÔÓĞÔºÍ¼ÆËã³É±¾¡£
-    // ¶ÔÓÚÕâ¸öÌØ¶¨ÎÊÌâ (Å·À­½Ç£¬ºÜ¿ÉÄÜ N_MEASUREMENT=1)£¬
-    // S ÊÇ 1x1£¬ËùÒÔ S_matrix[0][0] ÊÇ±êÁ¿Öµ¡£S µÄÄæÊÇ 1/S¡£
-
-    float S_inverse[N_MEASUREMENT][N_MEASUREMENT]; // S µÄÄæ¾ØÕó
-    // N_MEASUREMENT == 1 µÄÌØÀı
-    if (N_MEASUREMENT == 1) {
-        float S_scalar = S_matrix[0][0];
-        if (fabs(S_scalar) < 1e-9) { // ¼ì²éÊÇ·ñÆæÒì (S ÎªÁã»ò½Ó½üÁã)
-             // ²âÁ¿ÖµÓëÔ¤²â + ÔëÉùÄ£ĞÍ²»Ò»ÖÂ¡£
-             // ¿ÉÒÔÌø¹ı¸üĞÂ£¬»òÖØÖÃÂË²¨Æ÷¡£Ä¿Ç°£¬Ö±½Ó·µ»Ø¡£
-             return;
-        }
-        S_inverse[0][0] = 1.0f / S_scalar;
+float movAveUpdate(MovingAverageFilter_t *filter, float new_value) {
+    // å¦‚æœç¼“å†²åŒºå·²æ»¡ï¼Œå‡å»å³å°†è¢«æ›¿æ¢çš„å€¼
+    if (filter->count >= filter->size) {
+        filter->sum -= filter->buffer[filter->index];
     } else {
-        // TODO: Îª N_MEASUREMENT > 1 ÊµÏÖ¾ØÕóÇóÄæ
-        // ÕâÊÇÒ»¸öÖØ´óµÄ²¹³ä¡£¶ÔÓÚ±¾Ê¾Àı£¬ÎÒÃÇ¼ÙÉè N_MEASUREMENT = 1¡£
-        return; // Ã»ÓĞ¾ØÕóÇóÄæ£¬ÎŞ·¨Ö´ĞĞ¸üĞÂ
+        filter->count++;
     }
+    
+    // æ·»åŠ æ–°å€¼
+    filter->buffer[filter->index] = new_value;
+    filter->sum += new_value;
+    
+    // æ›´æ–°ç´¢å¼•
+    filter->index = (filter->index + 1) % filter->size;
+    
+    // è¿”å›å¹³å‡å€¼
+    return filter->sum / filter->count;
+}
 
-
-    // 3. ¼ÆËã¿¨¶ûÂüÔöÒæ£ºK_k = P_k|k-1 * H^T * S_k^-1
-    // PHt ÒÑ¾­¼ÆËã¹ıÁË (P * H^T£¬N_STATE x N_MEASUREMENT)
-    // K = PHt * S_inverse
-    mat_mult(&PHt[0][0], N_STATE, N_MEASUREMENT,
-             &S_inverse[0][0], N_MEASUREMENT, N_MEASUREMENT,
-             &kf->K[0][0]); // K ÊÇ N_STATE x N_MEASUREMENT
-
-
-    // 4. ¸üĞÂ×´Ì¬¹À¼Æ£ºx_k|k = x_k|k-1 + K_k * y_k
-    float Ky[N_STATE];
-    // K ÊÇ N_STATE x N_MEASUREMENT£¬²Ğ²î (y) ÊÇ N_MEASUREMENT x 1
-    mat_mult(&kf->K[0][0], N_STATE, N_MEASUREMENT,
-             residual, N_MEASUREMENT, 1,
-             Ky); // K*y ÊÇ N_STATE x 1
-
-    // x = x + Ky
-    for(int i = 0; i < N_STATE; i++) {
-        kf->x[i] += Ky[i];
-    }
-
-
-    // 5. ¸üĞÂĞ­·½²î¹À¼Æ£ºP_k|k = (I - K_k * H) * P_k|k-1
-    float KH[N_STATE][N_STATE];
-    mat_mult(&kf->K[0][0], N_STATE, N_MEASUREMENT,
-             &kf->H[0][0], N_MEASUREMENT, N_STATE,
-             &KH[0][0]); // K*H ÊÇ N_STATE x N_STATE
-
-    float I_matrix[N_STATE][N_STATE];
-    mat_identity(N_STATE, N_STATE, &I_matrix[0][0]);
-
-    float I_KH[N_STATE][N_STATE];
-    mat_subtract(&I_matrix[0][0], &KH[0][0], N_STATE, N_STATE, &I_KH[0][0]); // I - K*H
-
-    // P = (I - K*H) * P
-    float updated_P[N_STATE][N_STATE]; // Ê¹ÓÃÁÙÊ±´æ´¢´æ·Å½á¹û
-    mat_mult(&I_KH[0][0], N_STATE, N_STATE,
-             &kf->P[0][0], N_STATE, N_STATE,
-             &updated_P[0][0]);
-
-    // ½«¸üĞÂºóµÄĞ­·½²î¸´ÖÆ»Ø kf->P
-    memcpy(kf->P, updated_P, sizeof(kf->P));
-
-    // kf ÖĞµÄ×´Ì¬ÏòÁ¿ (kf->x) ºÍĞ­·½²î¾ØÕó (kf->P) ÏÖÔÚÊÇ¸üĞÂÖµ (k|k)
+void movAveFree(MovingAverageFilter_t *filter) {
+    free(filter->buffer);
 }

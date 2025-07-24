@@ -48,6 +48,7 @@
 .\objects\main.o: .\User\Allheaderfile.h
 .\objects\main.o: .\Hardware\PID\pid.h
 .\objects\main.o: .\User\IMU\IMU.h
+.\objects\main.o: .\User\IMU\kalman.h
 .\objects\main.o: .\User\Time_ctrl\timer.h
 .\objects\main.o: .\Hardware\OLED\OLED.h
 .\objects\main.o: .\Hardware\OLED\Font.h

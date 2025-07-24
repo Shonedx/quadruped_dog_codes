@@ -1,66 +1,28 @@
+// kalman.h
 #ifndef KALMAN_H
 #define KALMAN_H
 
-#include <stddef.h> // ÓÃÓÚ size_t
+// å¯¹äºæ¬§æ‹‰è§’è·Ÿè¸ªï¼Œä½¿ç”¨2çŠ¶æ€æ¨¡å‹[è§’åº¦, è§’é€Ÿåº¦]
+#define N_STATE 6
+// åªæµ‹é‡è§’åº¦
+#define N_MEASUREMENT 3 //å¯¹åº”ä¸‰ä¸ªæ¬§æ‹‰è§’
 
-// --- ÅäÖÃºê ---
-// ¶¨Òå×´Ì¬ÏòÁ¿µÄ´óĞ¡ (ÀıÈç£¬2 ±íÊ¾ [½Ç¶È, ½ÇËÙ¶È])
-#define N_STATE 2
-// ¶¨Òå²âÁ¿ÏòÁ¿µÄ´óĞ¡ (ÀıÈç£¬1 ±íÊ¾ [½Ç¶È²âÁ¿Öµ])
-#define N_MEASUREMENT 1
-// ----------------------------
 
-// ¿¨¶ûÂüÂË²¨Æ÷½á¹¹Ìå£¬°üº¬×´Ì¬ºÍ²ÎÊı
-typedef struct {
-    float x[N_STATE];       // ×´Ì¬ÏòÁ¿ [½Ç¶È, ½ÇËÙ¶È]
-    float P[N_STATE][N_STATE];   // ×´Ì¬Ğ­·½²î¾ØÕó
-    float F[N_STATE][N_STATE];   // ×´Ì¬×ªÒÆ¾ØÕó
-    float Q[N_STATE][N_STATE];   // ¹ı³ÌÔëÉùĞ­·½²î¾ØÕó
-    float H[N_MEASUREMENT][N_STATE]; // ¹Û²â¾ØÕó
-    float R[N_MEASUREMENT][N_MEASUREMENT]; // ¹Û²âÔëÉùĞ­·½²î¾ØÕó
-    float K[N_STATE][N_MEASUREMENT]; // ¿¨¶ûÂüÔöÒæ¾ØÕó (ÄÚ²¿Ê¹ÓÃ£¬´æ´¢ÒÔ±ã¼ì²é)
 
-    // ²ÎÊı (¿ÉÑ¡£¬¿ÉÄÜÖ»ÔÚ Init ÖĞÊ¹ÓÃ)
-    float dt; // Ê±¼ä²½³¤
-    float process_noise_variance; // Èç¹û Q ÊÇ¶Ô½Ç¾ØÕó£¬ÕâÊÇ¶Ô½ÇÏßÉÏµÄ·½²î±êÁ¿
-    float measurement_noise_variance; // Èç¹û R ÊÇ¶Ô½Ç¾ØÕó£¬ÕâÊÇ¶Ô½ÇÏßÉÏµÄ·½²î±êÁ¿
+//ç§»åŠ¨å¹³å‡æ»¤æ³¢
+typedef struct MovingAverageFilter {
+    float *buffer;     // æ•°æ®ç¼“å†²åŒº
+    int size;          // çª—å£å¤§å°
+    int index;         // å½“å‰å†™å…¥ä½ç½®
+    float sum;         // å½“å‰çª—å£å†…æ•°æ®å’Œ
+    int count;         // å½“å‰æ•°æ®è®¡æ•°(ç”¨äºåˆå§‹å¡«å……)
+} MovingAverageFilter_t;
+extern MovingAverageFilter_t yaw_filter;
+extern MovingAverageFilter_t roll_filter;
+extern MovingAverageFilter_t pitch_filter;
 
-} KalmanFilter;
-
-// --- ¿¨¶ûÂüÂË²¨Æ÷º¯Êı ---
-
-/**
- * @brief ³õÊ¼»¯¿¨¶ûÂüÂË²¨Æ÷¡£
- *
- * @param kf Ö¸Ïò KalmanFilter ½á¹¹ÌåµÄÖ¸Õë¡£
- * @param initial_angle ³õÊ¼½Ç¶È¹À¼ÆÖµ¡£
- * @param initial_angular_velocity ³õÊ¼½ÇËÙ¶È¹À¼ÆÖµ¡£
- * @param dt Ô¤²âÖ®¼äµÄÊ±¼ä²½³¤¡£
- * @param process_noise_variance ¹ı³ÌÔëÉù¶Ô½ÇÏßÉÏµÄ·½²î (¼ÙÉè Q ÊÇ¶Ô½Ç¾ØÕó)¡£
- * @param measurement_noise_variance ²âÁ¿ÔëÉù¶Ô½ÇÏßÉÏµÄ·½²î (¼ÙÉè R ÊÇ¶Ô½Ç¾ØÕó)¡£
- * @param initial_covariance ³õÊ¼¶Ô½ÇÏßÉÏµÄĞ­·½²î (ÀıÈç£¬1.0)¡£
- */
-void KalmanFilter_Init(KalmanFilter* kf,
-                       float initial_angle,
-                       float initial_angular_velocity,
-                       float dt,
-                       float process_noise_variance,
-                       float measurement_noise_variance,
-                       float initial_covariance);
-
-/**
- * @brief Ö´ĞĞ¿¨¶ûÂüÂË²¨Æ÷µÄÔ¤²â²½Öè¡£
- *
- * @param kf Ö¸Ïò KalmanFilter ½á¹¹ÌåµÄÖ¸Õë¡£
- */
-void KalmanFilter_Predict(KalmanFilter* kf);
-
-/**
- * @brief Ê¹ÓÃĞÂµÄ²âÁ¿ÖµÖ´ĞĞ¿¨¶ûÂüÂË²¨Æ÷µÄ¸üĞÂ²½Öè¡£
- *
- * @param kf Ö¸Ïò KalmanFilter ½á¹¹ÌåµÄÖ¸Õë¡£
- * @param measurement ²âÁ¿ÏòÁ¿ (´óĞ¡Îª N_MEASUREMENT µÄ float Êı×é)¡£
- */
-void KalmanFilter_Update(KalmanFilter* kf, const float measurement[N_MEASUREMENT]);
-
+//ç§»åŠ¨å¹³å‡æ»¤æ³¢
+void movAveInit(MovingAverageFilter_t *filter, int window_size);
+float movAveUpdate(MovingAverageFilter_t *filter, float new_value);
+void movAveFree(MovingAverageFilter_t *filter);
 #endif // KALMAN_H

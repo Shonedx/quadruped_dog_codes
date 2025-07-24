@@ -51,3 +51,4 @@
 .\objects\timer.o: .\User\ges_cal\ges_cal.h
 .\objects\timer.o: .\Core\../DEFINE/define_file.h
 .\objects\timer.o: .\System\sys\sys.h
+.\objects\timer.o: .\User\IMU\Kalman.h

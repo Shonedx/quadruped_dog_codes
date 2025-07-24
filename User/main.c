@@ -5,7 +5,10 @@
 #include	"can.h"
 #include	"pid.h"
 #include 	"motor.h"
+//×ËÌ¬½âËã
 #include	"IMU.h"
+#include 	"kalman.h"
+//
 #include	"timer.h"
 #include    "OLED.h"
 #include 	"nrf24l01.h"
@@ -68,6 +71,12 @@ extern uint16_t rc_left_x,rc_left_y,rc_right_x,rc_right_y;
 extern uint64_t timer;
 extern Motors motors;
 
+extern MovingAverageFilter_t yaw_filter;
+extern MovingAverageFilter_t roll_filter;
+extern MovingAverageFilter_t pitch_filter;
+extern float yaw;
+extern float pitch;
+extern float roll;
 int main()
 {
 	
@@ -93,10 +102,12 @@ int main()
 	jumpInit(&jump1_struct,1);
 	//jump2
 	jumpInit(&jump2_struct,2);
-	
+
 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
-
-
+//moving average filter
+	movAveInit(&yaw_filter,10);
+	movAveInit(&roll_filter,10);
+	movAveInit(&pitch_filter,10);
 /********oled init*********/	
 	OLED_NewFrame();
 	OLED_PrintASCIIString(0,0,"Init Done",&afont16x8,OLED_COLOR_NORMAL);
@@ -106,8 +117,9 @@ int main()
 	while(1) 
 	{
 		// usart1TxDateToVofa(motors.ID[5].target_angle,motors.ID[5].absolute_angle,motors.ID[5].target_speed,motors.ID[5].current_speed,motors.ID[5].ecd/8192.0f*360.0f);
-		 usart1TxDateToVofa(legs[0].x,legs[0].z,legs[2].x,legs[2].z,0);
+		//  usart1TxDateToVofa(legs[0].x,legs[0].z,legs[2].x,legs[2].z,0);
 		//usart1TxDateToVofa(jump2_count[0],jump2_count[1],jump2_count[2],jump2_count[3],0);
+		usart1TxDateToVofa(pitch,roll,yaw,Euler.roll,Euler.pitch);
 		trans_rx_buffer_to_formal_datas();
 		char now_time_str_buffer[20];
 		sprintf(now_time_str_buffer, "%.2f", timer/1000.0f); 
@@ -131,6 +143,10 @@ int main()
 				motion_state_ctrl();	
 		feed_dog();
 	}
+	movAveFree(&yaw_filter);
+	movAveFree(&pitch_filter);
+	movAveFree(&roll_filter);
+
 }
 
 
