@@ -51,9 +51,9 @@ char current_motion_state_names[4][20]=
 //===============
 
 uint8_t rx_buffer[NRF_PAYLOAD_LENGTH]={0};
-extern uint16_t formal_datas[FORMAL_DATAS_LENGTH];
 extern MotionState_t current_motion_state;
 extern CtrlState_t ctrl_state;
+extern bool imu_state;
 extern TranslateState_t translate_state;
 extern IdleState_t idle_state;
 extern uint8_t pre_angle;
@@ -77,6 +77,9 @@ extern MovingAverageFilter_t pitch_filter;
 extern float yaw;
 extern float pitch;
 extern float roll;
+
+extern Adjust_Euler_Angle adjust_euler_agl;//pid ���������ŷ����
+extern volatile IMU_RxBuffer imu_rx; 
 int main()
 {
 	
@@ -105,9 +108,9 @@ int main()
 
 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 //moving average filter
-	movAveInit(&yaw_filter,10);
-	movAveInit(&roll_filter,10);
-	movAveInit(&pitch_filter,10);
+	// movAveInit(&yaw_filter,10);
+	// movAveInit(&roll_filter,10);
+	// movAveInit(&pitch_filter,10);
 /********oled init*********/	
 	OLED_NewFrame();
 	OLED_PrintASCIIString(0,0,"Init Done",&afont16x8,OLED_COLOR_NORMAL);
@@ -116,36 +119,43 @@ int main()
 	
 	while(1) 
 	{
+		NRF24L01_RxPacket_Polling(rx_buffer);
+		// if(imu_rx.packet_ready) 
+		// {
+		// 	CopeSerial3Data((unsigned char)imu_rx.buffer);
+		// 	imu_rx.packet_ready = false;
+		// }
 		// usart1TxDateToVofa(motors.ID[5].target_angle,motors.ID[5].absolute_angle,motors.ID[5].target_speed,motors.ID[5].current_speed,motors.ID[5].ecd/8192.0f*360.0f);
-		//  usart1TxDateToVofa(legs[0].x,legs[0].z,legs[2].x,legs[2].z,0);
+		usart1TxDateToVofa(legs[0].x,legs[0].z,legs[2].x,legs[2].z,0);
 		//usart1TxDateToVofa(jump2_count[0],jump2_count[1],jump2_count[2],jump2_count[3],0);
-		usart1TxDateToVofa(pitch,roll,yaw,Euler.roll,Euler.pitch);
-		trans_rx_buffer_to_formal_datas();
+		//usart1TxDateToVofa(Euler.roll,Euler.pitch,adjust_euler_agl.roll,adjust_euler_agl.pitch,0); 
+		normalizeDatas();
 		char now_time_str_buffer[20];
 		sprintf(now_time_str_buffer, "%.2f", timer/1000.0f); 
 		//============oled================		
-				OLED_NewFrame();
-				OLED_PrintASCIIString(0,0,ctrlstate_names[ctrl_state],&afont16x8,OLED_COLOR_NORMAL); //ctrl state
-//				OLED_PrintASCIINum(0,16,rc_left_x,4,&afont16x8,OLED_COLOR_NORMAL);
-//				OLED_PrintASCIINum(40,16,rc_left_y,4,&afont16x8,OLED_COLOR_NORMAL);
-//				OLED_PrintASCIINum(0,32,rc_right_x,4,&afont16x8,OLED_COLOR_NORMAL);
-//				OLED_PrintASCIINum(40,32,rc_right_y,4,&afont16x8,OLED_COLOR_NORMAL);
-				OLED_PrintASCIINum(0,16,(uint8_t)translate_state,2,&afont16x8,OLED_COLOR_NORMAL); //ƽ��
-				OLED_PrintASCIINum(20,16,(uint8_t)idle_state,2,&afont16x8,OLED_COLOR_NORMAL);  //ֹͣ��ԭ��̤��
-				OLED_PrintASCIINum(40,16,(uint8_t)jump_state,2,&afont16x8,OLED_COLOR_NORMAL); //��Ծ״̬
-				// OLED_PrintASCIINum(0,32,(uint8_t)setted_height,2,&afont16x8,OLED_COLOR_NORMAL); // �߶�
-				// OLED_PrintASCIINum(50,32,(uint8_t)pre_angle,2,&afont16x8,OLED_COLOR_NORMAL);  // ��б�Ƕ�
-				OLED_PrintASCIIString(0,32,now_time_str_buffer,&afont16x8,OLED_COLOR_NORMAL); // �˶�״̬
-				OLED_PrintASCIIString(0,48,current_motion_state_names[current_motion_state],&afont16x8,OLED_COLOR_NORMAL);
-				OLED_ShowFrame();
+		OLED_NewFrame();
+		OLED_PrintASCIIString(0,0,ctrlstate_names[ctrl_state],&afont16x8,OLED_COLOR_NORMAL); //ctrl state
+		// OLED_PrintASCIINum(0,16,rc_left_x,4,&afont16x8,OLED_COLOR_NORMAL);
+		// OLED_PrintASCIINum(40,16,rc_left_y,4,&afont16x8,OLED_COLOR_NORMAL);
+		// OLED_PrintASCIINum(0,32,rc_right_x,4,&afont16x8,OLED_COLOR_NORMAL);
+		// OLED_PrintASCIINum(40,32,rc_right_y,4,&afont16x8,OLED_COLOR_NORMAL);
+		OLED_PrintASCIIString(0,16,"JUMP:",&afont16x8,OLED_COLOR_NORMAL); //ctrl state
+		OLED_PrintASCIINum(40,16,(uint8_t)jump_state,2,&afont16x8,OLED_COLOR_NORMAL); //��Ծ״̬
+		OLED_PrintASCIIString(56,16,"IMU:",&afont16x8,OLED_COLOR_NORMAL); //ctrl state
+		OLED_PrintASCIINum(88,16,(uint8_t)imu_state,2,&afont16x8,OLED_COLOR_NORMAL); //��Ծ״̬
+		// OLED_PrintASCIINum(0,32,(uint8_t)setted_height,2,&afont16x8,OLED_COLOR_NORMAL); // �߶�
+		// OLED_PrintASCIINum(50,32,(uint8_t)pre_angle,2,&afont16x8,OLED_COLOR_NORMAL);  // ��б�Ƕ�
+		OLED_PrintASCIIString(0,32,now_time_str_buffer,&afont16x8,OLED_COLOR_NORMAL); // �˶�״̬
+		OLED_PrintASCIIString(0,48,current_motion_state_names[current_motion_state],&afont16x8,OLED_COLOR_NORMAL);
+		OLED_ShowFrame();
 		//============================		
 		//========================mainctrl =================================
-				motion_state_ctrl();	
+		motion_state_ctrl();	
 		feed_dog();
 	}
-	movAveFree(&yaw_filter);
-	movAveFree(&pitch_filter);
-	movAveFree(&roll_filter);
+	// movAveFree(&yaw_filter);
+	// movAveFree(&pitch_filter);
+	// movAveFree(&roll_filter);
 
 }
 

@@ -4,6 +4,7 @@
 .\objects\motor.o: .\User\Allheaderfile.h
 .\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\motor.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\motor.o: .\Library\inc\stm32f4xx.h

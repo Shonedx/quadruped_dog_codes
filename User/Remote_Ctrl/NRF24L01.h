@@ -19,7 +19,7 @@ extern uint16_t      NRF_SCK_Pin;
 #define NRF_SPI         SPI1
 
 // ͨ�Ų�������
-#define NRF_PAYLOAD_LENGTH  12
+#define NRF_PAYLOAD_LENGTH  13
 
 
 // �Ĵ�����������

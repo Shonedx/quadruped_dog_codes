@@ -2,6 +2,7 @@
 .\objects\iwdg.o: .\User\Allheaderfile.h
 .\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\iwdg.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\iwdg.o: .\Library\inc\stm32f4xx.h

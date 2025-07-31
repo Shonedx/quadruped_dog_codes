@@ -49,9 +49,8 @@ typedef struct
 typedef struct
 {
 	float ID[8];
-}Motor_Final_Output_Angles;  			//���ȵ���Ƕ�
+}Motor_Final_Output_Angles;  			
 
-//�������pid.c�ļ���������
 extern Motor_Speed_Loop_Pid  motor_speed_loop_pid;
 extern Motor_Position_Loop_Pid motor_position_loop_pid;
 extern IMU_Euler_Angle_Pid imu_euler_angle_pid;
@@ -75,8 +74,11 @@ void Set_Angle_Loop_Parameters(Motor_Property *motor,float target_angle,float cu
 
 void PID_Setting(Pid_Property *pid,float kp,float kd,float ki); //����pid P I D ��Ӧ����
 
-void ChangeTheGainOfPID_KP_KI_KD(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd); //���ýǶȻ����ٶȻ��Ķ�Ӧ����
+void ChangeTheGainOfPID_KP_KI_KD(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd); 
 
 void changePIDForSingleLeg(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd,uint8_t leg_id);
+
+//cal imu pid
+float IMU_pidCal(Pid_Property* pid,float fdb,float trg);
 
 #endif

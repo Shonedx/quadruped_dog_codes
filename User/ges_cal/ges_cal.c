@@ -253,8 +253,8 @@ void motion_state_ctrl(void)
 		if(ctrl_state!=CS_HEIGHT)
 		{
 			case MS_NORMAL:
-				Set_Max_Output_SL(8000);
-				Set_Max_Output_PL(8000);
+				Set_Max_Output_SL(10000);
+				Set_Max_Output_PL(10000);
 				ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 				//ChangeTheGainOfPID_KP_KI_KD(tsp_kp,tsp_ki,tsp_kd,tpo_kp,tpo_ki,tpo_kd);
 				RC_StepLengthCtrl(gait_params[0]); //使得步长随着摇杆的推出程度变化
@@ -264,11 +264,11 @@ void motion_state_ctrl(void)
 					//rotate_stretch_struct.flag=rotateAndStretch(t,  -30, 32,&legs[i], &rotate_stretch_struct,&gait_params[0][i]);
 				}
 				break;
-			if(if_in_normal_range(setted_height, 14, 30)) //�߶Ⱥ���ʱ
+			if(if_in_normal_range(setted_height, MIN_HEIGHT, MAX_HEIGHT)) //�߶Ⱥ���ʱ
 			{
 				case MS_TRANSLATE_LEFT:
-					Set_Max_Output_SL(10000);
-					Set_Max_Output_PL(10000);
+					Set_Max_Output_SL(12000);
+					Set_Max_Output_PL(12000);
 					ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 					// ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 					for (int i = 0; i < 4; i++)
@@ -278,8 +278,8 @@ void motion_state_ctrl(void)
 					break;
 				
 				case MS_TRANSLATE_RIGHT:
-					Set_Max_Output_SL(10000);
-					Set_Max_Output_PL(10000);
+					Set_Max_Output_SL(12000);
+					Set_Max_Output_PL(12000);
 					ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 					// ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 					for (int i = 0; i < 4; i++)
@@ -296,8 +296,8 @@ void motion_state_ctrl(void)
 			// ChangeTheGainOfPID_KP_KI_KD(7.5,0.3,1.81,7.5,0.3,2.5);
 			for (int i = 0; i < 4; i++)
 			{
-				legs[gait_params[1][i].i].x = 0;
-				legs[gait_params[1][i].i].z = gait_params[1][i].stanceheight;
+				legs[gait_params[1][i].i].x =gait_params[1][i].x_offset;
+				legs[gait_params[1][i].i].z =gait_params[1][i].stanceheight;
 			}
 			// if(rotate_stretch_struct.flag==1) //如果旋转伸展完成
 			// {
@@ -322,8 +322,8 @@ void motion_state_ctrl(void)
 void CartesianToTheta_Cycloid(Leg *leg)
 {
     leg->L = sqrt(leg->x * leg->x + leg->z * leg->z);
-	if(leg->L<CrouchHeight) leg->L=CrouchHeight;
-	if(leg->L>HeigherHeight) leg->L=HeigherHeight;
+	if(leg->L<MIN_HEIGHT) leg->L=MIN_HEIGHT;
+	if(leg->L>MAX_HEIGHT) leg->L=MAX_HEIGHT;
     leg->psai1 = asin(leg->x / leg->L);
     leg->fai1 = acos((leg->L * leg->L + L1 * L1 - L2 * L2) / (2 * L1 * leg->L));
     leg->theta2 = 180.0f * (leg->fai1 - leg->psai1) / PI - 90.0f;

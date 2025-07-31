@@ -39,6 +39,7 @@
 .\objects\gaitparams.o: .\User\Allheaderfile.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\gaitparams.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\gaitparams.o: .\System\delay\delay.h

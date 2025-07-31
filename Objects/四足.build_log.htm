@@ -27,19 +27,23 @@ Project File Date:  07/20/2025
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\Ceil5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling main.c...
-.\User\Time_ctrl\ticks.h(10): warning:  #1-D: last line of file ends without a newline
+compiling RC.c...
+User\Remote_Ctrl\RC.h(58): warning:  #1-D: last line of file ends without a newline
   #endif
-.\User\IMU\kalman.h(28): warning:  #1-D: last line of file ends without a newline
-  #endif // KALMAN_H
-.\User\Remote_Ctrl\RC.h(47): warning:  #1-D: last line of file ends without a newline
-  #endif
-User\main.c(146): warning:  #111-D: statement is unreachable
-  	movAveFree(&yaw_filter);
-User\main.c: 4 warnings, 0 errors
+User\Remote_Ctrl\RC.c(47): warning:  #188-D: enumerated type mixed with another type
+  	jump_state=(rx_buffer[0]>>6)&0x03;
+User\Remote_Ctrl\RC.c(50): warning:  #188-D: enumerated type mixed with another type
+  	ctrl_state=rx_buffer[0]&0x0f;
+User\Remote_Ctrl\RC.c(51): warning:  #188-D: enumerated type mixed with another type
+  	translate_state=(rx_buffer[0]>>4)&0x01;
+User\Remote_Ctrl\RC.c(52): warning:  #188-D: enumerated type mixed with another type
+  	idle_state=(rx_buffer[0]>>5)&0x01;
+User\Remote_Ctrl\RC.c(168): warning:  #1-D: last line of file ends without a newline
+  }
+User\Remote_Ctrl\RC.c: 6 warnings, 0 errors
 linking...
-Program Size: Code=39640 RO-data=8080 RW-data=1000 ZI-data=7632  
-".\Objects\ËÄ×ã.axf" - 0 Error(s), 4 Warning(s).
+Program Size: Code=40628 RO-data=8076 RW-data=1056 ZI-data=7864  
+".\Objects\ËÄ×ã.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -53,7 +57,7 @@ Package Vendor: Keil
   D:\Ceil5\ARM\PACK\Keil\STM32F4xx_DFP\2.8.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:08
 </pre>
 </body>
 </html>

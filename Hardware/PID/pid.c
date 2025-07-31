@@ -48,35 +48,35 @@ void Pid_Position_Loop_Init(Motor_Position_Loop_Pid *pid) //λ�û���ʼ�
 void IMU_Euler_Angle_Pid_Init(IMU_Euler_Angle_Pid *pid) //ŷ����pid����ʼ��
 {
 	/***Yaw***/
-		pid->Yaw.Kp=0;//8.2
+		pid->Yaw.Kp=1;//8.2
 		
 		pid->Yaw.Ki =0;
 		
 		pid->Yaw.Kd  =0;//2.81
 		  
-		pid->Yaw.max_out =0.52f;//16384
+		pid->Yaw.max_out =1.57f;//16384
 		
 		pid->Yaw.mode =PID_POSITION;
 	
 	/***Pitch***/	
-		pid->Pitch.Kp=0;//8.2
+		pid->Pitch.Kp=1;//8.2
 		
 		pid->Pitch.Ki =0;
 		
 		pid->Pitch.Kd  =0;//2.81
 		  
-		pid->Pitch.max_out =0.52f;//16384
+		pid->Pitch.max_out =1.57f;//16384
 		
 		pid->Pitch.mode =PID_POSITION;
 	
 	/***Roll***/
-		pid->Roll.Kp=0;//8.2
+		pid->Roll.Kp=1;//8.2
 		
 		pid->Roll.Ki =0;
 		
 		pid->Roll.Kd  =0;//2.81
 		  
-		pid->Roll.max_out =0.52f;//16384
+		pid->Roll.max_out =1.57f;//16384
 		
 		pid->Roll.mode =PID_POSITION;
 	
@@ -87,7 +87,26 @@ void PID_Init(void) //pid��ʼ��
 	Pid_Position_Loop_Init(&motor_position_loop_pid);
 	IMU_Euler_Angle_Pid_Init(&imu_euler_angle_pid);
 }
+float IMU_pidCal(Pid_Property* pid,float fdb,float trg)
+{
+	pid->error[2]=pid->error[1];
+	pid->error[1]=pid->error[0];
+	pid->set=trg;
+	pid->fdb=fdb;
+	pid->error[0]=pid->set-pid->fdb;
+	pid->Dbuf[2]=pid->Dbuf[1];
+	pid->Dbuf[1]=pid->Dbuf[0];
+	pid->Dbuf[0]=(pid->error[0]-pid->error[1]);
+	
+	pid->Pout=pid->Kp*pid->error[0];
+	pid->Iout+=pid->Ki*pid->error[0];
+	pid->Dout=pid->Kd*pid->Dbuf[0];
 
+	pid->Iout=constrain(pid->Iout,-pid->max_iout,pid->max_iout);
+	pid->out=pid->Pout+pid->Iout+pid->Dout;
+	pid->out=constrain(pid->out,-pid->max_out,pid->max_out);
+	return pid->out;
+}
 
 float PID_Calc( Pid_Property *pid,Motor_Property *motor_msgs) // PID���㹫ʽ
 {
@@ -150,10 +169,8 @@ void ChangeTheGainOfPID_KP_KI_KD(float sp_kp,float sp_ki,float sp_kd,float pos_k
 {
 	for(int i=0;i<8;i++)
 	{
-		/**�ٶȻ�**/
-		PID_Setting(&motor_speed_loop_pid.ID[i],sp_kp,sp_kd,sp_ki);
-		/**λ�û�**/
-		PID_Setting(&motor_position_loop_pid.ID[i],pos_kp,pos_kd,pos_ki);
+		PID_Setting(&motor_speed_loop_pid.ID[i],sp_kp,sp_kd,sp_ki);//speed
+		PID_Setting(&motor_position_loop_pid.ID[i],pos_kp,pos_kd,pos_ki);//pos
 	}
 }
 void changePosSpdPID(float sp_kp,float sp_ki,float sp_kd,float pos_kp,float pos_ki,float pos_kd,uint8_t i)

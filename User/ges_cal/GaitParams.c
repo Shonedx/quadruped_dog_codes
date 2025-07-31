@@ -29,16 +29,16 @@ GaitParams gait_params[][4] = {
 		{ 0, 0, StandHeight, 0, 0, 0, 0, 3,X_OFFSET},
 	},
 	{//左平移 2
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1, 0.35, 0.5, 0,X_OFFSET},
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0, 1,X_OFFSET},
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1 ,0.35, 0.5, 2,X_OFFSET},
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0, 3,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, 0, Freq*1.5, 0.5, 0.5, 0,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+4, 0, Freq*1.5, 0.5, 0, 1,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, 0, Freq*1.5, 0.5, 0.5, 2,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+4, 0, Freq*1.5, 0.5, 0, 3,X_OFFSET},
 	},
 	{//右平移 3
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0.5, 0,X_OFFSET},
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1, 0.35, 0, 1,X_OFFSET},
-		{ up_amp, 0.2, StandHeight+2.0, 0, Freq*1.1, 0.35, 0.5, 2,X_OFFSET},
-		{ up_amp, 0.2, StandHeight-2.0, 0, Freq*1.1, 0.35, 0, 3,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+4.0, 0, Freq*1.5, 0.5, 0.5, 0,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, 0, Freq*1.5, 0.5, 0, 1,X_OFFSET},
+		{ up_amp, 0.2, StandHeight+4.0, 0, Freq*1.5, 0.5, 0.5, 2,X_OFFSET},
+		{ up_amp, 0.2, StandHeight, 0, Freq*1.5, 0.5, 0, 3,X_OFFSET},
 	},
 
 ////crouch

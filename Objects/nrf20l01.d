@@ -43,6 +43,7 @@
 .\objects\nrf20l01.o: .\User\Allheaderfile.h
 .\objects\nrf20l01.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\nrf20l01.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\nrf20l01.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\nrf20l01.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\nrf20l01.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\nrf20l01.o: .\System\usart\usart.h

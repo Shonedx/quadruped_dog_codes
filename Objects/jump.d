@@ -44,6 +44,7 @@
 .\objects\jump.o: .\User\Allheaderfile.h
 .\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\jump.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\jump.o: .\System\delay\delay.h
 .\objects\jump.o: .\System\usart\usart.h

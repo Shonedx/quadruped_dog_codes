@@ -38,6 +38,7 @@
 .\objects\remotecontrol_init.o: .\User\Allheaderfile.h
 .\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\remotecontrol_init.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\remotecontrol_init.o: .\System\delay\delay.h

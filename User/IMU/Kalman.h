@@ -7,7 +7,15 @@
 // 只测量角度
 #define N_MEASUREMENT 3 //对应三个欧拉角
 
+typedef struct Kalman{
 
+    /** State vector **/
+    float x[N_MEASUREMENT];        
+
+    /** Prediction error covariance **/
+    float P[N_MEASUREMENT*N_MEASUREMENT];  
+
+} Kalman_t;
 
 //移动平均滤波
 typedef struct MovingAverageFilter {

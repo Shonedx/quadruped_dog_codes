@@ -30,9 +30,6 @@ void UART1_Put_String(unsigned char *Str);
 void CopeSerial3Data(unsigned char ucData);
 void usart1TxDateToVofa(float ch1, float ch2, float ch3,float ch4,float ch5);
 
-
-
-
 extern Euler_t Euler;
 extern Accel_t Accel;
 #endif // __USART_H

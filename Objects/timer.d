@@ -2,6 +2,7 @@
 .\objects\timer.o: .\User\Allheaderfile.h
 .\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\timer.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\timer.o: .\Library\inc\stm32f4xx.h
@@ -52,3 +53,7 @@
 .\objects\timer.o: .\Core\../DEFINE/define_file.h
 .\objects\timer.o: .\System\sys\sys.h
 .\objects\timer.o: .\User\IMU\Kalman.h
+.\objects\timer.o: .\Hardware\PID\pid.h
+.\objects\timer.o: .\Hardware\MOTOR\motor.h
+.\objects\timer.o: .\User\Allheaderfile.h
+.\objects\timer.o: .\User\IMU\IMU.h

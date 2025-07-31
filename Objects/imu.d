@@ -1,9 +1,10 @@
 .\objects\imu.o: User\IMU\IMU.c
 .\objects\imu.o: User\IMU\imu.h
+.\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\imu.o: .\User\ges_cal\ges_cal.h
 .\objects\imu.o: .\Library\inc\stm32f4xx.h
 .\objects\imu.o: .\Core\core_cm4.h
-.\objects\imu.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\imu.o: .\Core\core_cmInstr.h
 .\objects\imu.o: .\Core\core_cmFunc.h
 .\objects\imu.o: .\Core\core_cm4_simd.h

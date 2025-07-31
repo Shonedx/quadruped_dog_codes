@@ -2,7 +2,6 @@
 #define _RC_H
 #include "nrf24l01.h"
 #include "gaitparams.h"
-#define FORMAL_DATAS_LENGTH (NRF_PAYLOAD_LENGTH)-1
 typedef enum CtrlState
 {
 	CS_NONE,
@@ -37,10 +36,22 @@ typedef enum ConnectState
 	CONNECTED
 }ConnectState_t; //������״̬��
 
-extern uint16_t formal_datas[FORMAL_DATAS_LENGTH];
+/* 按键ID枚举定义 */
+typedef enum {
+    KY_Back = 0,   // 返回键
+    KY_Enter,      // 确认键
+    KY_UP,         // 上方向键
+    KY_DOWN,       // 下方向键
+    KY_LEFT,       // 左方向键
+    KY_RIGHT,      // 右方向键
+    KY_Y,          // Y功能键
+    KY_A,
+    KY_X,           
+    KY_B,           // B功能键 
+} Keys;
 
 void RC_MotionCtrl(void);
-void trans_rx_buffer_to_formal_datas(void);
+void normalizeDatas(void);
 uint8_t if_in_normal_range(uint16_t value, uint16_t min, uint16_t max) ;
 void RC_StepLengthCtrl(GaitParams *gaitparams);
 

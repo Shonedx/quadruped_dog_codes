@@ -40,3 +40,5 @@
 .\objects\rc.o: User\Remote_Ctrl\RC.h
 .\objects\rc.o: .\User\ges_cal\gaitparams.h
 .\objects\rc.o: .\User\ges_cal\ges_cal.h
+.\objects\rc.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\rc.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h

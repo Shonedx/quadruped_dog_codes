@@ -38,6 +38,7 @@
 .\objects\usart.o: .\Library\inc\stm32f4xx_dcmi.h
 .\objects\usart.o: .\Library\inc\stm32f4xx_fsmc.h
 .\objects\usart.o: .\User\IMU\IMU.h
+.\objects\usart.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\usart.o: .\User\Remote_Ctrl\RC.h
 .\objects\usart.o: .\User\Remote_Ctrl\nrf24l01.h
 .\objects\usart.o: .\User\ges_cal\gaitparams.h
@@ -47,3 +48,4 @@
 .\objects\usart.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\usart.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\usart.o: .\System\delay\delay.h
+.\objects\usart.o: .\Library\inc\stm32f4xx_dma2d.h

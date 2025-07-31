@@ -90,6 +90,8 @@
     "math.h": "c",
     "define_file.h": "c",
     "imu.h": "c",
-    "kalman.h": "c"
+    "kalman.h": "c",
+    "pid.h": "c",
+    "usart.h": "c"
   }
 }

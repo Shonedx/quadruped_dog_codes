@@ -6,6 +6,66 @@
 MovingAverageFilter_t yaw_filter;
 MovingAverageFilter_t roll_filter;
 MovingAverageFilter_t pitch_filter;
+//矩阵计算
+//乘
+static void matMultiply(const float *a,const float *b,float *c,byte a_row,byte a_col,byte b_col)
+{
+    REP(i,a_row)
+    {
+        REP(j,b_col)
+        {
+            c[i*a_col+j]=0;
+            REP(k,a_col)
+            {
+                c[i*a_col+j]+=a[i*a_col+k]*b[b_col*k+j];
+            }
+        }
+    }
+}
+//转置
+static void matTranspose(const float *a ,float *c,byte row,byte col)
+{
+    REP(i,row)
+    {
+        REP(j,col)
+        {
+            c[i*col+j]=a[j*row+i];
+        }
+    }
+}
+//减法
+static void matMinus(const float *a,const float *b,float *c,byte row,byte col)
+{
+    REP(i,row)
+    {
+        REP(j,col)
+        {
+            c[i*row+j]=a[i*row+j]-b[i*row+j];
+        }
+    }
+}
+//加法
+static void matAdd(const float *a,const float *b,float *c,byte row,byte col)
+{
+    REP(i,row)
+    {
+        REP(j,col)
+        {
+            c[i*row+j]=a[i*row+j]+b[i*row+j];
+        }
+    }
+}
+//加负号
+static void matNegate(const float *a,float *c,byte row,byte col)
+{
+    REP(i,row)
+    {
+        REP(j,col)
+        {
+            c[i*row+j]=-a[i*row+j];
+        }
+    }
+}
 //移动平均滤波
 void movAveInit(MovingAverageFilter_t *filter, int window_size) {
     filter->size = window_size;

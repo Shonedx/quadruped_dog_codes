@@ -37,6 +37,7 @@
 .\objects\rc_command.o: .\User\Allheaderfile.h
 .\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\rc_command.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\rc_command.o: .\System\delay\delay.h

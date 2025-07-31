@@ -6,7 +6,8 @@
 #include "RC.h"
 #include "can.h"
 #include "motor.h"
-
+#include "stm32f4xx_dma.h"
+#include "stm32f4xx_dma2d.h"
 #define pi 3.1415926f // 定义圆周率常量
 
 #if SYSTEM_SUPPORT_OS
@@ -105,7 +106,46 @@ void USART1_IRQHandler(void) {
         USART_ClearITPendingBit(USART1, USART_IT_RXNE); // 清除中断标志
     }
 }
+//usart3
+#define RX_BUFFER_SIZE 256
+uint8_t RxBuffer[RX_BUFFER_SIZE]; // DMA接收缓冲区
 
+// 初始化USART3 DMA接收
+void USART3_DMA_Init(void)
+{
+    DMA_InitTypeDef DMA_InitStructure;
+    
+    // 1. 使能DMA1时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    
+    // 2. 配置DMA接收(USART3_RX使用DMA1 Stream1 Channel4)
+    DMA_DeInit(DMA1_Stream1);
+    DMA_InitStructure.DMA_Channel = DMA_Channel_4;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&USART3->DR; // 外设地址
+    DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)RxBuffer;       // 内存地址
+    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;           // 传输方向:外设到内存
+    DMA_InitStructure.DMA_BufferSize = RX_BUFFER_SIZE;               // 缓冲区大小
+    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable; // 外设地址不递增
+    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;         // 内存地址递增
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; // 外设数据宽度:字节
+    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;        // 内存数据宽度:字节
+    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;                 // 循环模式
+    DMA_InitStructure.DMA_Priority = DMA_Priority_High;             // 高优先级
+    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         // 禁用FIFO
+    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;     // 单次传输
+    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream1, &DMA_InitStructure);
+    
+    // 3. 使能DMA流
+    DMA_Cmd(DMA1_Stream1, ENABLE);
+    
+    // 4. 配置USART3 DMA接收使能
+    USART_DMACmd(USART3, USART_DMAReq_Rx, ENABLE);
+    
+    // 5. 使能USART3空闲中断
+    USART_ITConfig(USART3, USART_IT_IDLE, ENABLE);
+}
 // 初始化USART3，用于IMU通信
 void USART3_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -139,8 +179,9 @@ void USART3_Init(void) {
 
     // 配置USART3中断
     USART_ITConfig(USART3, USART_IT_TXE, DISABLE); // 禁用发送中断
-    USART_ITConfig(USART3, USART_IT_RXNE, ENABLE); // 使能接收中断
-
+    USART_ITConfig(USART3, USART_IT_RXNE, DISABLE); // 使能接收中断
+    USART3_DMA_Init();
+    USART_ITConfig(USART3, USART_IT_IDLE, ENABLE);
     // 清除发送完成标志
     USART_ClearFlag(USART3, USART_FLAG_TC);
     // 使能USART3
@@ -153,23 +194,35 @@ void USART3_Init(void) {
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;           // 使能中断通道
     NVIC_Init(&NVIC_InitStructure);
 }
-
-// USART3接收中断处理函数
 void USART3_IRQHandler(void) {
-#if SYSTEM_SUPPORT_OS
-    OSIntEnter(); // 进入操作系统中断
-#endif
-    unsigned char data;
-    // 检查是否为接收数据中断
-    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
-        data = USART3->DR; // 读取接收到的数据
-        CopeSerial3Data(data); // 处理IMU串口数据
-        USART_ClearITPendingBit(USART3, USART_IT_RXNE); // 清除中断标志
+    // 检查空闲中断
+    if(USART_GetITStatus(USART3, USART_IT_IDLE) != RESET) {
+        USART_ReceiveData(USART3); // 清除IDLE标志
+        
+        // 计算接收到的数据长度
+        uint16_t dataLength = RX_BUFFER_SIZE - DMA_GetCurrDataCounter(DMA1_Stream1);
+        
+        // 处理接收到的数据
+        if(dataLength > 0) {
+            // 这里调用你的数据处理函数
+            for(uint16_t i = 0; i < dataLength; i++) {
+                CopeSerial3Data(RxBuffer[i]);
+            }
+        }
+        
+        // 循环模式下DMA会自动继续接收，无需重新配置
     }
-#if SYSTEM_SUPPORT_OS
-    OSIntExit(); // 退出操作系统中断
-#endif
 }
+// // USART3接收中断处理函数
+// void USART3_IRQHandler(void) {
+//     unsigned char data;
+//     // 检查是否为接收数据中断
+//     if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
+//         data = USART3->DR; // 读取接收到的数据
+//         CopeSerial3Data(data); // 处理IMU串口数据
+//         USART_ClearITPendingBit(USART3, USART_IT_RXNE); // 清除中断标志
+//     }
+// }
 
 // 处理USART3接收到的IMU数据
 void CopeSerial3Data(unsigned char ucData) {

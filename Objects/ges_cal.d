@@ -2,6 +2,7 @@
 .\objects\ges_cal.o: .\User\Allheaderfile.h
 .\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\ges_cal.o: D:\Ceil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\ges_cal.o: .\Library\inc\stm32f4xx.h

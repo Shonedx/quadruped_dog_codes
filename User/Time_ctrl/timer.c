@@ -8,6 +8,9 @@
 #include "jump.h"
 #include "sys.h"
 #include "Kalman.h"
+#include "pid.h"
+#include "IMU.h"
+#include "usart.h"
 extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH];
 extern int start;
 extern CtrlState_t ctrl_state;
@@ -66,39 +69,45 @@ void TIM5_Init(void) //2 ms
 }
 extern MovingAverageFilter_t yaw_filter;
 extern MovingAverageFilter_t roll_filter;
-extern MovingAverageFilter_t pitch_filter;
-float yaw,pitch,roll;
+extern MovingAverageFilter_t pitch_filter; //滤波
 void TIM4_IRQHandler() 
 {  
 	if(TIM_GetITStatus(TIM4, TIM_IT_Update) !=RESET)
 	{
 		Update_Time();
-		yaw=movAveUpdate(&yaw_filter,Euler.yaw);
-		roll=movAveUpdate(&roll_filter,Euler.roll);
-		pitch=movAveUpdate(&pitch_filter,Euler.pitch);
-		NRF24L01_RxPacket_IRQ(rx_buffer);
+		// NRF24L01_RxPacket_IRQ(rx_buffer);
 		TIM_ClearITPendingBit(TIM4,TIM_IT_Update);
 	}
 }
 extern JumpState_t jump_state;
 extern JumpParameter_t jump1_struct;
 extern JumpParameter_t jump2_struct;
-
+extern uint8_t imu_state;
+extern CtrlState_t ctrl_state;
+float yaw,pitch,roll;
+extern IMU_Euler_Angle_Pid imu_euler_angle_pid;
+Adjust_Euler_Angle adjust_euler_agl;//pid 调整过后的欧拉角
+extern Euler_t Euler;
 void TIM5_IRQHandler(void) 
 {
 	if(TIM_GetITStatus(TIM5,TIM_IT_Update)!= RESET)
 	{		
+		//获得陀螺仪欧拉角
+		// yaw=movAveUpdate(&yaw_filter,Euler.yaw);
+		// roll=movAveUpdate(&roll_filter,Euler.roll);
+		// pitch=movAveUpdate(&pitch_filter,Euler.pitch);
+		adjust_euler_agl.pitch=IMU_pidCal(&imu_euler_angle_pid.Pitch,Euler.pitch,0);
+		adjust_euler_agl.roll=IMU_pidCal(&imu_euler_angle_pid.Roll,Euler.roll,0);
 		if(start==1)
 		{		
-////			if (currentstate != Jump&& ctrl_state!=Start_Ctrl)
-////			 {
-////				 IMU_Pos_Cal(0, Euler.pitch, Euler.roll);
-////				 Set_Standheight_Offset();
-////			 }
+			if (ctrl_state != CS_JUMP_1&& ctrl_state!=CS_JUMP_2&&imu_state) //when imu enable
+			 {
+				calPosByRollNdPitch(Euler.roll,Euler.pitch);
+				setPostureOffset();
+			 }
 			if(ctrl_state!=CS_JUMP_1&&ctrl_state!=CS_JUMP_2)
 			{	
 				Gait(timer/1000.0f);
-				jump_state=IDLE;
 			}
 			else 
 			{
