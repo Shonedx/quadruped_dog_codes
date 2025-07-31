@@ -1,0 +1,11 @@
+# keil temporary files and build output directories
+Objects/
+Listings/
+DebugConfig/
+.vscode/
+
+# keil MDK generated files
+*.scvd
+*.uvguix
+*.uvoptx
+*.uvprojx
