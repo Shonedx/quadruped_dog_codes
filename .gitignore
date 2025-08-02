@@ -6,6 +6,6 @@ DebugConfig/
 
 # keil MDK generated files
 *.scvd
-*.uvguix
+*.uvguix.Lenovo
 *.uvoptx
 *.uvprojx
