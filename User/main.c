@@ -5,7 +5,7 @@
 #include	"can.h"
 #include	"pid.h"
 #include 	"motor.h"
-//×ËÌ¬½âËã
+//ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½
 #include	"IMU.h"
 #include 	"kalman.h"
 //
@@ -29,16 +29,17 @@
 #include 	"../DEFINE/define_file.h"
 //CAN_1 : PA11(RX)   PA12(TX)        CAN_2 : PB12(RX)      PB13(TX)
 
-//æ˜¾ç¤ºå¯¹åº”å­—ç?¦ä¸²=============
-char ctrlstate_names[7][15]=
+//æ˜¾ç¤ºå¯¹åº”å­—ï¿½?ï¿½ä¸²=============
+char ctrlstate_names[8][15]=
 {
 	{"CS_NONE"},
 	{"CS_INIT"},
 	{"CS_MAIN"},
+	{"CS_SLOPE"},
 	{"CS_JUMP_1"},
 	{"CS_JUMP_2"},
 	{"CS_HEIGHT"},
-	{"CS_QUIT"},
+	{"CS_QUIT"}
 };
 
 char current_motion_state_names[4][20]=
@@ -78,8 +79,10 @@ extern float yaw;
 extern float pitch;
 extern float roll;
 
-extern Adjust_Euler_Angle adjust_euler_agl;//pid µ÷Õû¹ýºóµÄÅ·À­½Ç
+extern Adjust_Euler_Angle adjust_euler_agl;//pid ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å·ï¿½ï¿½ï¿½ï¿½
 extern volatile IMU_RxBuffer imu_rx; 
+extern uint8_t init_done;
+extern Motors motors;
 int main()
 {
 	
@@ -109,8 +112,8 @@ int main()
 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
 //moving average filter
 	// movAveInit(&yaw_filter,10);
-	// movAveInit(&roll_filter,10);
-	// movAveInit(&pitch_filter,10);
+	movAveInit(&roll_filter,20);
+	movAveInit(&pitch_filter,20);
 /********oled init*********/	
 	OLED_NewFrame();
 	OLED_PrintASCIIString(0,0,"Init Done",&afont16x8,OLED_COLOR_NORMAL);
@@ -139,13 +142,24 @@ int main()
 		// OLED_PrintASCIINum(40,16,rc_left_y,4,&afont16x8,OLED_COLOR_NORMAL);
 		// OLED_PrintASCIINum(0,32,rc_right_x,4,&afont16x8,OLED_COLOR_NORMAL);
 		// OLED_PrintASCIINum(40,32,rc_right_y,4,&afont16x8,OLED_COLOR_NORMAL);
+		
 		OLED_PrintASCIIString(0,16,"JUMP:",&afont16x8,OLED_COLOR_NORMAL); //ctrl state
-		OLED_PrintASCIINum(40,16,(uint8_t)jump_state,2,&afont16x8,OLED_COLOR_NORMAL); //ï¿½ï¿½Ô¾×´Ì¬
+		OLED_PrintASCIINum(40,16,(uint8_t)jump_state,2,&afont16x8,OLED_COLOR_NORMAL); 
 		OLED_PrintASCIIString(56,16,"IMU:",&afont16x8,OLED_COLOR_NORMAL); //ctrl state
-		OLED_PrintASCIINum(88,16,(uint8_t)imu_state,2,&afont16x8,OLED_COLOR_NORMAL); //ï¿½ï¿½Ô¾×´Ì¬
-		// OLED_PrintASCIINum(0,32,(uint8_t)setted_height,2,&afont16x8,OLED_COLOR_NORMAL); // ï¿½ß¶ï¿½
-		// OLED_PrintASCIINum(50,32,(uint8_t)pre_angle,2,&afont16x8,OLED_COLOR_NORMAL);  // ï¿½ï¿½Ð±ï¿½Ç¶ï¿½
-		OLED_PrintASCIIString(0,32,now_time_str_buffer,&afont16x8,OLED_COLOR_NORMAL); // ï¿½Ë¶ï¿½×´Ì¬
+		OLED_PrintASCIINum(88,16,(uint8_t)imu_state,2,&afont16x8,OLED_COLOR_NORMAL); 
+		
+		OLED_PrintASCIINum(80,32,init_done,1,&afont16x8,OLED_COLOR_NORMAL); 
+		OLED_PrintASCIIString(0,32,now_time_str_buffer,&afont16x8,OLED_COLOR_NORMAL);
+
+		// OLED_PrintASCIINum(0,16,motors.ID[0].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+		// OLED_PrintASCIINum(32,16,motors.ID[1].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+		// OLED_PrintASCIINum(64,16,motors.ID[2].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+		// OLED_PrintASCIINum(96,16,motors.ID[3].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+		// OLED_PrintASCIINum(0,32,motors.ID[4].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+		// OLED_PrintASCIINum(32,32,motors.ID[5].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+		// OLED_PrintASCIINum(64,32,motors.ID[6].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+		// OLED_PrintASCIINum(96,32,motors.ID[7].absolute_angle,4,&afont16x8,OLED_COLOR_NORMAL); 
+
 		OLED_PrintASCIIString(0,48,current_motion_state_names[current_motion_state],&afont16x8,OLED_COLOR_NORMAL);
 		OLED_ShowFrame();
 		//============================		
@@ -154,8 +168,8 @@ int main()
 		feed_dog();
 	}
 	// movAveFree(&yaw_filter);
-	// movAveFree(&pitch_filter);
-	// movAveFree(&roll_filter);
+	movAveFree(&pitch_filter);
+	movAveFree(&roll_filter);
 
 }
 

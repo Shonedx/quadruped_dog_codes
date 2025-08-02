@@ -5,6 +5,7 @@
 #include "RC.h"
 #include "can.h"
 #include "../DEFINE/define_file.h"
+#include "motor.h"
 //  LF(0)--------------------RF(3)
 //  motor1       |             motor3             
 //    (id:1)     |               (id:3)
@@ -21,14 +22,15 @@
 //
 // 2023-3-16  Motor_id_Sign
 
-
-
+//电机面朝转子顺时针为正
+//逆解时右边的L1连接的电机为theta1 can1
 extern MotionState_t current_motion_state;
 extern Motor_Final_Output_Angles motor_final_output_angles; 
 extern 	int start;
 extern CtrlState_t ctrl_state;
 extern uint8_t setted_height;
 extern JumpState_t jump_state;
+extern SlopeCtrlState_t slope_state;
 
 Leg legs[4];
 
@@ -168,9 +170,59 @@ byte standInit(float t)
 //	CS_EXE_JUMP,
 //	CS_HEIGHT,
 //	CS_QUIT,
+uint8_t init_done=0; //done 置1
 
-byte stand_flag=0;
 extern uint64_t timer;
+extern Motors motors;
+static const int16_t init_angle_for_motors[8]={
+	-7,
+	154,
+
+	154,
+	-7,
+
+	-154,
+	7,
+
+	7,
+	-154
+};
+#define Leg1_flag (abs(motors.ID[0].absolute_angle-init_angle_for_motors[0]*Gaito)<=5&&abs(motors.ID[1].absolute_angle-init_angle_for_motors[1]*Gaito)<=5)
+#define Leg2_flag (abs(motors.ID[2].absolute_angle-init_angle_for_motors[2]*Gaito)<=5&&abs(motors.ID[3].absolute_angle-init_angle_for_motors[3]*Gaito)<=5)
+#define Leg3_flag (abs(motors.ID[4].absolute_angle-init_angle_for_motors[4]*Gaito)<=5&&abs(motors.ID[5].absolute_angle-init_angle_for_motors[5]*Gaito)<=5)
+#define Leg4_flag (abs(motors.ID[6].absolute_angle-init_angle_for_motors[6]*Gaito)<=5&&abs(motors.ID[7].absolute_angle-init_angle_for_motors[7]*Gaito)<=5)
+
+void dogInit(void)
+{
+	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,6,POS_I,POS_D);
+	REP(i,8)
+	{
+		motor_final_output_angles.ID[i] =init_angle_for_motors[i]* Gaito; 
+	}
+	Motor_Auto_Run();
+	// uint8_t every_motors_reached_trg_angle_flag=1;
+	// REP(i,8)
+	// {
+	// 	if(abs(motors.ID[i].absolute_angle-init_angle_for_motors[i]*Gaito)>5)
+	// 		every_motors_reached_trg_angle_flag=0;
+	// }
+	// if(
+	// 	every_motors_reached_trg_angle_flag
+	// )
+	if(
+		// Leg1_flag
+		// &&
+		Leg2_flag
+		// &&
+		// Leg3_flag
+		// &&
+		// Leg4_flag
+	)
+	{
+		init_done=1;
+	}
+}
+static uint8_t reset_flag=0; //完成绝对零角度则置位
 void motion_state_ctrl(void)
 {
 	switch(ctrl_state)
@@ -180,35 +232,22 @@ void motion_state_ctrl(void)
 			break;
 		case CS_INIT:
 			start=0;
-			M3508_ALL_ZERO_SET();
-			// if(!start)
-			// {
-			// 	M3508_ALL_ZERO_SET();
-			// 	start=1;
-			// }
-			// if(start&&!stand_flag)
-			// {
-			// 	stand_flag=standInit(timer/1000.0f);
-			// 	CartesianToTheta_Cycloid_All_Legs();
-			// 	Moveleg();
-			// 	Motor_Auto_Run();
-			// }
-			// else if(start&&stand_flag)
-			// {
-			// 	CartesianToTheta_Cycloid_All_Legs();
-			// 	Moveleg();
-			// 	Motor_Auto_Run();
-			// }
+
 			break;
 		case CS_MAIN:
-			// if(stand_flag)
-			// {
-			// 	M3508_ALL_ZERO_SET();
-			// 	stand_flag=0;
-			// }
-			// else if (!stand_flag)
+			if(!reset_flag)
+			{
+				M3508_ALL_ZERO_SET();
+				reset_flag=1;
+			}
 			RC_MotionCtrl();
+			memset(&slope_state,0,3*sizeof(uint8_t));
 			start=1;
+			break;
+		case CS_SLOPE:
+			start=1;
+			if(reset_flag)
+			RC_MotionCtrl();
 			break;
 		case CS_JUMP_1:
 			start=1;
@@ -244,8 +283,82 @@ void motion_state_ctrl(void)
 #define tpo_kp 1
 #define tpo_ki 0
 #define tpo_kd 0
+// leg 0,2 左腿
+// leg 1,3 右腿
+GaitParams slope_gait[2][4]=
+{
+	//	Up_Amp Down_Amp stanceheight steplength freq swingpercent gaitoffset i x_offset
+	{//Normal 0
+		{ 3, 0.2, StandHeight+2.5f, 6, Freq, 0.35, 0, 0,X_OFFSET}, //left
+		{ 3, 0.2, StandHeight-2.5f, 6, Freq, 0.35, 0.5, 1,X_OFFSET}, //right
+		{ 3, 0.2, StandHeight+2.5f, 6, Freq, 0.35, 0.5, 2,X_OFFSET}, //left
+		{ 3, 0.2, StandHeight-2.5f, 6, Freq, 0.35, 0, 3,X_OFFSET}, //right
+	},
+	{//停止	1
+		{ 0, 0, StandHeight+2.5f, 0, 0, 0, 0, 0,X_OFFSET},
+		{ 0, 0, StandHeight-2.5f, 0, 0, 0, 0, 1,X_OFFSET},
+		{ 0, 0, StandHeight+2.5f, 0, 0, 0, 0, 2,X_OFFSET},
+		{ 0, 0, StandHeight-2.5f, 0, 0, 0, 0, 3,X_OFFSET},
+	}
+};
 
- void Gait(double t)
+void slopeCtrl(float t)
+{
+
+	if(	slope_state.slope_walk //jump walk
+		&&!slope_state.slope_jump_on
+		&&!slope_state.slope_jump_off
+	)
+	{
+		switch (current_motion_state)
+		{
+			if(ctrl_state!=CS_HEIGHT)
+			{
+				case MS_NORMAL:
+					Set_Max_Output_SL(10000);
+					Set_Max_Output_PL(10000);
+					ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+					RC_StepLengthCtrl(slope_gait[0]); //使得步长随着摇杆的推出程度变化
+					for (int i=0 ; i < 4; i++)
+					{
+						SinTrajectory(t, slope_gait[0][i],&legs[i]);
+						//rotate_stretch_struct.flag=rotateAndStretch(t,  -30, 32,&legs[i], &rotate_stretch_struct,&gait_params[0][i]);
+					}
+					break;
+			}
+			case MS_STOP:
+				Set_Max_Output_SL(8000);
+				Set_Max_Output_PL(8000);
+				ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
+				for (int i = 0; i < 4; i++)
+				{
+					legs[slope_gait[1][i].i].x =slope_gait[1][i].x_offset;
+					legs[slope_gait[1][i].i].z =slope_gait[1][i].stanceheight;
+				}
+				updatePrevTime(t);//更新上一次计数时间
+				break;
+		}
+		CartesianToTheta_Cycloid_All_Legs();
+		Moveleg();
+		Motor_Auto_Run();
+	}
+	else if(!slope_state.slope_walk //jump on
+			&&slope_state.slope_jump_on
+			&&!slope_state.slope_jump_off
+	)
+	{
+		
+	}
+	else if(!slope_state.slope_walk //jump off
+			&&!slope_state.slope_jump_on
+			&&slope_state.slope_jump_off
+	)
+	{
+		
+	}
+}
+
+void Gait(float t)
 {
 	
 	switch (current_motion_state)
@@ -340,11 +453,30 @@ void CartesianToTheta_Cycloid_All_Legs(void)
 //give every motors angle
 void Angle_Setting_Cycloid(int LegID)  // Moveleg 
 { 
+	// switch (LegID)
+	// {
+	// 	case 0:
+	// 		motor_final_output_angles.ID[0] =	legs[0].theta1 * Gaito;  //after the pid cal, this is the output current to the motor
+	// 		motor_final_output_angles.ID[1] =	legs[0].theta2 * Gaito;
+	// 	break;
+	// 	case 1:
+	// 		motor_final_output_angles.ID[2] =	-legs[1].theta2 * Gaito;  
+	// 		motor_final_output_angles.ID[3] =	-legs[1].theta1 * Gaito;
+	// 	break;
+	// 	case 2:
+	// 		motor_final_output_angles.ID[4] =	legs[2].theta1 * Gaito;
+	// 		motor_final_output_angles.ID[5] =	legs[2].theta2 * Gaito;
+	// 	break;
+	// 	case 3:
+	// 		motor_final_output_angles.ID[6] =	-legs[3].theta2 * Gaito;  
+	// 		motor_final_output_angles.ID[7] =	-legs[3].theta1 * Gaito;
+	// 	break;
+	// }
 	switch (LegID)
 	{
 		case 0:
-			motor_final_output_angles.ID[0] =	legs[0].theta1 * Gaito;  //after the pid cal, this is the output current to the motor
-			motor_final_output_angles.ID[1] =	legs[0].theta2 * Gaito;
+			motor_final_output_angles.ID[0] =	-legs[0].theta2 * Gaito;  //after the pid cal, this is the output current to the motor
+			motor_final_output_angles.ID[1] =	-legs[0].theta1 * Gaito;
 		break;
 		case 1:
 			motor_final_output_angles.ID[2] =	-legs[1].theta2 * Gaito;  
@@ -355,8 +487,8 @@ void Angle_Setting_Cycloid(int LegID)  // Moveleg
 			motor_final_output_angles.ID[5] =	legs[2].theta2 * Gaito;
 		break;
 		case 3:
-			motor_final_output_angles.ID[6] =	-legs[3].theta2 * Gaito;  
-			motor_final_output_angles.ID[7] =	-legs[3].theta1 * Gaito;
+			motor_final_output_angles.ID[6] =	legs[3].theta1 * Gaito;  
+			motor_final_output_angles.ID[7] =	legs[3].theta2 * Gaito;
 		break;
 	}
 }

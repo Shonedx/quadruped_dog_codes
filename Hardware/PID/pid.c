@@ -48,35 +48,35 @@ void Pid_Position_Loop_Init(Motor_Position_Loop_Pid *pid) //λ�û���ʼ�
 void IMU_Euler_Angle_Pid_Init(IMU_Euler_Angle_Pid *pid) //ŷ����pid����ʼ��
 {
 	/***Yaw***/
-		pid->Yaw.Kp=1;//8.2
+		pid->Yaw.Kp=0.5;//8.2
 		
 		pid->Yaw.Ki =0;
 		
 		pid->Yaw.Kd  =0;//2.81
 		  
-		pid->Yaw.max_out =1.57f;//16384
+		pid->Yaw.max_out =0.52f;//16384
 		
 		pid->Yaw.mode =PID_POSITION;
 	
 	/***Pitch***/	
-		pid->Pitch.Kp=1;//8.2
+		pid->Pitch.Kp=0.5;//8.2
 		
 		pid->Pitch.Ki =0;
 		
 		pid->Pitch.Kd  =0;//2.81
 		  
-		pid->Pitch.max_out =1.57f;//16384
+		pid->Pitch.max_out =0.52f;//16384
 		
 		pid->Pitch.mode =PID_POSITION;
 	
 	/***Roll***/
-		pid->Roll.Kp=1;//8.2
+		pid->Roll.Kp=0.5;//8.2
 		
 		pid->Roll.Ki =0;
 		
 		pid->Roll.Kd  =0;//2.81
 		  
-		pid->Roll.max_out =1.57f;//16384
+		pid->Roll.max_out =0.52f;//16384
 		
 		pid->Roll.mode =PID_POSITION;
 	
@@ -93,7 +93,7 @@ float IMU_pidCal(Pid_Property* pid,float fdb,float trg)
 	pid->error[1]=pid->error[0];
 	pid->set=trg;
 	pid->fdb=fdb;
-	pid->error[0]=pid->set-pid->fdb;
+	pid->error[0]=pid->fdb-pid->set;
 	pid->Dbuf[2]=pid->Dbuf[1];
 	pid->Dbuf[1]=pid->Dbuf[0];
 	pid->Dbuf[0]=(pid->error[0]-pid->error[1]);

@@ -6,11 +6,12 @@
 #include "GaitParams.h"
 #include "../DEFINE/define_file.h"
 #include "math.h"
-#define STRETCH_LENGTH 32.0f
-#define SHRINK_LENGTH 12.0f
-#define FALL_LENGTH 16.0f
+#define STRETCH_LENGTH MAX_HEIGHT
+#define SHRINK_LENGTH MIN_HEIGHT
+#define FALL_LENGTH 12.0f
 #define TIME_OFFSET 0.15f //0.15s 前后腿动作时间差
 
+#define JUMP1_Stretch_Length 30
 extern uint16_t rc_left_x,rc_left_y,rc_right_x,rc_right_y;
 extern uint8_t pre_angle;
 extern JumpState_t jump_state;
@@ -70,7 +71,7 @@ void jumpInit(JumpParameter_t *js,byte index)
 			// js->exe_jump_struct[i].rotate_prev_t = 0;
 			// js->exe_jump_struct[i].stretch_prev_t = 0;
 			// js->exe_jump_struct[i].rotate_angle = 0.0f; //进入exeJump函数时设置
-			js->exe_jump_struct[i].stretch_length = STRETCH_LENGTH;
+			js->exe_jump_struct[i].stretch_length = JUMP1_Stretch_Length;
 			js->exe_jump_struct[i].rotate_freq = 10.0;
 			js->exe_jump_struct[i].stretch_freq = 12.0;
 			js->exe_jump_struct[i].rotate_time = 0.8;
@@ -109,7 +110,7 @@ void jumpInit(JumpParameter_t *js,byte index)
 			js->bend_lean_struct[i].stretch_length = SHRINK_LENGTH;
 
 			js->exe_jump_struct[i].rotate_angle = -20.0f;
-			js->exe_jump_struct[i].stretch_length = 35.0f;
+			js->exe_jump_struct[i].stretch_length = MAX_HEIGHT;
 			js->exe_jump_struct[i].rotate_freq = 14.0;
 			js->exe_jump_struct[i].stretch_freq = 14.0;
 			js->exe_jump_struct[i].rotate_time = 0.5;
@@ -144,7 +145,7 @@ void jumpInit(JumpParameter_t *js,byte index)
 			// js->bend_lean_struct[i].rotate_angle = 0.0f; //进入Lean函数时设置
 
 			js->exe_jump_struct[i].rotate_angle =-25.0f; 
-			js->exe_jump_struct[i].stretch_length = 35.0f;
+			js->exe_jump_struct[i].stretch_length = MAX_HEIGHT;
 			js->exe_jump_struct[i].rotate_freq = 14.0;
 			js->exe_jump_struct[i].stretch_freq = 14.0;
 			js->exe_jump_struct[i].rotate_time = 0.5;
@@ -298,7 +299,7 @@ byte exeJump(float t, JumpParameter_t *js)
 	ChangeTheGainOfPID_KP_KI_KD(12,0.1,0.01,25,0.01,1.5);
 	REP(i,2)
 	{
-		js->exe_jump_struct[i].rotate_angle=js->bend_lean_struct[i].rotate_angle-3;	
+		js->exe_jump_struct[i].rotate_angle=js->bend_lean_struct[i].rotate_angle-5;	
 		js->exe_jump_struct[i].flag=rotateAndStretch(t,js->exe_jump_struct[i].rotate_angle
 												,js->exe_jump_struct[i].stretch_length,
 												js->bend_lean_struct[i].stretch_length, //伸展高度
@@ -312,7 +313,7 @@ byte exeJump(float t, JumpParameter_t *js)
 		Angle_Setting_Cycloid(i);
 		runSingleLeg(i);
 
-		js->exe_jump_struct[i+2].rotate_angle=js->bend_lean_struct[i+2].rotate_angle-3;	
+		js->exe_jump_struct[i+2].rotate_angle=js->bend_lean_struct[i+2].rotate_angle-5;	
 		//后腿跳跃蹬腿时期
 		js->exe_jump_struct[i+2].flag=rotateAndStretch(t,js->exe_jump_struct[i+2].rotate_angle
 												,js->exe_jump_struct[i+2].stretch_length,
@@ -600,14 +601,7 @@ void jumpCtrl(float t,JumpParameter_t *js)
 				Set_Max_Output_PL(8000);
 				jump2_bend_lean_flag[0]=jump2PreJump(t,js,js->bend_lean_struct[0].rotate_angle,js->bend_lean_struct[0].stretch_length, 
 										0,StandHeight);
-				// bendAndLeanForSingleLeg(t,js,0,js->bend_lean_struct[0].rotate_angle,js->bend_lean_struct[0].stretch_length, //0
-				// 						0,StandHeight)&&
-				// 						bendAndLeanForSingleLeg(t,js,1,js->bend_lean_struct[1].rotate_angle,js->bend_lean_struct[1].stretch_length, //0
-				// 						0,StandHeight)&&
-				// 						bendAndLeanForSingleLeg(t,js,2,js->bend_lean_struct[2].rotate_angle,js->bend_lean_struct[2].stretch_length, //0
-				// 						0,StandHeight)&&
-				// 						bendAndLeanForSingleLeg(t,js,3,js->bend_lean_struct[3].rotate_angle,js->bend_lean_struct[3].stretch_length, //0
-				// 						0,StandHeight);
+			
 				REP(i,4)
 				{
 					CartesianToTheta_Cycloid(&legs[i]);
@@ -624,36 +618,26 @@ void jumpCtrl(float t,JumpParameter_t *js)
 			)
 			{
 				changePIDForSingleLeg(12,0.1,0.01,25,0.01,1.5,0);
-				changePIDForSingleLeg(12,0.1,0.01,25,0.01,1.5,1);
-				setMaxSLForSingleLeg(16384,0); //前腿
-				setMaxSLForSingleLeg(16384,1);
+				changePIDForSingleLeg(12,0.1,0.01,25,0.01,1.5,2);
+				setMaxSLForSingleLeg(16384,0); //前
+				setMaxSLForSingleLeg(16384,2);
 				if(jump2_count[0]++>50)
 				{
 					jump2_exe_flag[0]=exeJumpForSingleLeg(t,js,0,js->exe_jump_struct[0].rotate_angle,js->exe_jump_struct[0].stretch_length, //0
 														js->bend_lean_struct[0].rotate_angle,js->bend_lean_struct[0].stretch_length)&&
-									exeJumpForSingleLeg(t,js,1,js->exe_jump_struct[1].rotate_angle,js->exe_jump_struct[1].stretch_length, //1
-														js->bend_lean_struct[1].rotate_angle,js->bend_lean_struct[1].stretch_length);
+									exeJumpForSingleLeg(t,js,2,js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length, //2
+														js->bend_lean_struct[2].rotate_angle,js->bend_lean_struct[2].stretch_length);
 				}
-				// changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,2);
-				// changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,3);
-				// setMaxSLForSingleLeg(8000,0); //后腿
-				// setMaxSLForSingleLeg(8000,1);
-				// if(jump2_count[4]++>50)
-				// {
-				// 	jump2_bend_lean_flag[1]=leanForSingleLeg(t,js,2,js->lean_struct[2].rotate_angle,js->lean_struct[2].stretch_length,
-				// 											-js->bend_lean_struct[2].rotate_angle,js->bend_lean_struct[2].stretch_length)&& //两个后腿
-				// 							leanForSingleLeg(t,js,3,js->lean_struct[3].rotate_angle,js->lean_struct[3].stretch_length,
-				// 											js->bend_lean_struct[3].rotate_angle,js->bend_lean_struct[3].stretch_length);
-				// }
-				changePIDForSingleLeg(12,0.1,0.01,25,0.01,1.5,2);
+		
+				changePIDForSingleLeg(12,0.1,0.01,25,0.01,1.5,1);
 				changePIDForSingleLeg(12,0.1,0.01,25,0.01,1.5,3);
-				setMaxSLForSingleLeg(16384,2); //前腿
+				setMaxSLForSingleLeg(16384,1); 
 				setMaxSLForSingleLeg(16384,3);
 				// if(jump2_count[2]++>50)
 				if(jump2_count[0]++>50)
 				{
-					jump2_exe_flag[1]=exeJumpForSingleLeg(t,js,2,js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length,
-														js->lean_struct[2].rotate_angle,js->lean_struct[2].stretch_length)&&
+					jump2_exe_flag[1]=exeJumpForSingleLeg(t,js,2,js->exe_jump_struct[1].rotate_angle,js->exe_jump_struct[1].stretch_length,
+														js->lean_struct[1].rotate_angle,js->lean_struct[1].stretch_length)&&
 									exeJumpForSingleLeg(t,js,3,js->exe_jump_struct[3].rotate_angle,js->exe_jump_struct[3].stretch_length,
 														js->lean_struct[3].rotate_angle,js->lean_struct[3].stretch_length);
 				}
@@ -672,37 +656,26 @@ void jumpCtrl(float t,JumpParameter_t *js)
 				)
 			{
 				changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,0);
-				changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,1);
+				changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,2);
 				setMaxSLForSingleLeg(8000,0); //前腿
-				setMaxSLForSingleLeg(8000,1);
+				setMaxSLForSingleLeg(8000,2);
 				if(jump2_count[1]++>50) //rcv
 				{
 					jump2_rcv_flag[0]=rcvJumpForSingleLeg(t,js,0,js->rcv_jump_struct[0].rotate_angle,js->rcv_jump_struct[0].stretch_length, //0
 														js->exe_jump_struct[0].rotate_angle,js->exe_jump_struct[0].stretch_length)&&
-									rcvJumpForSingleLeg(t,js,1,js->rcv_jump_struct[1].rotate_angle,js->rcv_jump_struct[1].stretch_length, //1
-														js->exe_jump_struct[1].rotate_angle,js->exe_jump_struct[1].stretch_length);
+									rcvJumpForSingleLeg(t,js,1,js->rcv_jump_struct[2].rotate_angle,js->rcv_jump_struct[2].stretch_length, //2
+														js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length);
 				}
-				// changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,2);
-				// changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,3);
-				// setMaxSLForSingleLeg(8000,2); //后腿
-				// setMaxSLForSingleLeg(8000,3);
-				// if(jump2_count[2]++>50)
-				// {
-				// 	jump2_exe_flag[1]=exeJumpForSingleLeg(t,js,2,js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length,
-				// 										js->lean_struct[2].rotate_angle,js->lean_struct[2].stretch_length)&&
-				// 					exeJumpForSingleLeg(t,js,3,js->exe_jump_struct[3].rotate_angle,js->exe_jump_struct[3].stretch_length,
-				// 										js->lean_struct[3].rotate_angle,js->lean_struct[3].stretch_length);
-				// }
-				changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,2);
+				changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,1);
 				changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,3);
-				setMaxSLForSingleLeg(8000,2); //后腿
+				setMaxSLForSingleLeg(8000,1); //后腿
 				setMaxSLForSingleLeg(8000,3);
 				// if(jump2_count[3]++>50) //后腿 rcv的延时
 				if(jump2_count[1]++>50) //rcv
 				
 				{
-					jump2_rcv_flag[1]=rcvJumpForSingleLeg(t,js,2,js->rcv_jump_struct[2].rotate_angle,js->rcv_jump_struct[2].stretch_length,
-														js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length)&&
+					jump2_rcv_flag[1]=rcvJumpForSingleLeg(t,js,1,js->rcv_jump_struct[1].rotate_angle,js->rcv_jump_struct[1].stretch_length,
+														js->exe_jump_struct[1].rotate_angle,js->exe_jump_struct[1].stretch_length)&&
 									rcvJumpForSingleLeg(t,js,3,js->rcv_jump_struct[3].rotate_angle,js->rcv_jump_struct[3].stretch_length,
 														js->exe_jump_struct[3].rotate_angle,js->exe_jump_struct[3].stretch_length);
 				}
@@ -713,33 +686,6 @@ void jumpCtrl(float t,JumpParameter_t *js)
 					runSingleLeg(i);
 				}
 			}
-			// else if(jump2_bend_lean_flag[0]&&
-			// 	(jump2_rcv_flag[0]|| //前腿收缩结束
-			// 	!jump2_rcv_flag[1])) //后腿收缩
-			// {
-			// 	changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,0);
-			// 	changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,1);
-			// 	setMaxSLForSingleLeg(8000,0); //前腿
-			// 	setMaxSLForSingleLeg(8000,1);
-			// 	//前腿不做变化
-			// 	changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,2);
-			// 	changePIDForSingleLeg(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D,3);
-			// 	setMaxSLForSingleLeg(8000,2); //后腿
-			// 	setMaxSLForSingleLeg(8000,3);
-			// 	if(jump2_count[3]++>50) //后腿 rcv的延时
-			// 	{
-			// 		jump2_rcv_flag[1]=rcvJumpForSingleLeg(t,js,2,js->rcv_jump_struct[2].rotate_angle,js->rcv_jump_struct[2].stretch_length,
-			// 											js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length)&&
-			// 						rcvJumpForSingleLeg(t,js,3,js->rcv_jump_struct[3].rotate_angle,js->rcv_jump_struct[3].stretch_length,
-			// 											js->exe_jump_struct[3].rotate_angle,js->exe_jump_struct[3].stretch_length);
-			// 	}
-			// 	REP(i,4)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
 			else if(jump2_bend_lean_flag[0]&&
 				(jump2_rcv_flag[0]|| //前腿收缩结束
 				jump2_rcv_flag[1])) //后腿收缩结束
@@ -761,156 +707,6 @@ void jumpCtrl(float t,JumpParameter_t *js)
 					runSingleLeg(i);
 				}
 			}
-
-			// //front legs
-			// if( //front legs exe jump 
-			// 	(!jump2_exe_flag[0]&&!jump2_rcv_flag[0])&&
-			// 	jump2_bend_lean_flag[0] //当准备动作完成后
-			// 	)
-			// {
-			// 	ChangeTheGainOfPID_KP_KI_KD(12,0.1,0.01,25,0.01,1.5);
-			// 	Set_Max_Output_SL(16384);
-			// 	Set_Max_Output_PL(16384);
-			// 	if(jump2_count[0]++>50)
-			// 	{
-			// 		jump2_exe_flag[0]=exeJumpForSingleLeg(t,js,0,js->exe_jump_struct[0].rotate_angle,js->exe_jump_struct[0].stretch_length, //0
-			// 											js->bend_lean_struct[0].rotate_angle,js->bend_lean_struct[0].stretch_length)&&
-			// 						exeJumpForSingleLeg(t,js,1,js->exe_jump_struct[1].rotate_angle,js->exe_jump_struct[1].stretch_length, //1
-			// 											js->bend_lean_struct[1].rotate_angle,js->bend_lean_struct[1].stretch_length);
-			// 	}
-			// 	REP(i,2)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
-			// else if ( //front legs rcv jump 
-			// 	(jump2_exe_flag[0]&&!jump2_rcv_flag[0])&&
-			// 	jump2_bend_lean_flag[0] //当准备动作完成后
-			// 	)
-			// {
-			// 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
-			// 	Set_Max_Output_SL(8000);
-			// 	Set_Max_Output_PL(8000);
-			// 	if(jump2_count[1]++>50) //rcv
-			// 	{
-			// 		jump2_rcv_flag[0]=rcvJumpForSingleLeg(t,js,0,js->rcv_jump_struct[0].rotate_angle,js->rcv_jump_struct[0].stretch_length, //0
-			// 											js->exe_jump_struct[0].rotate_angle,js->exe_jump_struct[0].stretch_length)&&
-			// 						rcvJumpForSingleLeg(t,js,1,js->rcv_jump_struct[1].rotate_angle,js->rcv_jump_struct[1].stretch_length, //1
-			// 											js->exe_jump_struct[1].rotate_angle,js->exe_jump_struct[1].stretch_length);
-			// 	}
-			// 	REP(i,2)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
-			// else if( //front legs rcv jump 
-			// 	(jump2_exe_flag[0]&&jump2_rcv_flag[0])&&
-			// 	jump2_bend_lean_flag[0] //当准备动作完成后
-			// 	)
-			// {
-			// 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
-			// 	Set_Max_Output_SL(8000);
-			// 	Set_Max_Output_PL(8000);
-			// 	REP(i,2)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
-
-			// //behind legs
-			// if(
-			// 	(!jump2_exe_flag[1]&&!jump2_rcv_flag[1])&&
-			// 	jump2_bend_lean_flag[0]&& //完成准备动作之后
-			// 	!jump2_bend_lean_flag[1]
-			// )
-			// {
-			// 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
-			// 	Set_Max_Output_SL(8000);
-			// 	Set_Max_Output_PL(8000);
-			// 	if(jump2_count[4]++>50)
-			// 	{
-			// 		jump2_bend_lean_flag[1]=leanForSingleLeg(t,js,2,js->lean_struct[2].rotate_angle,js->lean_struct[2].stretch_length,
-			// 												-js->bend_lean_struct[2].rotate_angle,js->bend_lean_struct[2].stretch_length)&& //两个后腿
-			// 								leanForSingleLeg(t,js,3,js->lean_struct[3].rotate_angle,js->lean_struct[3].stretch_length,
-			// 												js->bend_lean_struct[3].rotate_angle,js->bend_lean_struct[3].stretch_length);
-			// 	}
-			// 	//单独驱动后腿
-			// 	FOR(i,2,4)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
-			// else if(
-			// 	(!jump2_exe_flag[1]&&!jump2_rcv_flag[1])&&
-			// 	jump2_bend_lean_flag[0]&& //完成准备动作之后
-			// 	jump2_bend_lean_flag[1] //完成旋转动作之后
-			// )
-			// {
-			// 	ChangeTheGainOfPID_KP_KI_KD(12,0.1,0.01,25,0.01,1.5);
-			// 	Set_Max_Output_SL(16384);
-			// 	Set_Max_Output_PL(16384);
-			// 	if(jump2_count[2]++>50)
-			// 	{
-			// 		jump2_exe_flag[1]=exeJumpForSingleLeg(t,js,2,js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length,
-			// 											js->lean_struct[2].rotate_angle,js->lean_struct[2].stretch_length)&&
-			// 						exeJumpForSingleLeg(t,js,3,js->exe_jump_struct[3].rotate_angle,js->exe_jump_struct[3].stretch_length,
-			// 											js->lean_struct[3].rotate_angle,js->lean_struct[3].stretch_length);
-			// 	}
-			// 	FOR(i,2,4)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
-			// else if(
-			// 	(jump2_exe_flag[1]&&!jump2_rcv_flag[1])&& //exe执行完之后
-			// 	jump2_bend_lean_flag[0]&& //完成准备动作之后
-			// 	jump2_bend_lean_flag[1] //完成旋转动作之后
-			// )
-			// {
-			// 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
-			// 	Set_Max_Output_SL(8000);
-			// 	Set_Max_Output_PL(8000);
-			// 	if(jump2_count[3]++>50) //后腿 rcv的延时
-			// 	{
-			// 		jump2_rcv_flag[1]=rcvJumpForSingleLeg(t,js,2,js->rcv_jump_struct[2].rotate_angle,js->rcv_jump_struct[2].stretch_length,
-			// 											js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length)&&
-			// 						rcvJumpForSingleLeg(t,js,3,js->rcv_jump_struct[2].rotate_angle,js->rcv_jump_struct[2].stretch_length,
-			// 											js->exe_jump_struct[2].rotate_angle,js->exe_jump_struct[2].stretch_length);
-			// 	}
-			// 	FOR(i,2,4)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
-			// else if(
-			// 	(jump2_exe_flag[1]&&jump2_rcv_flag[1])&& //exe rcv执行完之后
-			// 	jump2_bend_lean_flag[0]&& //完成准备动作之后
-			// 	jump2_bend_lean_flag[1] //完成旋转动作之后
-			// )
-			// {
-			// 	ChangeTheGainOfPID_KP_KI_KD(SPEED_P,SPEED_I,SPEED_D,POS_P,POS_I,POS_D);
-			// 	Set_Max_Output_SL(8000);
-			// 	Set_Max_Output_PL(8000);
-			// 	FOR(i,2,4)
-			// 	{
-			// 		CartesianToTheta_Cycloid(&legs[i]);
-			// 		Angle_Setting_Cycloid(i);
-			// 		runSingleLeg(i);
-			// 	}
-			// }
-
 			Can1_Send_Msg_to_Motor();
 			Can2_Send_Msg_to_Motor();
 			break;

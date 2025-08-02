@@ -7,11 +7,13 @@ typedef enum CtrlState
 	CS_NONE,
 	CS_INIT,
 	CS_MAIN,
+	CS_SLOPE,
 	CS_JUMP_1,
 	CS_JUMP_2,
 	CS_HEIGHT,
 	CS_QUIT,
 }CtrlState_t;//ctrl state
+
 typedef enum TranslateState
 {
 	TRANS_DISABLE,
@@ -36,6 +38,12 @@ typedef enum ConnectState
 	CONNECTED
 }ConnectState_t; //������״̬��
 
+typedef struct SlopeCtrlState
+{
+	uint8_t slope_walk;
+	uint8_t slope_jump_on;
+	uint8_t slope_jump_off;
+}SlopeCtrlState_t;
 /* 按键ID枚举定义 */
 typedef enum {
     KY_Back = 0,   // 返回键

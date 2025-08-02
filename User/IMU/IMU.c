@@ -32,7 +32,7 @@ static float leg_length_for_pos_cal[4]={StandHeight,StandHeight,StandHeight,Stan
 static void imuCalRollPos(float roll)
 {
 	//两腿间距离270mm
-	float ds=sin(roll)*27.5f/2.0f;
+	float ds=sin(roll)*15;
 	leg_length_for_pos_cal[1]=StandHeight+ds;
 	leg_length_for_pos_cal[3]=StandHeight+ds;
 	leg_length_for_pos_cal[0]=StandHeight-ds;

@@ -11,6 +11,7 @@
 #include "pid.h"
 #include "IMU.h"
 #include "usart.h"
+#include "ges_cal.h"
 extern uint8_t rx_buffer[NRF_PAYLOAD_LENGTH];
 extern int start;
 extern CtrlState_t ctrl_state;
@@ -88,49 +89,64 @@ float yaw,pitch,roll;
 extern IMU_Euler_Angle_Pid imu_euler_angle_pid;
 Adjust_Euler_Angle adjust_euler_agl;//pid 调整过后的欧拉角
 extern Euler_t Euler;
+extern uint8_t init_done;
 void TIM5_IRQHandler(void) 
 {
 	if(TIM_GetITStatus(TIM5,TIM_IT_Update)!= RESET)
 	{		
-		//获得陀螺仪欧拉角
-		// yaw=movAveUpdate(&yaw_filter,Euler.yaw);
-		// roll=movAveUpdate(&roll_filter,Euler.roll);
-		// pitch=movAveUpdate(&pitch_filter,Euler.pitch);
-		adjust_euler_agl.pitch=IMU_pidCal(&imu_euler_angle_pid.Pitch,Euler.pitch,0);
-		adjust_euler_agl.roll=IMU_pidCal(&imu_euler_angle_pid.Roll,Euler.roll,0);
-		if(start==1)
-		{		
-			if (ctrl_state != CS_JUMP_1&& ctrl_state!=CS_JUMP_2&&imu_state) //when imu enable
-			 {
-				calPosByRollNdPitch(Euler.roll,Euler.pitch);
-				setPostureOffset();
-			 }
-			if(ctrl_state!=CS_JUMP_1&&ctrl_state!=CS_JUMP_2)
-			{	
-				Gait(timer/1000.0f);
-			}
-			else 
-			{
-				if(ctrl_state==CS_JUMP_1)
-				{
-					jumpCtrl(timer/1000.0f,&jump1_struct);
-				}
-				else if(ctrl_state==CS_JUMP_2)
-				{
-					jumpCtrl(timer/1000.0f,&jump2_struct);
-				}
-			}
-		}
-		else if(start==0&&ctrl_state==CS_QUIT)
+		if(init_done)
 		{
-			for(int i=0;i<8;i++)
-			{
-				SetZeroToCanBuf(i);
+			//获得陀螺仪欧拉角
+			// yaw=movAveUpdate(&yaw_filter,Euler.yaw);
+			roll=movAveUpdate(&roll_filter,Euler.roll);
+			pitch=movAveUpdate(&pitch_filter,Euler.pitch);
+			adjust_euler_agl.pitch=IMU_pidCal(&imu_euler_angle_pid.Pitch,pitch,0);
+			adjust_euler_agl.roll=IMU_pidCal(&imu_euler_angle_pid.Roll,roll,0);
+			if(start==1)
+			{		
+				if (ctrl_state != CS_JUMP_1&& ctrl_state!=CS_JUMP_2&&imu_state) //when imu enable
+				{
+					calPosByRollNdPitch(adjust_euler_agl.roll,adjust_euler_agl.pitch);
+					setPostureOffset();
+				}
+				if(ctrl_state!=CS_JUMP_1&&ctrl_state!=CS_JUMP_2&&ctrl_state!=CS_SLOPE)
+				{	
+					Gait(timer/1000.0f);
+				}
+				else if(ctrl_state==CS_SLOPE&&ctrl_state!=CS_JUMP_1&&ctrl_state!=CS_JUMP_2)
+				{
+					slopeCtrl(timer/1000.0f);
+				}
+				else 
+				{
+					if(ctrl_state==CS_JUMP_1)
+					{
+						jumpCtrl(timer/1000.0f,&jump1_struct);
+					}
+					else if(ctrl_state==CS_JUMP_2)
+					{
+						jumpCtrl(timer/1000.0f,&jump2_struct);
+					}
+				}
 			}
-			Can1_Send_Msg_to_Motor();
-			Can2_Send_Msg_to_Motor();
+			else if(start==0&&ctrl_state==CS_QUIT)
+			{
+				for(int i=0;i<8;i++)
+				{
+					SetZeroToCanBuf(i);
+				}
+				Can1_Send_Msg_to_Motor();
+				Can2_Send_Msg_to_Motor();
+			}
+			else if(!start&&ctrl_state==CS_INIT)
+			{
+				Motor_Auto_Run();
+			}
 		}
-		
+		else if(!init_done&&ctrl_state==CS_INIT)
+		{
+			dogInit();
+		}
 		TIM_ClearITPendingBit(TIM5,TIM_IT_Update); 
 	}
 }

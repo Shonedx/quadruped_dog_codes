@@ -8,7 +8,7 @@
 #include <math.h>
 #define KEY_COUNTS 10 //key 数量
 ConnectState_t connect_state=UNCONNECTED;
-
+SlopeCtrlState_t slope_state={0};
 TranslateState_t translate_state=TRANS_DISABLE;
 IdleState_t idle_state=STOP;
 CtrlState_t ctrl_state=CS_NONE;
@@ -56,6 +56,10 @@ void normalizeDatas(void) //把数据规范化
 	rc_right_y=(uint16_t)rx_buffer[5]<<8|((uint16_t)rx_buffer[4]);	//righty 2020
 	check_angle_trigger=0x01&rx_buffer[11];
 	imu_state=(uint8_t)(0x01&rx_buffer[11]>>1);
+	//slope
+	slope_state.slope_walk=rx_buffer[1]>>5;
+	slope_state.slope_jump_on=rx_buffer[1]>>6;
+	slope_state.slope_jump_off=rx_buffer[1]>>7;
 	//keys
 	key_state_buffer[KY_Enter]=0x01&rx_buffer[11]>>2;
 	key_state_buffer[KY_Back]=0x01&rx_buffer[11]>>3;
@@ -93,7 +97,7 @@ void RC_MotionCtrl(void) //�л��������˶�״̬�Ŀ����
 		current_motion_state=MS_NORMAL; 
 	}
 	
-	if(translate_state==TRANS_ENABLE) //平移
+	if(translate_state==TRANS_ENABLE&&ctrl_state!=CS_SLOPE) //平移
 	{
 		// 
 		if(!key_state_buffer[KY_LEFT]) //按键默认上拉，按下时接地
@@ -117,24 +121,24 @@ void RC_StepLengthCtrl(GaitParams *gaitparams)
 		float k1=constrain(((float)rc_right_x-(float)rc_right_x_md)/2048.0f,-1,1);  //右摇杆
 		float k2=constrain(((float)rc_left_y-(float)rc_left_y_md)/2048.0f,-1,1); //左摇杆
 		
-		float ds=(fabs(k2)/fabs(k1))*7.0f;
+		float ds=(fabs(k2)/fabs(k1))*3;
 		if(k1>0) //右摇杆左推
 		{
 			//left legs
-			gaitparams[0].steplength=step_length-ds;
 			gaitparams[2].steplength=step_length-ds;
+			gaitparams[3].steplength=step_length-ds;
 			//right legs
+			gaitparams[0].steplength=step_length;
 			gaitparams[1].steplength=step_length;
-			gaitparams[3].steplength=step_length;
 		}
 		else if(k1<0) //右摇杆右推
 		{
 			//left legs
-			gaitparams[0].steplength=step_length;
 			gaitparams[2].steplength=step_length;
+			gaitparams[3].steplength=step_length;
 			//right legs
+			gaitparams[0].steplength=step_length-ds;
 			gaitparams[1].steplength=step_length-ds;
-			gaitparams[3].steplength=step_length-ds;
 		}
 		if(k2<0) //当左摇杆向后拨时
 		{
@@ -149,20 +153,20 @@ void RC_StepLengthCtrl(GaitParams *gaitparams)
 	{
 		float K=constrain(((float)rc_left_y-(float)rc_left_y_md)/2048.0f,-1,1);
 		//left legs
-		gaitparams[0].steplength=K*step_length;
 		gaitparams[2].steplength=K*step_length;
-		//right legs
-		gaitparams[1].steplength=K*step_length;
 		gaitparams[3].steplength=K*step_length;
+		//right legs
+		gaitparams[0].steplength=K*step_length;
+		gaitparams[1].steplength=K*step_length;
 	} 
 	else if(if_in_normal_range(rc_left_x,rc_left_x_md-100,rc_left_x_md+100)&&if_in_normal_range(rc_left_y,rc_left_y_md-100,rc_left_y_md+100)) //while left rocker don't move 
 	{
 		float K=constrain(((float)rc_right_x-(float)rc_right_x_md)/2048.0f,-1,1);  
 		//left legs
-		gaitparams[0].steplength=-K*step_length;
 		gaitparams[2].steplength=-K*step_length;
+		gaitparams[3].steplength=-K*step_length;
 		//right legs
+		gaitparams[0].steplength=K*step_length;
 		gaitparams[1].steplength=K*step_length;
-		gaitparams[3].steplength=K*step_length;
 	}
 }

@@ -2,25 +2,26 @@
 #define __GES_CAL_H
 
 
-#define L1 12.0f //14
-#define L2 24.0f //30
+#define L1 12.0f 
+#define L2 20.0f 
 
 #define xa 3.5f            
 #define xb -3.5f        //xa,xbΪ�����������,xa=-xb=motor_length/2(���ľ�/2)
 #define PI 3.1415f  //��,��Ҫת��Ϊf,ʹ��ɲ���floatֵ����
 #define val 180.0f/PI  //������ת������
 #define AngleRaito 436.926337 //24��11.20 ���û�õ�
-#define Gaito     3591/187//3508ת�ӱ�,�ǶȻ�����ʱ��Ҫ��ϣ���ĽǶȳ������
+//#define Gaito     3591/187//3508ת�ӱ�,�ǶȻ�����ʱ��Ҫ��ϣ���ĽǶȳ������
+#define Gaito  23 //(8191.0f/360.f)
 #define t_length  0.0023//ʱ�䲽�� 0.0025
 #define t_length_w  0.0020 //0.0020
 
 /***/
 #define X_OFFSET 0.0f
-#define Freq 2.5f //1.5-2.5
+#define Freq 3.5f //1.5-2.5
 #define StepLenthMin 2.0f
-#define StandHeight (20.0f) //max 30  min 12
-#define MIN_HEIGHT (14.0f)
-#define MAX_HEIGHT (35.0f)
+#define StandHeight (16.0f) 
+#define MIN_HEIGHT (9.0f)
+#define MAX_HEIGHT (31.0f) 
 //pid
 #define SPEED_P 12
 #define SPEED_I 0.1
@@ -75,7 +76,8 @@ extern Leg legs[4];
 
 void motion_state_ctrl(void);
 
-void Gait(double t);
+void Gait(float t);
+void slopeCtrl(float t);
 
 void CartesianToTheta_Cycloid(Leg *leg);
 
@@ -98,5 +100,6 @@ u8 rotateAndStretch(float t,  float rotate_angle, float stretch_length
                     ,Leg *leg,Rotate_Stretch_t *rs); //函数内部会将flag置位
 
 void updatePrevTime(float t);
+void dogInit(void);
 
 #endif
